@@ -1,7 +1,12 @@
 import React, { Component, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
+import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert } from 'react-native';
 import {app} from '../app/app';
+import SelectDropdown from 'react-native-select-dropdown'
+import Feather from 'react-native-vector-icons/Feather'
+Feather.loadFont();
+
+const rols = ["Student", "Instructor"]
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -15,15 +20,26 @@ const SignupScreen = (props) => {
         rol:'', //deberia darle opciones a elegir
     });
 
-    const [errorMessage, setError] = useState(false);
+    const [errorData, setError] = useState({
+        messageError: '',
+        showError: false,
+    });
 
     const handleApiResponseLogin = (response) => {
         console.log("[Signup screen] entro a handle api response")
         if (response.hasError()) {
             setError({
-                errorMessage: response.errorMessages(),
+                messageError: response.content().message,
+                showError: true,
             });
             console.log("[Signup screen] error")
+            Alert.alert(
+                "Login error:",
+                response.content().message,
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+              );
         } else {
             app.loginUser(response.content().token);
             console.log("[Signup screen] token: ", response.content().token)
@@ -35,9 +51,17 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] entro a handle api response sign up")
         if (response.hasError()) {
             setError({
-                errorMessage: response.errorMessages(),
+                messageError: response.content().message,
+                showError: true,
             });
             console.log("error")
+            Alert.alert(
+                "Signup error:",
+                response.content().message,
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+              );
         } else {
             console.log("[Signup screen] done signup")
         }
@@ -46,15 +70,15 @@ const SignupScreen = (props) => {
     const handleSubmitSignUp = () => {
         console.log("[Signup screen] entro a submit signup")
         app.apiClient().signup(SignUpData, handleApiResponseSignUp);
-        handleSubmitLogin()
+        console.log("[Signup screen] show error: ", errorData.showError);
+        if (!errorData.showError) {
+            console.log("[Signup screen] entro a submit login")
+            app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
+            console.log("[Signup screen] termino submit login")
+        }
         console.log("[Signup screen] termino submit signup")
     }
 
-    const handleSubmitLogin = () => {
-        console.log("[Signup screen] entro a submit login")
-        app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
-        console.log("[Signup screen] termino submit login")
-    }
 
     return (
         <KeyboardAvoidingView
@@ -109,7 +133,7 @@ const SignupScreen = (props) => {
                     style={styles.input}
                     secureTextEntry
                 />
-                {/* Esto que sigue deberia darle opciones no escribir */}
+                {/* Esto que sigue deberia darle opciones no escribir
                 <TextInput
                     placeholder="Student or Profesor?"
                     onChangeText={text => setData({
@@ -118,6 +142,22 @@ const SignupScreen = (props) => {
                     })}
                     value={SignUpData.rol}
                     style={styles.input}
+                /> */}
+                <SelectDropdown
+                    data={rols}
+                    onSelect={(selectedItem, index) => setData({
+                        ...SignUpData,
+                        rol: selectedItem,
+                    })}
+                    value={SignUpData.rol}
+                    defaultButtonText={"Select a rol"}
+                    buttonStyle={styles.buttonDropdown}
+                    buttonTextStyle={styles.textDropdown}
+                    renderDropdownIcon={() => {
+                        return (
+                          <Feather name="chevron-down" color={"#444"} size={18} />
+                        );
+                      }}
                 />
             </View>
             <View style={styles.buttonContainer}>
@@ -162,6 +202,20 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         borderRadius: 10,
         marginTop: 5,
+    },
+    buttonDropdown: {
+        width:'100%',
+        height: 40,
+        backgroundColor:'white',
+        paddingHorizontal: 5,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    textDropdown: {
+        color: "#444",
+        fontSize: 14,
+        textAlign: 'left',
     },
     buttonContainer: {
         width: '60%',

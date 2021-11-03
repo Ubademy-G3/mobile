@@ -8,11 +8,13 @@ export class ApiResponse {
     }
 
     hasError() {
-        return this._jsonResponse.error !== undefined;
+        console.log("[ApiResponse] response error: ", this._jsonResponse.error)
+        return this._jsonResponse.error !== false;
     }
 
     errors() {
-        return this._jsonResponse.error;
+        console.log("[ApiResponse] response message: ", this._jsonResponse.message)
+        return this._jsonResponse.message;
     }
 
     content() {

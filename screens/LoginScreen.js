@@ -1,5 +1,5 @@
 import React, {Component, useState} from 'react';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image } from 'react-native';
+import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,7 +9,10 @@ const LoginScreen = (props) => {
         password: ''
     });
 
-    const [errorMessage, setError] = useState(false);
+    const [errorData, setError] = useState({
+        messageError: '',
+        showError: false,
+    });
 
     const handleApiResponseLogin = (response) => {
         console.log("[Login screen] entro a handle api response login")
@@ -17,9 +20,17 @@ const LoginScreen = (props) => {
         console.log("[Login screen] error message: ", response.content().message)
         if (response.hasError()) {
             setError({
-                errorMessage: response.errorMessages(),
+                messageError: response.content().message,
+                showError: true,
             });
-            console.log("[Login screen] error")
+            console.log("[Login screen] error massage: ", response.content().message)
+            Alert.alert(
+                "Error:",
+                response.content().message,
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+              );
         } else {
             console.log("[Login screen] response: ", response.content())
             console.log("[Login screen] token: ", response.content().token)
@@ -80,9 +91,16 @@ const LoginScreen = (props) => {
                 <TouchableOpacity
                     onPress={() => {handleSubmitLogin()}}
                     style={styles.button}
+                    error={errorData.showError}
                 >
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
+                {/*<HelperText
+                    type='error'
+                    visible={errorData.showError}
+                    style={styles.helperText}
+                    value={errorData.messageError}
+                />*/}
                 <TouchableOpacity
                     onPress={() => {handleSubmitSignUp()}}
                     style={[styles.button, styles.buttonOutlined]}

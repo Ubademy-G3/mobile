@@ -1,4 +1,4 @@
-class HTTPResponse {
+export class HTTPResponse {
     constructor(response) {
         this._response = response;
     }

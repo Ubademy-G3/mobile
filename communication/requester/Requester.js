@@ -1,3 +1,4 @@
+import { createIconSetFromFontello } from "react-native-vector-icons";
 import {ErrorApiResponse} from "../responses/generalResponses/ErrorApiResponse.js";
 
 class Requester {
@@ -6,15 +7,26 @@ class Requester {
     }
 
     call({endpoint, onResponse, data = undefined}) {
+        let has_error = false;
         const request = this._buildRequest(endpoint, data);
         let url = endpoint.url();
         if (endpoint.method() === 'GET' && data) {
             url += "?" + this._dataToQueryString(data);
         }
 
-        return fetch(this._baseUrl + url, request).then(result => result.json())
+        return fetch(this._baseUrl + url, request)
+            .then(function(result) {
+                console.log("[function] status:", result.status);
+                if (result.status !== 200) {
+                    console.log("[function] entro a status error: ", has_error);
+                    has_error = true;
+                    console.log("[function] dalgo de status error: ", has_error);
+                }
+                return result.json();
+            })
             .then(jsonResponse => {
-                return onResponse(this._buildResponse(jsonResponse, endpoint));
+                return onResponse(
+                    this._buildResponse(jsonResponse, endpoint, has_error));
             })
             /***
              * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
@@ -39,12 +51,14 @@ class Requester {
         if (endpoint.method() !== 'GET') {
             let encoder = this._encoderFor(endpoint.contentType());
             Object.assign(headers, encoder.headers());
+            console.log("Paso por aca");
             Object.assign(requestOptions, {body: encoder.encode(data)});
         }
         return requestOptions;
     }
 
-    _buildResponse(jsonResponse, endpoint) {
+    _buildResponse(jsonResponse, endpoint, has_error) {
+        jsonResponse.error = has_error;
         let endpointResponse;
 
         const availableResponsesForEndpoint = endpoint.responses();

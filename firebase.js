@@ -5,12 +5,13 @@ import * as firebase from "firebase";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyCLA4vnLFaVow25ylLUkb57NhmnN6qk1vE",
-  authDomain: "fir-auth-65294.firebaseapp.com",
-  projectId: "fir-auth-65294",
-  storageBucket: "fir-auth-65294.appspot.com",
-  messagingSenderId: "105428798939",
-  appId: "1:105428798939:web:49a9375f32ea94d4dfebfe"
+    apiKey: "AIzaSyDRUanGZYpuMBy5BjydmRAEVgoDHT-Nv5E",
+    authDomain: "ubademy-mobile.firebaseapp.com",
+    projectId: "ubademy-mobile",
+    storageBucket: "ubademy-mobile.appspot.com",
+    messagingSenderId: "241878143297",
+    appId: "1:241878143297:web:73b561df646333256511c0",
+    measurementId: "G-233TRRELBZ"
 };
 
 // Initialize Firebase

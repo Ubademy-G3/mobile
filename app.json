@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "src",
-    "slug": "src",
+    "name": "Ubademy-mobile",
+    "slug": "Ubademy-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

@@ -22,13 +22,13 @@ class App {
     }
 
     loginUser(token) {
-        /*AsyncStorage.setItem("@storageMobile:token", token)
+        AsyncStorage.setItem("@storageMobile:token", token)
         .then(() => {
-                console.warn("Guardo token: ", token);
+                console.log("Guardo token: ", token);
             })
             .catch((error) => {
                 console.warn("Local store error", error);
-            });*/
+            });
     }
 
     thereIsLoggedInUser() {

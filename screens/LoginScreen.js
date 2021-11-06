@@ -1,7 +1,12 @@
 import React, {Component, useState} from 'react';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert } from 'react-native';
+import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { auth } from '../firebase'
+//const admin = require('firebase-admin');
+
+//const nodemailer = require('nodemailer');
+//const functions = require('firebase-functions');
 
 const LoginScreen = (props) => {
     const [data, setData] = useState({
@@ -13,6 +18,8 @@ const LoginScreen = (props) => {
         messageError: '',
         showError: false,
     });
+
+    const [loading, setLoading] = useState(false);
 
     const handleApiResponseLogin = (response) => {
         console.log("[Login screen] entro a handle api response login")
@@ -41,7 +48,9 @@ const LoginScreen = (props) => {
 
     const handleSubmitLogin = () => {
         console.log("[Login screen] entro a submit login")
+        setLoading(true);
         app.apiClient().login(data, handleApiResponseLogin);
+        setLoading(false);
         console.log("[Login screen] termino submit login")
     }
 
@@ -51,12 +60,88 @@ const LoginScreen = (props) => {
         console.log("[Login screen] termino submit sign up")
     }
 
+    const handleSubmitForgotPassword = () => {
+         // Admin SDK API to generate the password reset link.
+        const email = data.email;
+        // Pull the gmail login info out of the environment variables
+        //const gmailEmail = functions.config().gmail.email;
+        //const gmailPassword = functions.config().gmail.password;
+
+        // Configure the nodemailer with our gmail info
+        /*const mailTransport = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: gmailEmail,
+            pass: gmailPassword,
+        },
+        });
+
+        // Initialize the mailOptions variable
+        const mailOptions = {
+            from: gmailEmail,
+            to: emailForUser,
+        };*/
+        const actionCodeSettings = {
+            // URL you want to redirect back to. The domain (www.example.com) for
+            // this URL must be whitelisted in the Firebase Console.
+            url: 'https://www.example.com/checkout?cartId=1234',
+            // This must be true for email link sign-in.
+            handleCodeInApp: true,
+            iOS: {
+                bundleId: 'com.example.ios'
+            },
+            android: {
+                packageName: 'com.example.android',
+                installApp: true,
+                minimumVersion: '12'
+            },
+            // FDL custom domain.
+            dynamicLinkDomain: 'coolapp.page.link'
+        };
+        auth.generatePasswordResetLink(email, actionCodeSettings)
+            .then((link) => {
+                /*// Building Email message.
+                mailOptions.subject = 'LMS Password Reset';
+                mailOptions.text = `
+                Dear person,
+
+                Ubademy has received a "Forgot Password" request for your account.
+                Please visit the following site to reset your password:
+                ${link}
+
+                If you have additional problems logging into LMS, please contact an adminstrator.
+
+                Sincerely,
+                Ubademy
+                `;
+                // Actually send the email, we need to reply with JSON
+                mailTransport.sendMail(mailOptions).then( () => {
+                    // Successfully sent email
+                    let objToReplyWith = {
+                    message: 'An email has been sent to your email address containing a link to reset your password.'
+                    }
+                    console.log("Email sent OK")
+                    res.json(objToReplyWith);
+                }).catch( err => {
+                    // Failed to send email
+                    console.log('There was an error while sending the email:');
+                    console.log(err);
+                    let objToReplyWith = {
+                    message: 'Error sending password reset email. Please contact an adminstrator.'
+                    }
+                    res.json(objToReplyWith);
+                });*/
+                //return sendCustomPasswordResetEmail()
+                console.log("link: ", link)
+                })
+            .catch((error) => {
+                console.log("error: ", error);
+            });
+
+    }
+
     return (
-        <KeyboardAvoidingView
-        style={styles.container}
-        behavior="padding"
-        >
-            {/*<View style={styles.headerContainer}>
+        /*<View style={styles.headerContainer}>
                 <SafeAreaView>
                     <View style={styles.headerWrapper}>
                         <Image
@@ -65,7 +150,11 @@ const LoginScreen = (props) => {
                         />
                     </View>
                 </SafeAreaView>
-            </View>*/}
+        </View>*/
+        <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
             <View style={styles.inputContainer}>
                 <TextInput
                     placeholder="Email"
@@ -92,15 +181,11 @@ const LoginScreen = (props) => {
                     onPress={() => {handleSubmitLogin()}}
                     style={styles.button}
                     error={errorData.showError}
+                    disabled={loading}
                 >
-                    <Text style={styles.buttonText}>Login</Text>
+                    <Text style={styles.buttonText}>{loading ? "Loading..." : "Login"}</Text>
                 </TouchableOpacity>
-                {/*<HelperText
-                    type='error'
-                    visible={errorData.showError}
-                    style={styles.helperText}
-                    value={errorData.messageError}
-                />*/}
+                {/*<ActivityIndicator animating={loading} />*/}
                 <TouchableOpacity
                     onPress={() => {handleSubmitSignUp()}}
                     style={[styles.button, styles.buttonOutlined]}
@@ -108,7 +193,7 @@ const LoginScreen = (props) => {
                     <Text style={styles.buttonOutlineText}>Sign Up</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => {}} //handleSubmitForgotPassword()}
+                    onPress={() => {}} // handleSubmitForgotPassword()}}
                     style={[styles.fadedButton]}
                 >
                     <Text style={styles.buttonFadedText}>Forgot password?</Text>

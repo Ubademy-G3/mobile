@@ -4,6 +4,8 @@ import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableO
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
+import { auth } from '../firebase'
+
 Feather.loadFont();
 
 const rols = ["Student", "Instructor"]
@@ -17,6 +19,7 @@ const SignupScreen = (props) => {
         lastname: '',
         email: param_email, 
         password: param_password, 
+        location: '',
         rol:'', //deberia darle opciones a elegir
     });
 
@@ -71,6 +74,7 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] entro a submit signup")
         app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
+        handleFirebaseSignUp()
         if (!errorData.showError) {
             console.log("[Signup screen] entro a submit login")
             app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
@@ -78,12 +82,22 @@ const SignupScreen = (props) => {
         }
         console.log("[Signup screen] termino submit signup")
     }
-
+    const handleFirebaseSignUp = () => {
+        console.log("[Signup screen] firebase signup")
+        auth
+          .createUserWithEmailAndPassword(SignUpData.email, SignUpData.password)
+          .then(userCredentials => {
+            const user = userCredentials.user;
+            console.log('Registered with:', user.email);
+          })
+          .catch(error => alert(error.message))
+        console.log("[Signup screen] termino firebase signup")
+      }
 
     return (
         <KeyboardAvoidingView
         style={styles.container}
-        behavior="padding"
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
             {/*<View style={styles.headerContainer}>
                 <SafeAreaView>
@@ -133,16 +147,15 @@ const SignupScreen = (props) => {
                     style={styles.input}
                     secureTextEntry
                 />
-                {/* Esto que sigue deberia darle opciones no escribir
                 <TextInput
-                    placeholder="Student or Profesor?"
+                    placeholder="Location"
                     onChangeText={text => setData({
                         ...SignUpData,
-                        rol: text,
+                        location: text,
                     })}
-                    value={SignUpData.rol}
+                    value={SignUpData.location}
                     style={styles.input}
-                /> */}
+                />
                 <SelectDropdown
                     data={rols}
                     onSelect={(selectedItem, index) => setData({
@@ -177,7 +190,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 5,
+        //paddingTop: 5,
     },
     headerContainer: {
         flex: 1,

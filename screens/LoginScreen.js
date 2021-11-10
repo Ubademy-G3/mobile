@@ -42,14 +42,43 @@ const LoginScreen = (props) => {
             console.log("[Login screen] response: ", response.content())
             console.log("[Login screen] token: ", response.content().token)
             app.loginUser(response.content().token);
-            props.navigation.navigate('TabNavigator', {screen: 'Explorer'})
+            props.navigation.replace('TabNavigator', {screen: 'Explorer'})
         }
     }
 
-    const handleSubmitLogin = () => {
+    const handleApiResponseForgotPassword = (response) => {
+        console.log("[Login screen] entro a handle api response forgot password")
+        //console.log("[Login screen] has errors: ", response.hasError())
+        //console.log("[Login screen] error message: ", response.content().message)
+        if (response.hasError()) {
+            setError({
+                messageError: response.content().message,
+                showError: true,
+            });
+            console.log("[Login screen] error message: ", response.content().message)
+            Alert.alert(
+                "Error:",
+                response.content().message,
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+              );
+        } else {
+            console.log("[Login screen] response: ", response.content())
+            Alert.alert(
+                "Attention:",
+                "An email has been sent to your account.",
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+              );
+        }
+    }
+
+    const handleSubmitLogin = async () => {
         console.log("[Login screen] entro a submit login")
         setLoading(true);
-        app.apiClient().login(data, handleApiResponseLogin);
+        await app.apiClient().login(data, handleApiResponseLogin);
         setLoading(false);
         console.log("[Login screen] termino submit login")
     }
@@ -60,84 +89,12 @@ const LoginScreen = (props) => {
         console.log("[Login screen] termino submit sign up")
     }
 
-    const handleSubmitForgotPassword = () => {
-         // Admin SDK API to generate the password reset link.
-        const email = data.email;
-        // Pull the gmail login info out of the environment variables
-        //const gmailEmail = functions.config().gmail.email;
-        //const gmailPassword = functions.config().gmail.password;
-
-        // Configure the nodemailer with our gmail info
-        /*const mailTransport = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: gmailEmail,
-            pass: gmailPassword,
-        },
-        });
-
-        // Initialize the mailOptions variable
-        const mailOptions = {
-            from: gmailEmail,
-            to: emailForUser,
-        };*/
-        const actionCodeSettings = {
-            // URL you want to redirect back to. The domain (www.example.com) for
-            // this URL must be whitelisted in the Firebase Console.
-            url: 'https://www.example.com/checkout?cartId=1234',
-            // This must be true for email link sign-in.
-            handleCodeInApp: true,
-            iOS: {
-                bundleId: 'com.example.ios'
-            },
-            android: {
-                packageName: 'com.example.android',
-                installApp: true,
-                minimumVersion: '12'
-            },
-            // FDL custom domain.
-            dynamicLinkDomain: 'coolapp.page.link'
-        };
-        auth.generatePasswordResetLink(email, actionCodeSettings)
-            .then((link) => {
-                /*// Building Email message.
-                mailOptions.subject = 'LMS Password Reset';
-                mailOptions.text = `
-                Dear person,
-
-                Ubademy has received a "Forgot Password" request for your account.
-                Please visit the following site to reset your password:
-                ${link}
-
-                If you have additional problems logging into LMS, please contact an adminstrator.
-
-                Sincerely,
-                Ubademy
-                `;
-                // Actually send the email, we need to reply with JSON
-                mailTransport.sendMail(mailOptions).then( () => {
-                    // Successfully sent email
-                    let objToReplyWith = {
-                    message: 'An email has been sent to your email address containing a link to reset your password.'
-                    }
-                    console.log("Email sent OK")
-                    res.json(objToReplyWith);
-                }).catch( err => {
-                    // Failed to send email
-                    console.log('There was an error while sending the email:');
-                    console.log(err);
-                    let objToReplyWith = {
-                    message: 'Error sending password reset email. Please contact an adminstrator.'
-                    }
-                    res.json(objToReplyWith);
-                });*/
-                //return sendCustomPasswordResetEmail()
-                console.log("link: ", link)
-                })
-            .catch((error) => {
-                console.log("error: ", error);
-            });
-
+    const handleSubmitForgotPassword = async () => {
+        console.log("[Login screen] entro a submit forgot password")
+        setLoading(true);
+        await app.apiClient().resetPassword({email: data.email}, handleApiResponseForgotPassword);
+        setLoading(false);
+        console.log("[Login screen] termino forgot password")
     }
 
     return (
@@ -183,9 +140,10 @@ const LoginScreen = (props) => {
                     error={errorData.showError}
                     disabled={loading}
                 >
-                    <Text style={styles.buttonText}>{loading ? "Loading..." : "Login"}</Text>
+                    {
+                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                    }
                 </TouchableOpacity>
-                {/*<ActivityIndicator animating={loading} />*/}
                 <TouchableOpacity
                     onPress={() => {handleSubmitSignUp()}}
                     style={[styles.button, styles.buttonOutlined]}
@@ -193,7 +151,7 @@ const LoginScreen = (props) => {
                     <Text style={styles.buttonOutlineText}>Sign Up</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    onPress={() => {}} // handleSubmitForgotPassword()}}
+                    onPress={() => {handleSubmitForgotPassword()}}
                     style={[styles.fadedButton]}
                 >
                     <Text style={styles.buttonFadedText}>Forgot password?</Text>

@@ -5,7 +5,31 @@ const forYouData = [
       title: 'Course1',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
       rating: '3.0',
+      features: [
+        {
+          id: '1',
+          key: 'Modality',
+          name: '100% online',
+        },
+        {
+          id: '2',
+          key: 'Level',
+          name: 'Intermidiate',
+        },
+        {
+          id: '3',
+          key: 'Duration',
+          name: 'Two months',
+        },
+        {
+          id: '4',
+          key: 'Language',
+          name: 'English',
+        },
+      ],
       selected: false,
+      favorited: true,
+      subscribed: false,
     },
     {
       id: '2',
@@ -13,7 +37,31 @@ const forYouData = [
       title: 'Course2',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
       rating: '4.5',
+      features: [
+        {
+          id: '1',
+          key: 'Modality',
+          name: '100% online',
+        },
+        {
+          id: '2',
+          key: 'Level',
+          name: 'Intermidiate',
+        },
+        {
+          id: '3',
+          key: 'Duration',
+          name: 'Two months',
+        },
+        {
+          id: '4',
+          key: 'Language',
+          name: 'English',
+        },
+      ],
       selected: false,
+      favorited: false,
+      subscribed: false,
     },
     {
       id: '3',
@@ -21,15 +69,63 @@ const forYouData = [
       title: 'Course3',
       description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
       rating: '2.5',
+      features: [
+        {
+          id: '1',
+          key: 'Modality',
+          name: '100% online',
+        },
+        {
+          id: '2',
+          key: 'Level',
+          name: 'Intermidiate',
+        },
+        {
+          id: '3',
+          key: 'Duration',
+          name: 'Two months',
+        },
+        {
+          id: '4',
+          key: 'Language',
+          name: 'English',
+        },
+      ],
       selected: false,
+      favorited: true,
+      subscribed: true,
     },
     {
-        id: '4',
-        image: require('../images/finances.jpg'),
-        title: 'Course4',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
-        rating: '4.5',
-        selected: false,
+      id: '4',
+      image: require('../images/finances.jpg'),
+      title: 'Course4',
+      description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor',
+      rating: '4.5',
+      features: [
+        {
+          id: '1',
+          key: 'Modality',
+          name: '100% online',
+        },
+        {
+          id: '2',
+          key: 'Level',
+          name: 'Intermidiate',
+        },
+        {
+          id: '3',
+          key: 'Duration',
+          name: 'Two months',
+        },
+        {
+          id: '4',
+          key: 'Language',
+          name: 'English',
+        },
+      ],
+      selected: false,
+      favorited: false,
+      subscribed: true,
       },
   ];
   

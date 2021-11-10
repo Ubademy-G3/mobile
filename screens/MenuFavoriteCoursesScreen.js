@@ -1,38 +1,18 @@
-import React, { Component, useState } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import image from "../assets/images/profilePic.jpg"
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const ProfileScreen = (props) => {
-    const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "LastName",
-        profilePicture: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-    });
+const MenuFavoriteCoursesScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={image} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
-                    </View>
-                </View>
-
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
                 <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Your courses</Text>
-                    {forYouData.map(item => (
+                    {forYouData.map((item) => (
                         <TouchableOpacity
                         key={item.id}
                         onPress={() =>
@@ -216,4 +196,4 @@ const styles = StyleSheet.create({
       },
 })
 
-export default ProfileScreen;
+export default MenuFavoriteCoursesScreen;

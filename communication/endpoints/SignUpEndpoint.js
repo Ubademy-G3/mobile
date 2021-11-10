@@ -4,7 +4,7 @@ import {InvalidCredentials} from "../responses/login/InvalidCredentials";
 
 export class SignUpEndpoint extends Endpoint {
     static url() {
-        return '/signup'
+        return '/authorization'
     }
 
     ownResponses() {

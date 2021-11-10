@@ -1,6 +1,6 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert } from 'react-native';
+import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
@@ -28,10 +28,17 @@ const SignupScreen = (props) => {
         showError: false,
     });
 
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        console.log("[Signup screen] Entro a use effect")
+    }, [errorData.showError]);
+
     const handleApiResponseLogin = (response) => {
         console.log("[Signup screen] entro a handle api response")
         if (response.hasError()) {
             setError({
+                ...errorData,
                 messageError: response.content().message,
                 showError: true,
             });
@@ -46,7 +53,7 @@ const SignupScreen = (props) => {
         } else {
             app.loginUser(response.content().token);
             console.log("[Signup screen] token: ", response.content().token)
-            props.navigation.navigate('TabNavigator', {screen: 'Explorer'})
+            props.navigation.replace('TabNavigator', {screen: 'Explorer'})
         }
     }
    
@@ -54,10 +61,12 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] entro a handle api response sign up")
         if (response.hasError()) {
             setError({
+                ...errorData,
                 messageError: response.content().message,
                 showError: true,
             });
-            console.log("error")
+            console.log("[Signup screen] error")
+            console.log("[Signup screen] show error: ", errorData.showError);
             Alert.alert(
                 "Signup error:",
                 response.content().message,
@@ -70,19 +79,21 @@ const SignupScreen = (props) => {
         }
     }
 
-    const handleSubmitSignUp = () => {
+    const handleSubmitSignUp = async () => {
         console.log("[Signup screen] entro a submit signup")
-        app.apiClient().signup(SignUpData, handleApiResponseSignUp);
+        setLoading(true);
+        await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
-        handleFirebaseSignUp()
+        //handleFirebaseSignUp()
         if (!errorData.showError) {
             console.log("[Signup screen] entro a submit login")
-            app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
+            await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
             console.log("[Signup screen] termino submit login")
         }
+        setLoading(false);
         console.log("[Signup screen] termino submit signup")
     }
-    const handleFirebaseSignUp = () => {
+    /*const handleFirebaseSignUp = () => {
         console.log("[Signup screen] firebase signup")
         auth
           .createUserWithEmailAndPassword(SignUpData.email, SignUpData.password)
@@ -92,7 +103,7 @@ const SignupScreen = (props) => {
           })
           .catch(error => alert(error.message))
         console.log("[Signup screen] termino firebase signup")
-      }
+    }*/
 
     return (
         <KeyboardAvoidingView
@@ -177,8 +188,11 @@ const SignupScreen = (props) => {
                 <TouchableOpacity
                     onPress={() => {handleSubmitSignUp()}}
                     style={styles.button}
+                    disabled={loading}
                 >
-                    <Text style={styles.buttonText}>Save</Text>
+                    {
+                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                    }
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>

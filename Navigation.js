@@ -11,6 +11,10 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
+import UnsubscribedCourse from './screens/UnsubscribedCourseScreen';
+import MenuScreen from './screens/MenuScreen';
+import { createDrawerNavigator} from '@react-navigation/drawer';
+import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
 
 
 Entypo.loadFont();
@@ -18,6 +22,20 @@ MaterialCommunityIcons.loadFont();
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+const DrawerNavigator = () => {
+  return(
+    <Drawer.Navigator drawerContent={props => <MenuScreen {...props} />}>
+          <Drawer.Screen 
+            name="Profile" 
+            component={ProfileScreen} 
+            options={{headerShown: true, headerTitle: ""}}
+            />
+          <Drawer.Screen name="Favorite Courses" component={MenuFavoriteCoursesScreen} />
+    </Drawer.Navigator>
+  );
+}
 
 const TabNavigator = () => {
     return (
@@ -39,14 +57,19 @@ const TabNavigator = () => {
           }}
         />
         <Tab.Screen
-          name="Profile"
-          component={ProfileScreen}
+          name="Drawer"
+          component={DrawerNavigator}
           options={{
+            headerShown:false,
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons name="account" size={32} color={color} />
             ),
           }}
         />
+        {/*<Tab.Screen
+          name='Menu'
+          component={DrawerNavigator}
+        />*/}
         <Tab.Screen
           name="Messages"
           component={MessagesScreen}
@@ -67,6 +90,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
                   <Stack.Screen options={{headerShown: false}} name="Signup" component={SignupScreen} />
                   <Stack.Screen options={{headerShown: false}} name="TabNavigator" component={TabNavigator} />
+                  <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="UnsubscribedCourse" component={UnsubscribedCourse} />
               </Stack.Navigator>
           </NavigationContainer>
       );

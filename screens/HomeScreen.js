@@ -14,31 +14,33 @@ Feather.loadFont();
 const HomeScreen = (props) => {
     const renderCategoryItem = ({ item }) => {
         return (
-          <View
-            style={[
-              styles.categoryItemWrapper,
-              {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 1 ? 20 : 0,
-              },
-            ]}>
-            <Image source={item.image} style={styles.categoryItemImage} />
-            <Text style={styles.categoryItemTitle}>{item.title}</Text>
-            {/*<View
+          <TouchableOpacity>
+            <View
               style={[
-                styles.categorySelectWrapper,
+                styles.categoryItemWrapper,
                 {
-                  backgroundColor: item.selected ? 'white' : '#87ceeb',
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 1 ? 20 : 0,
                 },
               ]}>
-                <Feather
-                name="plus"
-                size={8}
-                style={styles.categorySelectIcon}
-                color={item.selected ? 'black' : 'white'}
-              />
-            </View>*/}
-          </View>
+              <Image source={item.image} style={styles.categoryItemImage} />
+              <Text style={styles.categoryItemTitle}>{item.title}</Text>
+              {/*<View
+                style={[
+                  styles.categorySelectWrapper,
+                  {
+                    backgroundColor: item.selected ? 'white' : '#87ceeb',
+                  },
+                ]}>
+                  <Feather
+                  name="plus"
+                  size={8}
+                  style={styles.categorySelectIcon}
+                  color={item.selected ? 'black' : 'white'}
+                />
+              </View>*/}
+            </View>
+          </TouchableOpacity>
         );
       };    
     return (
@@ -89,10 +91,10 @@ const HomeScreen = (props) => {
               {forYouData.map(item => (
                 <TouchableOpacity
                   key={item.id}
-                  onPress={() => {}
-                    //navigation.navigate('Details', {
-                    //  item: item,
-                    //})
+                  onPress={() =>
+                    props.navigation.navigate('UnsubscribedCourse', {
+                      item: item,
+                    })
                   }>
                   <View
                     style={[

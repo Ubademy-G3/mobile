@@ -2,6 +2,7 @@ import {ServerErrorResponse} from "../responses/generalResponses/ServerErrorResp
 import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
 import {LoginEndpoint} from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
+import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 
 
 class ApiClient {
@@ -32,6 +33,14 @@ class ApiClient {
     signup(data, onResponse) {
         return this._requester.call({
             endpoint: new SignUpEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    resetPassword(data, onResponse) {
+        return this._requester.call({
+            endpoint: new ResetPasswordEndpoint(),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

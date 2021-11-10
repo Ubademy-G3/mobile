@@ -3,6 +3,7 @@ import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableO
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '../firebase'
+import * as Google from 'expo-google-app-auth';
 //const admin = require('firebase-admin');
 
 //const nodemailer = require('nodemailer');
@@ -44,6 +45,25 @@ const LoginScreen = (props) => {
             app.loginUser(response.content().token);
             props.navigation.replace('TabNavigator', {screen: 'Explorer'})
         }
+    }
+
+    const handleGoogleLogin = async () => {
+      try {
+        const result = await Google.logInAsync({
+          behavior : 'web',
+          androidClientId: '241878143297-09seelcee2n82933e55m3rh1eocd7j2o.apps.googleusercontent.com',
+          iosClientId: '241878143297-gaovtdmo3if10taaulj8qbhkr5og4qa6.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+        });
+      
+        if (result.type === 'success') {
+          return result.accessToken;
+        } else {
+          return { cancelled: true };
+        }
+      } catch (e) {
+        return { error: true };
+      }
     }
 
     const handleApiResponseForgotPassword = (response) => {
@@ -156,6 +176,11 @@ const LoginScreen = (props) => {
                 >
                     <Text style={styles.buttonFadedText}>Forgot password?</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => {handleGoogleLogin()}}
+                    style={styles.button}>
+                    <Text style={styles.buttonText}>Login with Google</Text>
+                </TouchableOpacity> 
             </View>
         </KeyboardAvoidingView>
     );

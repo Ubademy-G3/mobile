@@ -1,20 +1,61 @@
-import React, { Component, useState } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import image from "../assets/images/profilePic.jpg"
+import { app } from '../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const ProfileScreen = (props) => {
+    //console.log("[Profile screen] param first name:", props.route.params.firstName);
+    /*const param_firstName = props.route.params ? props.route.params.firstName : 'FirstName';
+    const param_lastName = props.route.params ? props.route.params.lastName : 'LastName';
+    const param_rol = props.route.params ? props.route.params.rol : '';*/
+    const param_id = props.route.params ? props.route.params.id : 'defaultID';
+    
+    const [loading, setLoading] = useState(false);
+
     const [userData, setData] = useState({
         firstName: "Name",
-        lastName: "LastName",
+        lastName: "Last name",
+        location: "",
         profilePicture: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        //description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
     });
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Profile screen] contenr: ", response.content())
+        if (!response.hasError()) {
+            setData({
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                location: response.content().location,
+                profilePicture: response.content().profilePicture,
+                //description: response.content().description,
+            });
+        } else {
+            console.log("[Profile screen] error", response.content().message);
+        }
+    }
+    
+    const onRefresh = async () => {
+        console.log("[Profile screen] entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = app.getToken();
+        console.log("[Profile screen] token:",tokenLS);
+        //await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log("[Profile screen] entro a useEffect"); 
+        console.log("[Profile screen] param id:", param_id);
+        onRefresh();
+    }, [param_id]);
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -27,9 +68,9 @@ const ProfileScreen = (props) => {
                     </View>
                 </View>
 
-                <View style={styles.descriptionWrapper}>
+                {/*<View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
-                </View>
+                </View>*/}
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
                     {forYouData.map(item => (

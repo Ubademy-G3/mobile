@@ -21,6 +21,8 @@ const LoginScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const [signupGoogle, setsignupGooglle] = useState(false);
+
     const handleApiResponseLogin = (response) => {
         console.log("[Login screen] entro a handle api response login")
         console.log("[Login screen] has errors: ", response.hasError())
@@ -40,9 +42,14 @@ const LoginScreen = (props) => {
               );
         } else {
             console.log("[Login screen] response: ", response.content())
+            console.log("[Login screen] id: ", response.content().id)
             console.log("[Login screen] token: ", response.content().token)
             app.loginUser(response.content().token);
-            props.navigation.replace('TabNavigator', {screen: 'Explorer'})
+            props.navigation.replace('TabNavigator', {
+                screen: 'Drawer', 
+                params: { 
+                    id: response.content().id},
+            });
         }
     }
 
@@ -85,15 +92,13 @@ const LoginScreen = (props) => {
 
     const handleSubmitSignUp = () => {
         console.log("[Login screen] entro a submit sign up")
-        props.navigation.navigate('Signup', {email: data.email, password: data.password })
+        props.navigation.navigate('Signup', {email: data.email, password: data.password, google: signupGoogle})
         console.log("[Login screen] termino submit sign up")
     }
 
     const handleSubmitForgotPassword = async () => {
         console.log("[Login screen] entro a submit forgot password")
-        setLoading(true);
         await app.apiClient().resetPassword({email: data.email}, handleApiResponseForgotPassword);
-        setLoading(false);
         console.log("[Login screen] termino forgot password")
     }
 

@@ -46,10 +46,11 @@ class ApiClient {
         });
     }
 
-    getProfile(onResponse) {
+    getProfile(data, userId, onResponse) {
         return this._requester.call({
-            endpoint: new GetProfileEndpoint(),
-            onResponse: (response) => this._handleResponse(response, onResponse)
+            endpoint: new GetProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
         });
     }
 }

@@ -2,8 +2,11 @@ import {Endpoint} from "./Endpoint.js";
 import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
 
 export class GetProfileEndpoint extends Endpoint {
+    constructor(id) {
+        this._userId = id;
+    }
     static url() {
-        return '/users/2'
+        return `/users/${this._userId}`
     }
 
     ownResponses() {

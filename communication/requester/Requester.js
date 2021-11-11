@@ -60,7 +60,7 @@ class Requester {
     _buildResponse(jsonResponse, endpoint, has_error) {
         jsonResponse.error = has_error;
         let endpointResponse;
-
+        console.log("mensaje crudo:", jsonResponse);
         const availableResponsesForEndpoint = endpoint.responses();
         for (let responseType of availableResponsesForEndpoint) {
             if (responseType.understandThis(jsonResponse)) {

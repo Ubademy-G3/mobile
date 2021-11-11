@@ -21,25 +21,39 @@ class App {
         this._apiClient = new ApiClient(requester);
     }
 
-    loginUser(token) {
-        AsyncStorage.setItem("@storageMobile:token", token)
-        .then(() => {
-                console.log("Guardo token: ", token);
-            })
-            .catch((error) => {
+    loginUser = async (token) => {
+        const jsonValue = JSON.stringify(token)
+        try {
+            await AsyncStorage.setItem("@storageMobile:token", jsonValue);
+            console.log("Guardo token: ", token);
+          } catch(e) {
                 console.warn("Local store error", error);
-            });
+          }
+        /*AsyncStorage.setItem("@storageMobile:token", jsonValue)
+        .then(() => {
+            console.log("Guardo token: ", token);
+        })
+        .catch((error) => {
+            console.warn("Local store error", error);
+        });*/
     }
 
-    thereIsLoggedInUser() {
+    getToken = async () => {
+        try {
+            const jsonValue = await AsyncStorage.getItem("@storageMobile:token")
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+          } catch(e) {
+            console.warn("Local store error", error);
+          }
+        
         /*AsyncStorage.getItem("@storageMobile:token")
             .then((jsonString) => {
-                const jsonResponse = jsonString === null ? "" : JSON.parse(jsonString);
+                return jsonString != null ? JSON.parse(jsonString) : null;
+                //return ({token: jsonResponse.toString()});
             })
             .catch((error) => {
                 console.warn("Local fetch error", error);
-            }); 
-        return ({age: jsonResponse.toString()});*/
+            }); */
     }
 }
 

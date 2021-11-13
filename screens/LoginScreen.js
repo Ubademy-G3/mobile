@@ -44,7 +44,7 @@ const LoginScreen = (props) => {
             console.log("[Login screen] response: ", response.content())
             console.log("[Login screen] id: ", response.content().id)
             console.log("[Login screen] token: ", response.content().token)
-            app.loginUser(response.content().token);
+            app.loginUser(response.content().token, response.content().id);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',

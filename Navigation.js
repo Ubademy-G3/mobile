@@ -15,6 +15,9 @@ import UnsubscribedCourse from './screens/UnsubscribedCourseScreen';
 import MenuScreen from './screens/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
 import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
+import MenuCompletedCoursesScreen from './screens/MenuCompletedCoursesScreen';
+import MenuSubscribedCoursesScreen from './screens/MenuSubscribedCoursesScreen';
+import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
 
 
 Entypo.loadFont();
@@ -36,6 +39,9 @@ const DrawerNavigator = ({route, navigation}) => {
             options={{headerShown: true, headerTitle: ""}}
             />
           <Drawer.Screen name="Favorite Courses" component={MenuFavoriteCoursesScreen} />
+          <Drawer.Screen name="Completed Courses" component={MenuCompletedCoursesScreen} />
+          <Drawer.Screen name="Subscribed Courses" component={MenuSubscribedCoursesScreen} />
+          <Drawer.Screen name="Collaborations" component={MenuCollaborationsScreen} />
     </Drawer.Navigator>
   );
 }

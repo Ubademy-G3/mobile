@@ -8,7 +8,8 @@ import { auth } from '../firebase'
 
 Feather.loadFont();
 
-const rols = ["Student", "Instructor"]
+const rols = ["Student", "Instructor"];
+const subscriptions = ["Free", "Pro"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -21,7 +22,8 @@ const SignupScreen = (props) => {
         email: param_email, 
         password: param_password, 
         location: '',
-        rol:'', //deberia darle opciones a elegir
+        rol:'', 
+        subscription_type: '',//deberia darle opciones a elegir
     });
 
     const [errorData, setError] = useState({
@@ -54,7 +56,7 @@ const SignupScreen = (props) => {
                 ]
               );
         } else {
-            app.loginUser(response.content().token);
+            app.loginUser(response.content().token, response.content().id);
             console.log("[Signup screen] token: ", response.content().token)
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer', 
@@ -194,6 +196,22 @@ const SignupScreen = (props) => {
                           <Feather name="chevron-down" color={"#444"} size={18} />
                         );
                       }}
+                />
+                <SelectDropdown
+                    data={subscriptions}
+                    onSelect={(selectedItem, index) => setData({
+                        ...SignUpData,
+                        subscription_type: selectedItem,
+                    })}
+                    value={SignUpData.subscription_type}
+                    defaultButtonText={"Select a subscription type"}
+                    buttonStyle={styles.buttonDropdown}
+                    buttonTextStyle={styles.textDropdown}
+                    renderDropdownIcon={() => {
+                        return (
+                          <Feather name="chevron-down" color={"#444"} size={18} />
+                        );
+                    }}
                 />
             </View>
             <View style={styles.buttonContainer}>

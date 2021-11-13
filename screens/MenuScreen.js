@@ -9,11 +9,10 @@ import image from "../assets/images/profilePic.jpg"
 Icons.loadFont();
 Icon.loadFont();
 
-//import{ AuthContext } from '../components/context';
 
 const MenuScreen = (props) => {
-
-    //const { signOut, toggleTheme } = React.useContext(AuthContext);
+    console.log("[Menu Screen] props: ", props.routes)
+    //const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
 
     return(
         <View style={{flex:1}}>
@@ -41,8 +40,8 @@ const MenuScreen = (props) => {
                                 />
                             )}
                             label="Profile"
-                            onPress={() => {props.navigation.navigate('Profile')}}
-                            />
+                            onPress={() => {props.navigation.navigate('Profile')}} //, { id: param_id })}}
+                        />
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icons 

@@ -24,11 +24,14 @@ const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 const Drawer = createDrawerNavigator();
 
-const DrawerNavigator = () => {
+const DrawerNavigator = ({route, navigation}) => {
   return(
-    <Drawer.Navigator drawerContent={props => <MenuScreen {...props} />}>
+    <Drawer.Navigator 
+    initialRouteName="Profile"
+    drawerContent={props => <MenuScreen {...props} />}>
           <Drawer.Screen 
             name="Profile" 
+            initialParams={{ params: route.params }}
             component={ProfileScreen} 
             options={{headerShown: true, headerTitle: ""}}
             />
@@ -40,6 +43,7 @@ const DrawerNavigator = () => {
 const TabNavigator = () => {
     return (
       <Tab.Navigator
+        initialRouteName="Drawer"
         screenOptions={{
           tabBarStyle: styles.tabBar,
           tabBarActiveTintColor:'#87ceeb',
@@ -47,22 +51,22 @@ const TabNavigator = () => {
           tabBarShowLabel: false,
         }}>
         <Tab.Screen
-          name="Explorer"
-          component={HomeScreen}
-          options={{ 
-            headerShown:false,
-            tabBarIcon: ({color}) => (
-              <Entypo name="magnifying-glass" size={32} color={color} />
-            ),
-          }}
-        />
-        <Tab.Screen
           name="Drawer"
           component={DrawerNavigator}
           options={{
             headerShown:false,
             tabBarIcon: ({color}) => (
               <MaterialCommunityIcons name="account" size={32} color={color} />
+            ),
+          }}
+        />
+        <Tab.Screen
+          name="Explorer"
+          component={HomeScreen}
+          options={{ 
+            headerShown:false,
+            tabBarIcon: ({color}) => (
+              <Entypo name="magnifying-glass" size={32} color={color} />
             ),
           }}
         />

@@ -10,11 +10,7 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const ProfileScreen = (props) => {
-    //console.log("[Profile screen] param first name:", props.route.params.firstName);
-    /*const param_firstName = props.route.params ? props.route.params.firstName : 'FirstName';
-    const param_lastName = props.route.params ? props.route.params.lastName : 'LastName';
-    const param_rol = props.route.params ? props.route.params.rol : '';*/
-    const param_id = props.route.params ? props.route.params.id : 'defaultID';
+    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
 
@@ -27,7 +23,7 @@ const ProfileScreen = (props) => {
     });
 
     const handleApiResponseProfile = (response) => {
-        console.log("[Profile screen] contenr: ", response.content())
+        console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
             setData({
                 firstName: response.content().firstName,
@@ -44,15 +40,16 @@ const ProfileScreen = (props) => {
     const onRefresh = async () => {
         console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
-        let tokenLS = app.getToken();
+        let tokenLS = await app.getToken();
         console.log("[Profile screen] token:",tokenLS);
-        //await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
+        await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
         setLoading(false);
     };
 
     useEffect(() => {
         console.log("[Profile screen] entro a useEffect"); 
         console.log("[Profile screen] param id:", param_id);
+        console.log("[Profile screen] params: ", props.route.params)
         onRefresh();
     }, [param_id]);
 

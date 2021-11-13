@@ -33,6 +33,7 @@ const SignupScreen = (props) => {
     const [signupGoogle, setsignupGooglle] = useState(param_signupGoogle);
 
     useEffect(() => {
+        console.log("[Signup screen] params: ", props.route.params);
         console.log("[Signup screen] Entro a use effect")
     }, [errorData.showError]);
 

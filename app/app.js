@@ -43,17 +43,17 @@ class App {
             const jsonValue = await AsyncStorage.getItem("@storageMobile:token")
             return jsonValue != null ? JSON.parse(jsonValue) : null;
           } catch(e) {
-            console.warn("Local store error", error);
+            console.warn("Local store error", e);
           }
         
         /*AsyncStorage.getItem("@storageMobile:token")
             .then((jsonString) => {
-                return jsonString != null ? JSON.parse(jsonString) : null;
-                //return ({token: jsonResponse.toString()});
+                const jsonResponse = jsonString != null ? JSON.parse(jsonString) : null;
+                return ({token: jsonResponse.toString()});
             })
             .catch((error) => {
                 console.warn("Local fetch error", error);
-            }); */
+            });*/
     }
 }
 

@@ -46,9 +46,10 @@ const LoginScreen = (props) => {
             console.log("[Login screen] token: ", response.content().token)
             app.loginUser(response.content().token);
             props.navigation.replace('TabNavigator', {
-                screen: 'Drawer', 
-                params: { 
-                    id: response.content().id},
+                screen: 'Drawer',
+                params: { screen: 'Profile',
+                    params: { id: response.content().id }
+                }
             });
         }
     }

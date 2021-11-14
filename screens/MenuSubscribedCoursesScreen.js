@@ -16,7 +16,7 @@ const MenuSubscribedCoursesScreen = (props) => {
                         <TouchableOpacity
                         key={item.id}
                         onPress={() =>
-                            props.navigation.navigate('UnsubscribedCourse', {
+                            props.navigation.navigate('Course Screen', {
                             item: item,
                             })
                         }>

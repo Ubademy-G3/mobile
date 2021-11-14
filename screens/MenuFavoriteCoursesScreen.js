@@ -8,6 +8,35 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuFavoriteCoursesScreen = (props) => {
+    /*const [favoriteCoursesId, setFavoriteCoursesId] = useState([]);
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Menu screen] content: ", response.content())
+        if (!response.hasError()) {
+            setFavoriteCoursesId(response.content().favoriteCourses)
+        } else {
+            console.log("[Menu screen] error", response.content().message);
+        }
+    }
+
+    const onRefresh = async () => {
+        console.log("[Menu screen] entro a onRefresh"); 
+        setLoading(true);
+        let idLS = await app.getId();
+        let tokenLS = await app.getToken();
+        await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
+        //tengo el mismo problema que en sign up si hago el set de los favorite courses Id,
+        //necesito aca esa data para hacer el llamado a courses y obtener los cursos, 
+        //ponerlos en un array y llamarlos en el map
+        console.log("Menu screen] id:", idLS);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log("[Menu screen] entro a useEffect");
+        onRefresh();
+    }, []);*/
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -16,7 +45,7 @@ const MenuFavoriteCoursesScreen = (props) => {
                         <TouchableOpacity
                         key={item.id}
                         onPress={() =>
-                            props.navigation.navigate('UnsubscribedCourse', {
+                            props.navigation.navigate('Course Screen', {
                             item: item,
                             })
                         }>

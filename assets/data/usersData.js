@@ -18,11 +18,11 @@ const usersData = [
       selected: false,
     },
     {
-        id: '4',
-        image: require('../images/finances.jpg'),
-        title: 'Finances',
-        selected: false,
-      },
+      id: '4',
+      image: require('../images/finances.jpg'),
+      title: 'Finances',
+      selected: false,
+    },
   ];
   
   export default usersData;

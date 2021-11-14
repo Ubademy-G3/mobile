@@ -11,15 +11,17 @@ import {app} from '../app/app';
 
 Icons.loadFont();
 Icon.loadFont();
+Ionicons.loadFont();
 
 
 const MenuScreen = (props) => {
     //console.log("[Menu Screen] props: ", props.routes)
     const [loading, setLoading] = useState(false);
-    const [id, setId] = useState('');
+    const [userId, setId] = useState('');
     const [userData, setData] = useState({
         firstName: "Name",
         lastName: "Last name",
+        rol: '',
     });
 
     const handleApiResponseProfile = (response) => {
@@ -28,6 +30,7 @@ const MenuScreen = (props) => {
             setData({
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
+                rol: response.content().rol,
             });
         } else {
             console.log("[Menu screen] error", response.content().message);
@@ -83,41 +86,71 @@ const MenuScreen = (props) => {
                                 />
                             )}
                             label="Profile"
-                            onPress={() => {props.navigation.navigate('Profile', { id: id })}}
+                            onPress={() => {props.navigation.navigate('Profile', { id: userId })}}
                         />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icons 
-                                name="heart-outline" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Favorite Courses"
-                            onPress={() => {props.navigation.navigate('Favorite Courses')}}
-                        />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icons 
-                                name="check" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Completed Courses"
-                            onPress={() => {props.navigation.navigate('Completed Courses')}}
-                        />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icon
-                                name="event-note" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Subscribed Courses"
-                            onPress={() => {props.navigation.navigate('Subscribed Courses')}}
-                        />
+                        {userData.rol === "Student" && (
+                            <>
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="heart-outline" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Favorite Courses"
+                                onPress={() => {props.navigation.navigate('Favorite Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="check" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Completed Courses"
+                                onPress={() => {props.navigation.navigate('Completed Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icon
+                                    name="event-note" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Subscribed Courses"
+                                onPress={() => {props.navigation.navigate('Subscribed Courses')}}
+                            />
+                            </>
+                        )}
+                        {userData.rol === "Instructor" && (
+                            <>
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="check" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Created Courses"
+                                onPress={() => {props.navigation.navigate('Created Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icon 
+                                    name="event-note" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Create New Course"
+                                onPress={() => {props.navigation.navigate('Create New Course')}}
+                            />
+                            </>
+                        )}
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icon 

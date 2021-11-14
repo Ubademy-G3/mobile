@@ -11,13 +11,16 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
-import UnsubscribedCourse from './screens/UnsubscribedCourseScreen';
+import CourseScreen from './screens/sCourseScreen';
 import MenuScreen from './screens/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
 import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
 import MenuCompletedCoursesScreen from './screens/MenuCompletedCoursesScreen';
 import MenuSubscribedCoursesScreen from './screens/MenuSubscribedCoursesScreen';
 import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
+import MenuEditScreen from './screens/MenuEditScreen';
+import MenuCreatedCoursesScreen from './screens/MenuCreatedCoursesScreen';
+import MenuCreateNewCourseScreen from './screens/MenuCreateNewCourseScreen';
 
 
 Entypo.loadFont();
@@ -42,6 +45,9 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Completed Courses" component={MenuCompletedCoursesScreen} />
           <Drawer.Screen name="Subscribed Courses" component={MenuSubscribedCoursesScreen} />
           <Drawer.Screen name="Collaborations" component={MenuCollaborationsScreen} />
+          <Drawer.Screen name="Edit Profile" component={MenuEditScreen} />
+          <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
+          <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
     </Drawer.Navigator>
   );
 }
@@ -100,7 +106,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: false}} name="Login" component={LoginScreen} />
                   <Stack.Screen options={{headerShown: false}} name="Signup" component={SignupScreen} />
                   <Stack.Screen options={{headerShown: false}} name="TabNavigator" component={TabNavigator} />
-                  <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="UnsubscribedCourse" component={UnsubscribedCourse} />
+                  <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="Course Screen" component={CourseScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

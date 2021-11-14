@@ -11,7 +11,7 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
-import CourseScreen from './screens/sCourseScreen';
+import CourseScreen from './screens/CourseScreen';
 import MenuScreen from './screens/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
 import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';

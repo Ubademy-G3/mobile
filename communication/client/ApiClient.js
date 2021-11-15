@@ -5,7 +5,6 @@ import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
 
-
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
     }) {
@@ -54,6 +53,7 @@ class ApiClient {
             data: data
         });
     }
+
     editProfile(data, userId, onResponse) {
         return this._requester.call({
             endpoint: new EditProfileEndpoint(userId),

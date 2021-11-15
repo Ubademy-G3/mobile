@@ -14,7 +14,7 @@ const MenuEditProfileScreen = (props) => {
         lastName: "",
         location: "",
         //profilePicture: "",
-        description: "",
+        //description: "",
     });
 
     const [loading, setLoading] = useState(false);
@@ -22,13 +22,13 @@ const MenuEditProfileScreen = (props) => {
     const handleApiResponseEditProfile = (response) => {
         console.log("[Edit Profile screen] response content: ", response.content())
         if (!response.hasError()) {
-            setData({
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                location: response.content().location,
-                //profilePicture: response.content().profilePicture,
-                description: response.content().description,
-            });
+            Alert.alert(
+                "Update Succesfull:",
+                response.content().message,
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+            );
         } else {
             console.log("[Edit Profile screen] error", response.content().message);
         }
@@ -40,12 +40,12 @@ const MenuEditProfileScreen = (props) => {
         console.log("[Edit Profile screen] data:", userData)
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Profile screen] token:",tokenLS);
-        await app.apiClient().getProfile({firstName: userData.firstName,
+        console.log("[Edit Profile screen] token:",tokenLS);
+        await app.apiClient().editProfile({firstName: userData.firstName,
             lastName: userData.lastName,
             location: userData.location,
             //profilePicture: "",
-            description: userData.description, 
+            //description: userData.description, 
             token: tokenLS}, idLS, handleApiResponseEditProfile);
         setLoading(false);
         console.log("[Edit Profile screen] termino submit signup")
@@ -59,7 +59,7 @@ const MenuEditProfileScreen = (props) => {
                 lastName: response.content().lastName,
                 location: response.content().location,
                 profilePicture: response.content().profilePicture,
-                description: response.content().description,
+                //description: response.content().description,
             });
         } else {
             console.log("[Edit Profile screen] error", response.content().message);
@@ -81,6 +81,7 @@ const MenuEditProfileScreen = (props) => {
         console.log("[Edit Profile screen] params: ", props.route.params)
         onRefresh();
     }, []);
+
     return (
         <KeyboardAvoidingView
         style={styles.container}
@@ -120,7 +121,7 @@ const MenuEditProfileScreen = (props) => {
                     value={userData.location}
                     style={styles.input}
                 />
-                <Text style={styles.inputText}>Description</Text>
+                {/**<Text style={styles.inputText}>Description</Text>
                 <TextInput
                     placeholder={userData.description}
                     onChangeText={text => setData({
@@ -129,7 +130,7 @@ const MenuEditProfileScreen = (props) => {
                     })}
                     value={userData.description}
                     style={styles.input}
-                />
+                />*/}
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity

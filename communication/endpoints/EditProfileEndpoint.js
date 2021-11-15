@@ -12,9 +12,9 @@ export class EditProfileEndpoint extends Endpoint {
         return `/users/${this._id}`
     }
 
-    ownResponses() {
+    /*ownResponses() {
         //return [GetProfileSuccessful];
-    }
+    }*/
 
     method() {
         return 'PATCH'

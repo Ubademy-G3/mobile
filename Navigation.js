@@ -11,14 +11,14 @@ import HomeScreen from './screens/HomeScreen';
 import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
-import CourseScreen from './screens/sCourseScreen';
+import CourseScreen from './screens/CourseScreen';
 import MenuScreen from './screens/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
 import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
 import MenuCompletedCoursesScreen from './screens/MenuCompletedCoursesScreen';
 import MenuSubscribedCoursesScreen from './screens/MenuSubscribedCoursesScreen';
 import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
-import MenuEditScreen from './screens/MenuEditScreen';
+import MenuEditProfileScreen from './screens/MenuEditProfileScreen';
 import MenuCreatedCoursesScreen from './screens/MenuCreatedCoursesScreen';
 import MenuCreateNewCourseScreen from './screens/MenuCreateNewCourseScreen';
 
@@ -45,7 +45,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Completed Courses" component={MenuCompletedCoursesScreen} />
           <Drawer.Screen name="Subscribed Courses" component={MenuSubscribedCoursesScreen} />
           <Drawer.Screen name="Collaborations" component={MenuCollaborationsScreen} />
-          <Drawer.Screen name="Edit Profile" component={MenuEditScreen} />
+          <Drawer.Screen name="Edit Profile" component={MenuEditProfileScreen} />
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
     </Drawer.Navigator>

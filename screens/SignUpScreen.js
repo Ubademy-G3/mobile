@@ -9,7 +9,7 @@ import { auth } from '../firebase'
 Feather.loadFont();
 
 const rols = ["Student", "Instructor"];
-const subscriptions = ["Free", "Pro"];
+const subscriptions = ["Free", "Gold", "Premium"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';

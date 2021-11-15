@@ -8,12 +8,16 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuFavoriteCoursesScreen = (props) => {
-    /*const [favoriteCoursesId, setFavoriteCoursesId] = useState([]);
+    /*const param_favoriteCoursesIds = props.route.params ? props.route.params.favoriteCourses : null;
 
-    const handleApiResponseProfile = (response) => {
+    const [favoriteCoursesId, setFavoriteCoursesId] = useState(param_favoriteCoursesIds);
+    
+    var favoriteCoursesArray = [];
+
+    const handleApiResponseGetCourse = (response) => {
         console.log("[Menu screen] content: ", response.content())
         if (!response.hasError()) {
-            setFavoriteCoursesId(response.content().favoriteCourses)
+            favoriteCoursesArray.push(response.content());
         } else {
             console.log("[Menu screen] error", response.content().message);
         }
@@ -22,12 +26,13 @@ const MenuFavoriteCoursesScreen = (props) => {
     const onRefresh = async () => {
         console.log("[Menu screen] entro a onRefresh"); 
         setLoading(true);
-        let idLS = await app.getId();
         let tokenLS = await app.getToken();
-        await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
-        //tengo el mismo problema que en sign up si hago el set de los favorite courses Id,
-        //necesito aca esa data para hacer el llamado a courses y obtener los cursos, 
-        //ponerlos en un array y llamarlos en el map
+        console.log("[Profile screen] token:",tokenLS);
+        if (favoriteCoursesId != null) {
+            for (id in favoriteCoursesId) {
+                await app.apiClient.getCourse({id: id, token: tokenLS}, id, handleApiResponseGetCourse)
+            }
+        }
         console.log("Menu screen] id:", idLS);
         setLoading(false);
     };
@@ -53,7 +58,7 @@ const MenuFavoriteCoursesScreen = (props) => {
                             style={[
                             styles.courseCardWrapper,
                             {
-                                marginTop: item.id == 1 ? 10 : 20,
+                                marginTop: item.id == 1 ? 10 : 20,  //ESTO YA NO FUNCA
                             },
                             ]}>
                             <View>
@@ -81,11 +86,12 @@ const MenuFavoriteCoursesScreen = (props) => {
                                 </Text>
                             </View>
                             <View style={styles.forYouButtons} >
-                                <View style={styles.addCourseButton}>
-                                <Feather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
-                                </View>
+                                {/*<View style={styles.addCourseButton}>
+                                    eather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
+                                </View>*/}
                                 <View style={styles.favoriteCourseButton}>
-                                <MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />
+                                    <MaterialCommunityIcons name="heart" size={16} color={'black'} />
+                                    {/*<MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />*/}
                                 </View>
                             </View>  
                             </View>

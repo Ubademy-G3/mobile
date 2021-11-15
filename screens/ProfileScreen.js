@@ -19,19 +19,31 @@ const ProfileScreen = (props) => {
         lastName: "Last name",
         location: "",
         profilePicture: "../assets/images/profilePic.jpg",
-        //description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        coursesHistory: [],
     });
 
     const handleApiResponseProfile = (response) => {
         console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
-            setData({
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                location: response.content().location,
-                profilePicture: response.content().profilePicture,
-                //description: response.content().description,
-            });
+            if (response.content().coursesHistory === null){
+                setData({
+                    firstName: response.content().firstName,
+                    lastName: response.content().lastName,
+                    location: response.content().location,
+                    profilePicture: response.content().profilePicture,
+                    description: response.content().description,
+                });
+            } else {
+                setData({
+                    firstName: response.content().firstName,
+                    lastName: response.content().lastName,
+                    location: response.content().location,
+                    profilePicture: response.content().profilePicture,
+                    description: response.content().description,
+                    coursesHistory: response.content().coursesHistory,
+                });
+            }
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -43,6 +55,9 @@ const ProfileScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
+        /*for (id in userData.coursesHistory) {
+            await app.apiClient.getCourse({id: id, token: tokenLS}, id, handleApiResponseGetCourse)
+        }*/
         setLoading(false);
     };
 

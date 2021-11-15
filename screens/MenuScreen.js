@@ -21,6 +21,7 @@ const MenuScreen = (props) => {
     const [userData, setData] = useState({
         firstName: "Name",
         lastName: "Last name",
+        favoriteCourses: [],
         rol: '',
     });
 
@@ -31,6 +32,7 @@ const MenuScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 rol: response.content().rol,
+                favoriteCourses: response.content().favoriteCourses,
             });
         } else {
             console.log("[Menu screen] error", response.content().message);
@@ -99,7 +101,7 @@ const MenuScreen = (props) => {
                                     />
                                 )}
                                 label="Favorite Courses"
-                                onPress={() => {props.navigation.navigate('Favorite Courses')}}
+                                onPress={() => {props.navigation.navigate('Favorite Courses', {favoriteCourses: userData.favoriteCourses})}}
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (

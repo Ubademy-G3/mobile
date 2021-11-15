@@ -21,6 +21,7 @@ import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
 import MenuEditProfileScreen from './screens/MenuEditProfileScreen';
 import MenuCreatedCoursesScreen from './screens/MenuCreatedCoursesScreen';
 import MenuCreateNewCourseScreen from './screens/MenuCreateNewCourseScreen';
+import MenuChangeSubscription from './screens/MenuChangeSubscription';
 
 
 Entypo.loadFont();
@@ -44,6 +45,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Favorite Courses" component={MenuFavoriteCoursesScreen} />
           <Drawer.Screen name="Completed Courses" component={MenuCompletedCoursesScreen} />
           <Drawer.Screen name="Subscribed Courses" component={MenuSubscribedCoursesScreen} />
+          <Drawer.Screen name="Change Subscription" component={MenuChangeSubscription} />
           <Drawer.Screen name="Collaborations" component={MenuCollaborationsScreen} />
           <Drawer.Screen name="Edit Profile" component={MenuEditProfileScreen} />
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />

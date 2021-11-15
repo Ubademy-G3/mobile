@@ -155,6 +155,17 @@ const MenuScreen = (props) => {
                         )}
                         <DrawerItem 
                             icon={({color, size}) => (
+                                <Icons
+                                name="diamond-stone"
+                                color={color}
+                                size={size}
+                                />
+                            )}
+                            label="Change Subscription"
+                            onPress={() => {props.navigation.navigate('Change Subscription')}}
+                        />
+                        <DrawerItem 
+                            icon={({color, size}) => (
                                 <Icon 
                                 //name="text-box-search-outline" 
                                 name="work-outline"

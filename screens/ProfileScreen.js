@@ -163,10 +163,14 @@ const styles = StyleSheet.create({
     titleWrapper: {
         paddingVertical:35,
         paddingHorizontal: 10,
+        flex: 1, 
+        flexWrap: 'wrap',
+        flexDirection: "row",
     },
     titlesTitle: {
         fontSize: 24,
         color: '#87ceeb',
+        textAlign: 'justify',        
     },
     titlesRating: {
         paddingVertical: 5,

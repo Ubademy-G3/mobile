@@ -3,6 +3,7 @@ import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
 import {LoginEndpoint} from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
+import { UpdateSubscriptionEndpoint } from "../endpoints/UpdateSubscriptionEndPoint.js";
 
 
 class ApiClient {
@@ -49,6 +50,14 @@ class ApiClient {
     getProfile(data, userId, onResponse) {
         return this._requester.call({
             endpoint: new GetProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateSubscription(data, userId, onResponse){
+        return this._requester.call({
+            endpoint: new UpdateSubscriptionEndpoint(userId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

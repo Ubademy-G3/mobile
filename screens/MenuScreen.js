@@ -159,8 +159,8 @@ const MenuScreen = (props) => {
                                 size={size}
                                 />
                             )}
-                            label="Change Subscription"
-                            onPress={() => {props.navigation.navigate('Change Subscription')}}
+                            label="Update Subscription"
+                            onPress={() => {props.navigation.navigate('Update Subscription')}}
                         />
                         <DrawerItem 
                             icon={({color, size}) => (

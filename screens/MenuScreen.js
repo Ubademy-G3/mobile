@@ -125,6 +125,17 @@ const MenuScreen = (props) => {
                                 label="Subscribed Courses"
                                 onPress={() => {props.navigation.navigate('Subscribed Courses')}}
                             />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons
+                                    name="diamond-stone"
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Update Subscription"
+                                onPress={() => {props.navigation.navigate('Update Subscription')}}
+                            />
                             </>
                         )}
                         {userData.rol === "Instructor" && (
@@ -153,17 +164,6 @@ const MenuScreen = (props) => {
                             />
                             </>
                         )}
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icons
-                                name="diamond-stone"
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Update Subscription"
-                            onPress={() => {props.navigation.navigate('Update Subscription')}}
-                        />
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icon 

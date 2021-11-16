@@ -12,16 +12,16 @@ import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
 import CourseScreen from './screens/CourseScreen';
-import MenuScreen from './screens/MenuScreen';
+import MenuScreen from './screens/menu/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
-import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
-import MenuCompletedCoursesScreen from './screens/MenuCompletedCoursesScreen';
-import MenuSubscribedCoursesScreen from './screens/MenuSubscribedCoursesScreen';
-import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
-import MenuEditProfileScreen from './screens/MenuEditProfileScreen';
-import MenuCreatedCoursesScreen from './screens/MenuCreatedCoursesScreen';
-import MenuCreateNewCourseScreen from './screens/MenuCreateNewCourseScreen';
-import MenuUpdateSubscription from './screens/MenuUpdateSubscription';
+import MenuFavoriteCoursesScreen from './screens/menu/MenuFavoriteCoursesScreen';
+import MenuCompletedCoursesScreen from './screens/menu/MenuCompletedCoursesScreen';
+import MenuSubscribedCoursesScreen from './screens/menu/MenuSubscribedCoursesScreen';
+import MenuCollaborationsScreen from './screens/menu/MenuCollaborationsScree';
+import MenuEditProfileScreen from './screens/menu/MenuEditProfileScreen';
+import MenuCreatedCoursesScreen from './screens/menu/MenuCreatedCoursesScreen';
+import MenuCreateNewCourseScreen from './screens/menu/MenuCreateNewCourseScreen';
+import MenuUpdateSubscription from './screens/menu/MenuUpdateSubscription';
 import SubscriptionCoursesScreen from './screens/SubscriptionCoursesScreen';
 
 

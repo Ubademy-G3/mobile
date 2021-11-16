@@ -5,9 +5,9 @@ import { Drawer } from 'react-native-paper';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import image from "../assets/images/profilePic.jpg"
+import image from "../../assets/images/profilePic.jpg"
 import { useState, useEffect } from 'react';
-import {app} from '../app/app';
+import {app} from '../../app/app';
 
 Icons.loadFont();
 Icon.loadFont();

@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const MenuCreatedCoursesScreen = (props) => {
+const MenuCreateNewCourseScreen = (props) => {
     return (
         <View style={styles.container}>
             <Text>Created Courses!!!</Text>
@@ -96,4 +96,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default MenuCreatedCoursesScreen;
+export default MenuCreateNewCourseScreen;

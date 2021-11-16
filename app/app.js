@@ -21,25 +21,52 @@ class App {
         this._apiClient = new ApiClient(requester);
     }
 
-    loginUser(token) {
-        AsyncStorage.setItem("@storageMobile:token", token)
-        .then(() => {
-                console.log("Guardo token: ", token);
-            })
-            .catch((error) => {
-                console.warn("Local store error", error);
-            });
+    loginUser = async (token, id) => {
+        const jsonValue = JSON.stringify(token)
+        try {
+            await AsyncStorage.setItem("@storageMobile:token", jsonValue);
+            console.log("Guardo token: ", token);
+          } catch(e) {
+                console.warn("Local storage setItem error", e);
+          }
+        const jsonValue2 = JSON.stringify(id)
+          try {
+              await AsyncStorage.setItem("@storageMobile:id", jsonValue2);
+              console.log("Guardo id: ", id);
+            } catch(e) {
+                  console.warn("Local storage setItem error", e);
+            }
     }
 
-    thereIsLoggedInUser() {
-        /*AsyncStorage.getItem("@storageMobile:token")
-            .then((jsonString) => {
-                const jsonResponse = jsonString === null ? "" : JSON.parse(jsonString);
-            })
-            .catch((error) => {
-                console.warn("Local fetch error", error);
-            }); 
-        return ({age: jsonResponse.toString()});*/
+    getToken = async () => {
+        try {
+            const jsonValue = await AsyncStorage.getItem("@storageMobile:token")
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+        } catch(e) {
+            console.warn("Local storage getItem error", e);
+        }
+    }
+
+    getId = async () => {
+        try {
+            const jsonValue = await AsyncStorage.getItem("@storageMobile:id")
+            return jsonValue != null ? JSON.parse(jsonValue) : null;
+        } catch(e) {
+            console.warn("Local storage getItem error", e);
+        }
+    }
+
+    signOutUser = async () => {
+        try {
+            await AsyncStorage.removeItem('@storageMobile:token')
+        } catch(e) {
+            console.warn("Local storage signOut error", e);
+        }
+        try {
+            await AsyncStorage.removeItem('@storageMobile:id')
+        } catch(e) {
+            console.warn("Local storage signOut error", e);
+        }
     }
 }
 

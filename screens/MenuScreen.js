@@ -4,16 +4,63 @@ import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { Drawer } from 'react-native-paper';
 import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import image from "../assets/images/profilePic.jpg"
+import { useState, useEffect } from 'react';
+import {app} from '../app/app';
 
 Icons.loadFont();
 Icon.loadFont();
+Ionicons.loadFont();
 
-//import{ AuthContext } from '../components/context';
 
 const MenuScreen = (props) => {
+    //console.log("[Menu Screen] props: ", props.routes)
+    const [loading, setLoading] = useState(false);
+    const [userId, setId] = useState('');
+    const [userData, setData] = useState({
+        firstName: "Name",
+        lastName: "Last name",
+        favoriteCourses: [],
+        rol: '',
+    });
 
-    //const { signOut, toggleTheme } = React.useContext(AuthContext);
+    const handleApiResponseProfile = (response) => {
+        console.log("[Menu screen] content: ", response.content())
+        if (!response.hasError()) {
+            setData({
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                rol: response.content().rol,
+                favoriteCourses: response.content().favoriteCourses,
+            });
+        } else {
+            console.log("[Menu screen] error", response.content().message);
+        }
+    }
+
+    const onRefresh = async () => {
+        console.log("[Menu screen] entro a onRefresh"); 
+        setLoading(true);
+        let idLS = await app.getId();
+        let tokenLS = await app.getToken();
+        await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
+        console.log("Menu screen] id:", idLS);
+        setId(idLS);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log("[Menu screen] entro a useEffect");
+        onRefresh();
+    }, []);
+
+    const signOut = async () => {
+        console.log("[Menu screen] entro a signOut"); 
+        await app.signOutUser();
+        console.log("[Menu screen] voy a login screen"); 
+        props.navigation.replace('Login');
+    }
 
     return(
         <View style={{flex:1}}>
@@ -26,7 +73,7 @@ const MenuScreen = (props) => {
                                 size={20}
                             />
                             <View style={{marginLeft:15, flexDirection:'column'}}>
-                                <Text style={styles.title}>Name LastName</Text>
+                                <Text style={styles.title}>{userData.firstName} {userData.lastName}</Text>
                             </View>
                         </View>
                     </View>
@@ -41,41 +88,82 @@ const MenuScreen = (props) => {
                                 />
                             )}
                             label="Profile"
-                            onPress={() => {props.navigation.navigate('Profile')}}
+                            onPress={() => {props.navigation.navigate('Profile', { id: userId })}}
+                        />
+                        {userData.rol === "Student" && (
+                            <>
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="heart-outline" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Favorite Courses"
+                                onPress={() => {props.navigation.navigate('Favorite Courses', {favoriteCourses: userData.favoriteCourses})}}
                             />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icons 
-                                name="heart-outline" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Favorite courses"
-                            onPress={() => {props.navigation.navigate('Favorite Courses')}}
-                        />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icons 
-                                name="check" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Completed courses"
-                            onPress={() => {}}//{props.navigation.navigate('Profile')}}
-                        />
-                        <DrawerItem 
-                            icon={({color, size}) => (
-                                <Icon
-                                name="event-note" 
-                                color={color}
-                                size={size}
-                                />
-                            )}
-                            label="Subscribed courses"
-                            onPress={() => {}}//{props.navigation.navigate('BookmarkScreen')}}
-                        />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="check" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Completed Courses"
+                                onPress={() => {props.navigation.navigate('Completed Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icon
+                                    name="event-note" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Subscribed Courses"
+                                onPress={() => {props.navigation.navigate('Subscribed Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons
+                                    name="diamond-stone"
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Update Subscription"
+                                onPress={() => {props.navigation.navigate('Update Subscription')}}
+                            />
+                            </>
+                        )}
+                        {userData.rol === "Instructor" && (
+                            <>
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons 
+                                    name="check" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Created Courses"
+                                onPress={() => {props.navigation.navigate('Created Courses')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icon 
+                                    name="event-note" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Create New Course"
+                                onPress={() => {props.navigation.navigate('Create New Course')}}
+                            />
+                            </>
+                        )}
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <Icon 
@@ -86,7 +174,18 @@ const MenuScreen = (props) => {
                                 />
                             )}
                             label="Collaborations"
-                            onPress={() => {}}//{props.navigation.navigate('SettingsScreen')}}
+                            onPress={() => {props.navigation.navigate('Collaborations')}}
+                        />
+                        <DrawerItem 
+                            icon={({color, size}) => (
+                                <Ionicons
+                                name="settings-outline"
+                                color={color}
+                                size={size}
+                                />
+                            )}
+                            label="Edit Profile"
+                            onPress={() => {props.navigation.navigate('Edit Profile')}}
                         />
                     </Drawer.Section>
                 </View>
@@ -101,7 +200,7 @@ const MenuScreen = (props) => {
                         />
                     )}
                     label="Sign Out"
-                    onPress={() => {}}//{signOut()}}
+                    onPress={() => {signOut()}}
                 />
             </Drawer.Section>
         </View>

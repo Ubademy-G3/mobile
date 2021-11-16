@@ -1,6 +1,9 @@
 import {SuccessfulApiResponse} from "../responses/generalResponses/SuccessfulApiResponse.js";
 
 export class Endpoint {
+    constructor(props){
+    }
+
     static url() {
         throw new Error("You have to implement the method");
     }

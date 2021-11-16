@@ -8,19 +8,22 @@ import { auth } from '../firebase'
 
 Feather.loadFont();
 
-const rols = ["Student", "Instructor"]
+const rols = ["Student", "Instructor"];
+const subscriptions = ["Free", "Platinum", "Gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
     const param_password = props.route.params ? props.route.params.password: '';
+    const param_signupGoogle = props.route.params ? props.route.params.google: '';
     
     const [SignUpData, setData] = useState({
-        firstname: '',
-        lastname: '',
+        firstName: '',
+        lastName: '',
         email: param_email, 
         password: param_password, 
         location: '',
-        rol:'', //deberia darle opciones a elegir
+        rol:'', 
+        subscription_type: '',//deberia darle opciones a elegir
     });
 
     const [errorData, setError] = useState({
@@ -29,8 +32,10 @@ const SignupScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [signupGoogle, setsignupGooglle] = useState(param_signupGoogle);
 
     useEffect(() => {
+        console.log("[Signup screen] params: ", props.route.params);
         console.log("[Signup screen] Entro a use effect")
     }, [errorData.showError]);
 
@@ -51,9 +56,15 @@ const SignupScreen = (props) => {
                 ]
               );
         } else {
-            app.loginUser(response.content().token);
-            console.log("[Signup screen] token: ", response.content().token)
-            props.navigation.replace('TabNavigator', {screen: 'Explorer'})
+            app.loginUser(response.content().token, response.content().id);
+            console.log("[Signup screen] token: ", response.content().token);
+            console.log("[Signup screen] id: ", response.content().id)
+            props.navigation.replace('TabNavigator', {
+                screen: 'Drawer',
+                params: { screen: 'Profile',
+                    params: { id: response.content().id }
+                }
+            });
         }
     }
    
@@ -82,13 +93,15 @@ const SignupScreen = (props) => {
     const handleSubmitSignUp = async () => {
         console.log("[Signup screen] entro a submit signup")
         setLoading(true);
-        await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
+        console.log("[Signup screen] data:", SignUpData);
+        await app.signOutUser();
+        await app.apiClient().signup(SignUpData, handleApiResponseSignUp)
         console.log("[Signup screen] show error: ", errorData.showError);
         //handleFirebaseSignUp()
         if (!errorData.showError) {
-            console.log("[Signup screen] entro a submit login")
+            console.log("[Signup screen] entro a submit login");
             await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
-            console.log("[Signup screen] termino submit login")
+            console.log("[Signup screen] termino submit login");
         }
         setLoading(false);
         console.log("[Signup screen] termino submit signup")
@@ -125,39 +138,43 @@ const SignupScreen = (props) => {
                     placeholder="First Name"
                     onChangeText={text => setData({
                         ...SignUpData,
-                        firstname: text,
+                        firstName: text,
                     })}
-                    value={SignUpData.firstname}
+                    value={SignUpData.firstName}
                     style={styles.input}
                 />
                 <TextInput
                     placeholder="Last Name"
                     onChangeText={text => setData({
                         ...SignUpData,
-                        lastname: text,
+                        lastName: text,
                     })}
-                    value={SignUpData.lastname}
+                    value={SignUpData.lastName}
                     style={styles.input}
                 />
-                <TextInput
-                    placeholder="Email"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        email: text,
-                    })}
-                    value={SignUpData.email}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Password"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        password: text,
-                    })}
-                    value={SignUpData.password}
-                    style={styles.input}
-                    secureTextEntry
-                />
+                {!signupGoogle && (
+                    <>
+                        <TextInput
+                        placeholder="Email"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            email: text,
+                        })}
+                        value={SignUpData.email}
+                        style={styles.input}
+                        />
+                        <TextInput
+                        placeholder="Password"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            password: text,
+                        })}
+                        value={SignUpData.password}
+                        style={styles.input}
+                        secureTextEntry
+                        />
+                    </>
+                )}
                 <TextInput
                     placeholder="Location"
                     onChangeText={text => setData({
@@ -182,6 +199,22 @@ const SignupScreen = (props) => {
                           <Feather name="chevron-down" color={"#444"} size={18} />
                         );
                       }}
+                />
+                <SelectDropdown
+                    data={subscriptions}
+                    onSelect={(selectedItem, index) => setData({
+                        ...SignUpData,
+                        subscription_type: selectedItem,
+                    })}
+                    value={SignUpData.subscription_type}
+                    defaultButtonText={"Select a subscription type"}
+                    buttonStyle={styles.buttonDropdown}
+                    buttonTextStyle={styles.textDropdown}
+                    renderDropdownIcon={() => {
+                        return (
+                          <Feather name="chevron-down" color={"#444"} size={18} />
+                        );
+                    }}
                 />
             </View>
             <View style={styles.buttonContainer}>

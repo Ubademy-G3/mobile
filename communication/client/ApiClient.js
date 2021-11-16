@@ -3,7 +3,7 @@ import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
 import {LoginEndpoint} from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
-
+import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -46,10 +46,19 @@ class ApiClient {
         });
     }
 
-    getProfile(onResponse) {
+    getProfile(data, userId, onResponse) {
         return this._requester.call({
-            endpoint: new GetProfileEndpoint(),
-            onResponse: (response) => this._handleResponse(response, onResponse)
+            endpoint: new GetProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    editProfile(data, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new EditProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
         });
     }
 }

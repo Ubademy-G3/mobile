@@ -6,7 +6,7 @@ import Feather from 'react-native-vector-icons/Feather';
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 
-const UnsubscribedCourseScreen = (props) => {
+const CourseScreen = (props) => {
     const { item } = props.route.params;
     
     const renderFeaturesItem = ({ item }) => {
@@ -183,4 +183,4 @@ const styles = new StyleSheet.create({
     },
 });
 
-export default UnsubscribedCourseScreen;
+export default CourseScreen;

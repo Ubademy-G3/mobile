@@ -9,7 +9,7 @@ import { auth } from '../firebase'
 Feather.loadFont();
 
 const rols = ["Student", "Instructor"];
-const subscriptions = ["Free", "Gold", "Premium"];
+const subscriptions = ["Free", "Platinum", "Gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -32,7 +32,7 @@ const SignupScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
-    const [signupGoogle, setsignupGooglle] = useState(param_signupGoogle);
+    const [signupGoogle, setsignupGoogle] = useState(param_signupGoogle);
 
     useEffect(() => {
         console.log("[Signup screen] params: ", props.route.params);

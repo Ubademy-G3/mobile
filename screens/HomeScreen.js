@@ -6,143 +6,172 @@ import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import categoriesData from '../assets/data/categoriesData'
 import forYouData from '../assets/data/forYouData'
+import subscriptionTypeData from '../assets/data/subscriptionTypeCourses';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 
 const HomeScreen = (props) => {
-    const renderCategoryItem = ({ item }) => {
-        return (
-          <TouchableOpacity>
-            <View
+  /*const handleOnPressSubscription = ({ item }) => {
+    item.selected = true;
+    props.navigation.navigate('Course Screen', {
+      item: item,
+    });
+
+  }*/
+  const renderCategoryItem = ({ item }) => {
+      return (
+        <TouchableOpacity
+        key={item.id}
+        onPress={() => {
+          props.navigation.navigate('Search by subscription', {
+            //item: item,
+            subscription_type: item.title,
+          });}
+        }>
+          <View
+            style={[
+              styles.categoryItemWrapper,
+              {
+                backgroundColor: item.selected ? '#87ceeb' : 'white',
+                marginLeft: item.id == 1 ? 20 : 0,
+              },
+            ]}>
+            <Image source={item.image} style={styles.categoryItemImage} />
+            <Text style={styles.categoryItemTitle}>{item.title}</Text>
+            {/*<View
               style={[
-                styles.categoryItemWrapper,
+                styles.categorySelectWrapper,
                 {
-                  backgroundColor: item.selected ? '#87ceeb' : 'white',
-                  marginLeft: item.id == 1 ? 20 : 0,
+                  backgroundColor: item.selected ? 'white' : '#87ceeb',
                 },
               ]}>
-              <Image source={item.image} style={styles.categoryItemImage} />
-              <Text style={styles.categoryItemTitle}>{item.title}</Text>
-              {/*<View
-                style={[
-                  styles.categorySelectWrapper,
-                  {
-                    backgroundColor: item.selected ? 'white' : '#87ceeb',
-                  },
-                ]}>
-                  <Feather
-                  name="plus"
-                  size={8}
-                  style={styles.categorySelectIcon}
-                  color={item.selected ? 'black' : 'white'}
-                />
-              </View>*/}
-            </View>
-          </TouchableOpacity>
-        );
-      };    
-    return (
-        <View style={styles.container}>
-          <ScrollView
-            contentInsetAdjustmentBehavior="automatic"
-            showsVerticalScrollIndicator={false}>
-            {/* Logo */}
-            <SafeAreaView>
-                <View style={styles.headerWrapper}>
-                    <Image
-                        source={require("../assets/images/logo_toc.png")}
-                        style={styles.logoImage}
-                    />
-                </View>
-            </SafeAreaView>
+                <Feather
+                name="plus"
+                size={8}
+                style={styles.categorySelectIcon}
+                color={item.selected ? 'black' : 'white'}
+              />
+            </View>*/}
+          </View>
+        </TouchableOpacity>
+      );
+    };    
+  return (
+      <View style={styles.container}>
+        <ScrollView
+          contentInsetAdjustmentBehavior="automatic"
+          showsVerticalScrollIndicator={false}>
+          {/* Logo */}
+          <SafeAreaView>
+              <View style={styles.headerWrapper}>
+                  <Image
+                      source={require("../assets/images/logo_toc.png")}
+                      style={styles.logoImage}
+                  />
+              </View>
+          </SafeAreaView>
 
-            {/* Search */}
-            <View style={styles.searchWrapper}>
-                <Feather name="search" size={16}/>
-                <View style={styles.search}>
-                    <TextInput 
-                    placeholder="Search course|"
-                    onChangeText={text => {}}
-                    //value={}
-                    style={styles.searchText}
-                    />
-                </View>
-            </View>
+          {/* Search */}
+          <View style={styles.searchWrapper}>
+              <Feather name="search" size={16}/>
+              <View style={styles.search}>
+                  <TextInput 
+                  placeholder="Search course|"
+                  onChangeText={text => {}}
+                  //value={}
+                  style={styles.searchText}
+                  />
+              </View>
+          </View>
 
-            {/* Categories */}
-            <View style={styles.categoriesWrapper}>
-                <Text style={styles.categoriesText}>Categories</Text>
-                <View style={styles.categoriesListWrapper}>
-                    <FlatList  
-                     data={categoriesData}
-                     renderItem={renderCategoryItem}
-                     keyExtractor={(item) => item.id}
-                     horizontal={true}
-                     showsHorizontalScrollIndicator={false}
-                    />
-                </View>
-            </View>
+          {/* Categories */}
+          <View style={styles.categoriesWrapper}>
+              <Text style={styles.categoriesText}>Categories</Text>
+              <View style={styles.categoriesListWrapper}>
+                  <FlatList  
+                    data={categoriesData}
+                    renderItem={renderCategoryItem}
+                    keyExtractor={(item) => item.id}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                  />
+              </View>
+          </View>
 
-            {/*For You */}
-            <View style={styles.forYouWrapper}>
-              <Text style={styles.forYouText}>Courses</Text>
-              {forYouData.map(item => (
-                <TouchableOpacity
-                  key={item.id}
-                  onPress={() =>
-                    props.navigation.navigate('Course Screen', {
-                      item: item,
-                    })
-                  }>
-                  <View
-                    style={[
-                      styles.forYouCardWrapper,
-                      {
-                        marginTop: item.id == 1 ? 10 : 20,
-                      },
-                    ]}>
-                    <View>
-                      <View style={styles.forYouCardTop}>
-                        <View>
-                          <Image source={item.image} style={styles.forYouCardImage} />
-                        </View>
-                        <View style={styles.forYouTitleWrapper}>
-                          <Text style={styles.forYouTitlesTitle}>
-                            {item.title}
-                          </Text>
-                          <View style={styles.forYouTitlesRating}>
-                            <MaterialCommunityIcons
-                              name="star"
-                              size={10}
-                              color={'black'}
-                            />
-                            <Text style={styles.rating}>{item.rating}</Text>
-                          </View>
-                        </View>
+          {/* Subscription */}
+          <View style={styles.categoriesWrapper}>
+              <Text style={styles.categoriesText}>Subscriptions</Text>
+              <View style={styles.categoriesListWrapper}>
+                  <FlatList  
+                    data={subscriptionTypeData}
+                    renderItem={renderCategoryItem}
+                    keyExtractor={(item) => item.id}
+                    horizontal={true}
+                    showsHorizontalScrollIndicator={false}
+                  />
+              </View>
+          </View>
+
+          {/*For You */}
+          <View style={styles.forYouWrapper}>
+            <Text style={styles.forYouText}>Courses</Text>
+            {forYouData.map(item => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() =>
+                  props.navigation.navigate('Course Screen', {
+                    item: item,
+                  })
+                }>
+                <View
+                  style={[
+                    styles.forYouCardWrapper,
+                    {
+                      marginTop: item.id == 1 ? 10 : 20,
+                    },
+                  ]}>
+                  <View>
+                    <View style={styles.forYouCardTop}>
+                      <View>
+                        <Image source={item.image} style={styles.forYouCardImage} />
                       </View>
-                      <View style={styles.forYouDescriptionWrapper}>
-                        <Text style={styles.forYouTitleDescription}>
-                          {item.description}
+                      <View style={styles.forYouTitleWrapper}>
+                        <Text style={styles.forYouTitlesTitle}>
+                          {item.title}
                         </Text>
+                        <View style={styles.forYouTitlesRating}>
+                          <MaterialCommunityIcons
+                            name="star"
+                            size={10}
+                            color={'black'}
+                          />
+                          <Text style={styles.rating}>{item.rating}</Text>
+                        </View>
                       </View>
-                      <View style={styles.forYouButtons} >
-                        <View style={styles.addCourseButton}>
-                          <Feather name="plus" size={16} color={'black'} />
-                        </View>
-                        <View style={styles.favoriteCourseButton}>
-                          <Feather name="heart" size={16} color={'black'} />
-                        </View>
-                      </View>  
                     </View>
+                    <View style={styles.forYouDescriptionWrapper}>
+                      <Text style={styles.forYouTitleDescription}>
+                        {item.description}
+                      </Text>
+                    </View>
+                    <View style={styles.forYouButtons} >
+                      <View style={styles.addCourseButton}>
+                        <Feather name="plus" size={16} color={'black'} />
+                      </View>
+                      <View style={styles.favoriteCourseButton}>
+                        <Feather name="heart" size={16} color={'black'} />
+                      </View>
+                    </View>  
                   </View>
-                </TouchableOpacity>
-              ))}
-            </View>
-          </ScrollView>
-        </View>
-    );
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </ScrollView>
+      </View>
+  );
 }
 
 const styles = StyleSheet.create({

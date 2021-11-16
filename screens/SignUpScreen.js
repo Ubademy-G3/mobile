@@ -57,11 +57,13 @@ const SignupScreen = (props) => {
               );
         } else {
             app.loginUser(response.content().token, response.content().id);
-            console.log("[Signup screen] token: ", response.content().token)
+            console.log("[Signup screen] token: ", response.content().token);
+            console.log("[Signup screen] id: ", response.content().id)
             props.navigation.replace('TabNavigator', {
-                screen: 'Drawer', 
-                params: { 
-                    id: response.content().id},
+                screen: 'Drawer',
+                params: { screen: 'Profile',
+                    params: { id: response.content().id }
+                }
             });
         }
     }
@@ -91,7 +93,8 @@ const SignupScreen = (props) => {
     const handleSubmitSignUp = async () => {
         console.log("[Signup screen] entro a submit signup")
         setLoading(true);
-        console.log("[Signup screen] data:", SignUpData)
+        console.log("[Signup screen] data:", SignUpData);
+        await app.signOutUser();
         await app.apiClient().signup(SignUpData, handleApiResponseSignUp)
         console.log("[Signup screen] show error: ", errorData.showError);
         //handleFirebaseSignUp()

@@ -58,12 +58,12 @@ class App {
 
     signOutUser = async () => {
         try {
-            await AsyncStorage.removeItem('"@storageMobile:token')
+            await AsyncStorage.removeItem('@storageMobile:token')
         } catch(e) {
             console.warn("Local storage signOut error", e);
         }
         try {
-            await AsyncStorage.removeItem('"@storageMobile:id')
+            await AsyncStorage.removeItem('@storageMobile:id')
         } catch(e) {
             console.warn("Local storage signOut error", e);
         }

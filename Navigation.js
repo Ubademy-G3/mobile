@@ -23,6 +23,7 @@ import MenuCreatedCoursesScreen from './screens/menu/MenuCreatedCoursesScreen';
 import MenuCreateNewCourseScreen from './screens/menu/MenuCreateNewCourseScreen';
 import MenuUpdateSubscription from './screens/menu/MenuUpdateSubscription';
 import SubscriptionCoursesScreen from './screens/SubscriptionCoursesScreen';
+import MenuEditCoursesScreen from './screens/menu/MenuEditCoursesScreen';
 
 
 Entypo.loadFont();
@@ -51,6 +52,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Edit Profile" component={MenuEditProfileScreen} />
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
+          <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
     </Drawer.Navigator>
   );
 }

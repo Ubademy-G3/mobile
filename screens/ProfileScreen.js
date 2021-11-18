@@ -19,7 +19,7 @@ const ProfileScreen = (props) => {
         lastName: "Last name",
         location: "",
         profilePicture: "../assets/images/profilePic.jpg",
-        //description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
         coursesHistory: [],
     });
 
@@ -32,7 +32,7 @@ const ProfileScreen = (props) => {
                     lastName: response.content().lastName,
                     location: response.content().location,
                     profilePicture: response.content().profilePicture,
-                    //description: response.content().description,
+                    description: response.content().description,
                 });
             } else {
                 setData({
@@ -40,7 +40,7 @@ const ProfileScreen = (props) => {
                     lastName: response.content().lastName,
                     location: response.content().location,
                     profilePicture: response.content().profilePicture,
-                    //description: response.content().description,
+                    description: response.content().description,
                     coursesHistory: response.content().coursesHistory,
                 });
             }
@@ -80,9 +80,9 @@ const ProfileScreen = (props) => {
                     </View>
                 </View>
 
-                {/*<View style={styles.descriptionWrapper}>
+                <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
-                </View>*/}
+                </View>
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
                     {forYouData.map(item => (

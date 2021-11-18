@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {getSetting} from "../Settings";
@@ -7,12 +7,41 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import categoriesData from '../assets/data/categoriesData'
 import forYouData from '../assets/data/forYouData'
 import subscriptionTypeData from '../assets/data/subscriptionTypeCourses';
+import { app } from '../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-
 const HomeScreen = (props) => {
+
+  const [data, setData] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+
+  const handleGetAllCourses = (response) => {
+      console.log("[Home screen] content: ", response.content())
+      if (!response.hasError()) {
+          setData(response.content().courses);
+          console.log("[Home screen] courses: ", data);
+      } else {
+          console.log("[Home screen] error", response.content().message);
+      }
+  }
+
+  const onRefresh = async () => {
+      console.log("[Home screen] entro a onRefresh"); 
+      setLoading(true);
+      let tokenLS = await app.getToken();
+      console.log("[Home screen] token:", tokenLS); 
+      await app.apiClient().getAllCourses({token: tokenLS}, handleGetAllCourses);
+      setLoading(false);
+  };
+
+  useEffect(() => {
+      console.log("[Home screen] entro a useEffect");
+      onRefresh();
+  }, []);
+
   /*const handleOnPressSubscription = ({ item }) => {
     item.selected = true;
     props.navigation.navigate('Course Screen', {
@@ -20,6 +49,60 @@ const HomeScreen = (props) => {
     });
 
   }*/
+
+  const renderCoursesItem = ({item}) => {
+    return(
+      <TouchableOpacity
+        onPress={() =>
+          props.navigation.navigate('Course Screen', {
+            item: item,
+          })
+        }>
+        <View
+          style={[
+            styles.forYouCardWrapper,
+            {
+              marginTop: 15,
+            },
+          ]}>
+          <View>
+            <View style={styles.forYouCardTop}>
+              <View>
+                <Image source={item.profile_picture} style={styles.forYouCardImage} />
+              </View>
+              <View style={styles.forYouTitleWrapper}>
+                <Text style={styles.forYouTitlesTitle}>
+                  {item.name}
+                </Text>
+                <View style={styles.forYouTitlesRating}>
+                  <MaterialCommunityIcons
+                    name="star"
+                    size={10}
+                    color={'black'}
+                  />
+                  {/*<Text style={styles.rating}>{item.rating}</Text>*/}
+                </View>
+              </View>
+            </View>
+            <View style={styles.forYouDescriptionWrapper}>
+              <Text style={styles.forYouTitleDescription}>
+                {item.description}
+              </Text>
+            </View>
+            <View style={styles.forYouButtons} >
+              <View style={styles.addCourseButton}>
+                <Feather name="plus" size={16} color={'black'} />
+              </View>
+              <View style={styles.favoriteCourseButton}>
+                <Feather name="heart" size={16} color={'black'} />
+              </View>
+            </View>  
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
   const renderCategoryItem = ({ item }) => {
       return (
         <TouchableOpacity
@@ -117,57 +200,13 @@ const HomeScreen = (props) => {
           {/*For You */}
           <View style={styles.forYouWrapper}>
             <Text style={styles.forYouText}>Courses</Text>
-            {forYouData.map(item => (
-              <TouchableOpacity
-                key={item.id}
-                onPress={() =>
-                  props.navigation.navigate('Course Screen', {
-                    item: item,
-                  })
-                }>
-                <View
-                  style={[
-                    styles.forYouCardWrapper,
-                    {
-                      marginTop: item.id == 1 ? 10 : 20,
-                    },
-                  ]}>
-                  <View>
-                    <View style={styles.forYouCardTop}>
-                      <View>
-                        <Image source={item.image} style={styles.forYouCardImage} />
-                      </View>
-                      <View style={styles.forYouTitleWrapper}>
-                        <Text style={styles.forYouTitlesTitle}>
-                          {item.title}
-                        </Text>
-                        <View style={styles.forYouTitlesRating}>
-                          <MaterialCommunityIcons
-                            name="star"
-                            size={10}
-                            color={'black'}
-                          />
-                          <Text style={styles.rating}>{item.rating}</Text>
-                        </View>
-                      </View>
-                    </View>
-                    <View style={styles.forYouDescriptionWrapper}>
-                      <Text style={styles.forYouTitleDescription}>
-                        {item.description}
-                      </Text>
-                    </View>
-                    <View style={styles.forYouButtons} >
-                      <View style={styles.addCourseButton}>
-                        <Feather name="plus" size={16} color={'black'} />
-                      </View>
-                      <View style={styles.favoriteCourseButton}>
-                        <Feather name="heart" size={16} color={'black'} />
-                      </View>
-                    </View>  
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+            <FlatList  
+              data={data}
+              renderItem={renderCoursesItem}
+              keyExtractor={(item) => item.id}
+              horizontal={false}
+              showsHorizontalScrollIndicator={false}
+            />
           </View>
         </ScrollView>
       </View>

@@ -153,7 +153,7 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icon 
+                                    <Icon
                                     name="event-note" 
                                     color={color}
                                     size={size}
@@ -161,6 +161,17 @@ const MenuScreen = (props) => {
                                 )}
                                 label="Create New Course"
                                 onPress={() => {props.navigation.navigate('Create New Course')}}
+                            />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons
+                                    name="file-edit-outline" 
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Edit Courses"
+                                onPress={() => {props.navigation.navigate('Edit Courses')}}
                             />
                             </>
                         )}
@@ -178,8 +189,9 @@ const MenuScreen = (props) => {
                         />
                         <DrawerItem 
                             icon={({color, size}) => (
-                                <Ionicons
-                                name="settings-outline"
+                                <Icons
+                                //name="settings-outline"
+                                name="account-edit-outline"
                                 color={color}
                                 size={size}
                                 />

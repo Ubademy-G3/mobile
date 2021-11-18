@@ -5,6 +5,7 @@ import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
 import { SearchBySubscriptionEndpoint } from "../endpoints/SearchBySubscription.js";
+import { GetAllCoursesEndpoint } from "../endpoints/GetAllCoursesEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -66,6 +67,14 @@ class ApiClient {
     searchCourseBySubscription(data, subscription, onResponse) {
         return this._requester.call({
             endpoint: new SearchBySubscriptionEndpoint(subscription),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllCourses(data, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesEndpoint(),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

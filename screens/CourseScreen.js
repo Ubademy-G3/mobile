@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -8,7 +8,58 @@ MaterialCommunityIcons.loadFont();
 
 const CourseScreen = (props) => {
     const { item } = props.route.params;
+
+    const [loading, setLoading] = useState(false);
+
+    const [subscribed, setSubscribed] = useState(false);
+
+    const handleSubscribeToCourse = () => {
+        console.log("[Course screen] content: ", response.content())
+        if (!response.hasError()) {
+            setSubscribed(true);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleGetAllUsersInCourses = async () => {
+        console.log("[Course screen] content: ", response.content())
+        if (!response.hasError()) {
+            let idLS = await app.getToken();
+            for (let item of response.content().users){
+                if (item.id === idLS){
+                    setSubscribed(true);
+                }
+            }
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
     
+    const handleSubmitSubscribe = async () => {
+        console.log("[Course screen] entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getToken();
+        console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().subscribeCourse({token: tokenLS}, idLS, handleSubscribeToCourse);
+        setLoading(false);
+    }
+
+    const onRefresh = async () => {
+        console.log("[Course screen] entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, handleGetAllUsersInCourses);
+        setLoading(false);
+    };
+  
+    useEffect(() => {
+        console.log("[Course screen] entro a useEffect");
+        onRefresh();
+    }, []);
+
     const renderFeaturesItem = ({ item }) => {
         return (
             <View style={[
@@ -60,7 +111,7 @@ const CourseScreen = (props) => {
                     </View>
                 </View>
             </ScrollView>
-            <TouchableOpacity onPress={() => {}}> 
+            <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
                 <View style={styles.subscribeWrapper}>
                     <Feather name="plus" size={18} color="black" />
                     <Text style={styles.subscribeText}>Subscribe</Text>

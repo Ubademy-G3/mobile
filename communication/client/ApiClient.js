@@ -7,6 +7,8 @@ import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
 import { SearchBySubscriptionEndpoint } from "../endpoints/SearchBySubscription.js";
 import { GetAllCoursesEndpoint } from "../endpoints/GetAllCoursesEndpoint.js";
 import { CreateCourseEndpoint } from "../endpoints/CreateCourseEndpoint.js";
+import { SubscribeToCourseEndpoint } from "../endpoints/SubscribeToCourseEndpoint.js";
+import { GetAllUsersInCourseEndpoint } from "../endpoints/GetAllUsersInCourse.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -84,6 +86,22 @@ class ApiClient {
     createCourse(data, onResponse) {
         return this._requester.call({
             endpoint: new CreateCourseEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    subscribeCourse(data, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new SubscribeToCourseEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllUsersInCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllUsersInCourseEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

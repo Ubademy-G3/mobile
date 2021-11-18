@@ -324,7 +324,10 @@ const styles = StyleSheet.create({
   },
   forYouTitlesTitle: {
     fontSize: 16,
-    color: 'black'
+    color: 'black',
+    flex: 1, 
+    flexWrap: 'wrap',
+    flexDirection: "row",
   },
   forYouTitlesRating: {
     flexDirection: 'row',

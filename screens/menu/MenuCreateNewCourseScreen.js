@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
@@ -11,13 +11,12 @@ Feather.loadFont();
 
 const subscriptions = ["Free", "Platinum", "Gold"];
 const levels = ["Easy", "Medium", "Hard"];
-const categories = []
 
 const MenuCreateNewCourseScreen = (props) => {
     const [courseData, setData] = useState({
         name: "",
         description: "",
-        //category: "",
+        category: 0,
         subscription_type: "",
         location: "",
         profile_picture: "",
@@ -25,6 +24,8 @@ const MenuCreateNewCourseScreen = (props) => {
         language: "",
         level: "",
     });
+
+    const [categories, setCategories] = useState([]);
 
     const [loading, setLoading] = useState(false);
 
@@ -56,9 +57,10 @@ const MenuCreateNewCourseScreen = (props) => {
         console.log("[Create Course screen] data:", courseData)
         let tokenLS = await app.getToken();
         console.log("[Create Course screen] token:",tokenLS);
+        //await app.apiClient().
         await app.apiClient().createCourse({name: courseData.name,
             description: courseData.description,
-            //category: courseData.category,
+            category: courseData.category,
             subscription_type: courseData.subscription_type,
             location: courseData.location,
             profile_picture: courseData.profile_picture,
@@ -100,9 +102,9 @@ const MenuCreateNewCourseScreen = (props) => {
                         value={courseData.description}
                         style={styles.input}
                     />
-                    {/*<Text style={styles.inputText}>Category</Text>
+                    <Text style={styles.inputText}>Category</Text>
                     <SelectDropdown
-                        data={categories}
+                        data={categories.name}
                         onSelect={(selectedItem, index) => setData({
                             ...courseData,
                             category: selectedItem,
@@ -116,7 +118,7 @@ const MenuCreateNewCourseScreen = (props) => {
                             <Feather name="chevron-down" color={"#444"} size={18} />
                             );
                         }}
-                    />*/}
+                    />
                     <Text style={styles.inputText}>Subscription Type</Text>
                     <SelectDropdown
                         data={subscriptions}

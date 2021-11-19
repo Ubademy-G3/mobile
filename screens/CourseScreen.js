@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import { app } from '../app/app';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -13,7 +14,7 @@ const CourseScreen = (props) => {
 
     const [subscribed, setSubscribed] = useState(false);
 
-    const handleSubscribeToCourse = () => {
+    const handleSubscribeToCourse = (response) => {
         console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
@@ -22,10 +23,10 @@ const CourseScreen = (props) => {
         }
     }
 
-    const handleGetAllUsersInCourses = async () => {
+    const handleGetAllUsersInCourses = async (response) => {
         console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
-            let idLS = await app.getToken();
+            let idLS = await app.getId();
             for (let item of response.content().users){
                 if (item.id === idLS){
                     setSubscribed(true);
@@ -40,7 +41,7 @@ const CourseScreen = (props) => {
         console.log("[Course screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        let idLS = await app.getToken();
+        let idLS = await app.getId();
         console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().subscribeCourse({token: tokenLS}, idLS, handleSubscribeToCourse);
         setLoading(false);
@@ -111,12 +112,26 @@ const CourseScreen = (props) => {
                     </View>
                 </View>
             </ScrollView>
+            {subscribed === false && (
+            <>
             <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
                 <View style={styles.subscribeWrapper}>
                     <Feather name="plus" size={18} color="black" />
                     <Text style={styles.subscribeText}>Subscribe</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity>            
+            </>
+            )}
+            {/*{subscribed === true && (
+            <>
+            <TouchableOpacity onPress={() => handleUnSubscribe()}> 
+                <View style={styles.subscribeWrapper}>
+                    <Feather name="x" size={18} color="black" />
+                    <Text style={styles.subscribeText}>Unsubscribe</Text>
+                </View>
+            </TouchableOpacity>            
+            </>
+            )}*/}
         </View>
         /*<View style={styles.container}>
           <SafeAreaView>

@@ -15,9 +15,18 @@ const CourseScreen = (props) => {
     const [subscribed, setSubscribed] = useState(false);
 
     const handleSubscribeToCourse = (response) => {
-        console.log("[Course screen] content: ", response.content())
+        console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleUnsubscribeToCourse = (response) => {
+        console.log("[Course screen] unsubscribe content: ", response.content())
+        if (!response.hasError()) {
+            setSubscribed(false);
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -27,8 +36,8 @@ const CourseScreen = (props) => {
         console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
             let idLS = await app.getId();
-            for (let item of response.content().users){
-                if (item.id === idLS){
+            for (let course of response.content().users){
+                if (course.user_id === idLS){
                     setSubscribed(true);
                 }
             }
@@ -38,13 +47,23 @@ const CourseScreen = (props) => {
     }
     
     const handleSubmitSubscribe = async () => {
-        console.log("[Course screen] entro a onRefresh"); 
+        console.log("[Course screen] entro submit button"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Course screen] token:", tokenLS); 
-        await app.apiClient().subscribeCourse({token: tokenLS}, idLS, handleSubscribeToCourse);
+        await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "Student"}, item.id, handleSubscribeToCourse);
         setLoading(false);
+    }
+
+    const handleUnsubscribe = async () => {
+        console.log("[Course screen] unsubcribe");
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, idLS, handleUnsubscribeToCourse);
+        setLoading(false);
+
     }
 
     const onRefresh = async () => {
@@ -122,16 +141,16 @@ const CourseScreen = (props) => {
             </TouchableOpacity>            
             </>
             )}
-            {/*{subscribed === true && (
+            {subscribed === true && (
             <>
-            <TouchableOpacity onPress={() => handleUnSubscribe()}> 
+            <TouchableOpacity onPress={() => handleUnsubscribe()}> 
                 <View style={styles.subscribeWrapper}>
                     <Feather name="x" size={18} color="black" />
                     <Text style={styles.subscribeText}>Unsubscribe</Text>
                 </View>
             </TouchableOpacity>            
             </>
-            )}*/}
+            )}
         </View>
         /*<View style={styles.container}>
           <SafeAreaView>

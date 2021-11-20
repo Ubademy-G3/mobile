@@ -14,7 +14,7 @@ class Requester {
         /*if (endpoint.method() === 'GET' && data) {
             url += "?" + this._dataToQueryString(data);
         }*/
-        //console.log("request:", request)
+        console.log("request:", request)
 
         return fetch(this._baseUrl + url, request)
             .then(function(result) {

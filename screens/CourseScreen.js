@@ -14,6 +14,8 @@ const CourseScreen = (props) => {
 
     const [subscribed, setSubscribed] = useState(false);
 
+    const [rating, setRating] = useState(0);
+
     const handleSubscribeToCourse = (response) => {
         console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
@@ -56,6 +58,15 @@ const CourseScreen = (props) => {
         setLoading(false);
     }
 
+    const handleResponseGetCourseRating = (response) => {
+        console.log("[Course screen] get rating: ", response.content())
+        if (!response.hasError()) {
+            setRating(response.content().rating);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }        
+    }
+
     const handleUnsubscribe = async () => {
         console.log("[Course screen] unsubcribe");
         setLoading(true);
@@ -71,6 +82,7 @@ const CourseScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, handleGetAllUsersInCourses);
         setLoading(false);
     };
@@ -102,14 +114,14 @@ const CourseScreen = (props) => {
                         <Image source={item.image} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{item.title}</Text>
+                        <Text style={styles.titlesTitle}>{item.name}</Text>
                         <View style={styles.titlesRating}>
                             <MaterialCommunityIcons
                                 name="star"
                                 size={18}
                                 color={'black'}
                             />
-                        <Text style={styles.rating}>{item.rating}</Text>
+                        <Text style={styles.rating}>{rating}</Text>
                         </View>
                     </View>
                 </View>
@@ -146,7 +158,7 @@ const CourseScreen = (props) => {
             <TouchableOpacity onPress={() => handleUnsubscribe()}> 
                 <View style={styles.subscribeWrapper}>
                     <Feather name="x" size={18} color="black" />
-                    <Text style={styles.subscribeText}>Unsubscribe</Text>
+                    <Text style={styles.unsubscribeText}>Unsubscribe</Text>
                 </View>
             </TouchableOpacity>            
             </>
@@ -197,6 +209,9 @@ const styles = new StyleSheet.create({
     titleWrapper: {
         //paddingVertical:25,
         paddingHorizontal: 10,
+        flex: 1, 
+        flexWrap: 'wrap',
+        flexDirection: "row"
     },
     titlesTitle: {
         fontSize: 24,
@@ -264,7 +279,11 @@ const styles = new StyleSheet.create({
     },
     subscribeText: {
         fontSize: 14,
-        marginRight: 10,
+        marginRight: 10,        
+    },
+    unsubscribeText: {
+        fontSize: 14,
+        marginRight: 1,        
     },
 });
 

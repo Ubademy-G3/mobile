@@ -11,6 +11,7 @@ import { SubscribeToCourseEndpoint } from "../endpoints/SubscribeToCourseEndpoin
 import { GetAllUsersInCourseEndpoint } from "../endpoints/GetAllUsersInCourse.js";
 import { GetAllCategoriesEndpoint } from "../endpoints/GetAllCategoriesEndpoint.js";
 import { UnsubscribeToCourseEndpoint } from "../endpoints/UnsubscribeToCourseEndpoint.js";
+import { GetCourseRatingEndpoint } from "../endpoints/GetCourseRatingEndpoint";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -107,6 +108,14 @@ class ApiClient {
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });
+    }
+
+    getCourseRating(data, courseId, onResponse){
+        return this._requester.call({
+            endpoint: new GetCourseRatingEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
     }
 
     getAllUsersInCourse(data, courseId, onResponse) {

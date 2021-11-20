@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import SelectDropdown from 'react-native-select-dropdown'
@@ -29,6 +29,15 @@ const MenuCreateNewCourseScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const setCategorySelected = (name, idx) => {
+        console.log("[Create Course screen] name: ", name);
+        console.log("[Create Course screen] idx: ", idx);
+        console.log("[Create Course screen] categories array: ", categories[idx]);
+        category_id = categories[idx].id;
+        console.log("[Create Course screen] category id: ", category_id);
+        //set category
+    }
+
     const handleApiResponseCreateCourse = (response) => {
         console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
@@ -39,6 +48,22 @@ const MenuCreateNewCourseScreen = (props) => {
                 { text: "OK", onPress: () => {} }
                 ]
             );
+        } else {
+            Alert.alert(
+                "Create Course Unsuccesfull:",
+                response.content().message,
+                [
+                { text: "Retry", onPress: () => {} }
+                ]
+            );
+            console.log("[Create Course screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseGetCategories = (response) => {
+        console.log("[Create Course screen] response content: ", response.content())
+        if (!response.hasError()) {
+            setCategories(response.content())
         } else {
             Alert.alert(
                 "Create Course Unsuccesfull:",
@@ -68,9 +93,34 @@ const MenuCreateNewCourseScreen = (props) => {
             language: courseData.language,
             level: courseData.level,
             token: tokenLS}, handleApiResponseCreateCourse);
+        setData({
+            name: "",
+            description: "",
+            category: 0,
+            subscription_type: "",
+            location: "",
+            profile_picture: "",
+            duration: "",
+            language: "",
+            level: "",
+        })
         setLoading(false);
         console.log("[Create Course screen] termino submit signup")
     }
+
+    const onRefresh = async () => {
+        console.log("[Create Course screen]v entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        console.log("[Create Course screen] token:", tokenLS);
+        await app.apiClient().getAllCategories({token: tokenLS}, handleApiResponseGetCategories);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log("[Create Course screen] entro a useEffect");
+        onRefresh();
+    }, []);
 
     return (
         <ScrollView>
@@ -104,11 +154,8 @@ const MenuCreateNewCourseScreen = (props) => {
                     />
                     <Text style={styles.inputText}>Category</Text>
                     <SelectDropdown
-                        data={categories.name}
-                        onSelect={(selectedItem, index) => setData({
-                            ...courseData,
-                            category: selectedItem,
-                        })}
+                        data={categories.map(function(item, idx) {return item.name;})}
+                        onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
                         value={courseData.subscription_type}
                         defaultButtonText={"Select a category"}
                         buttonStyle={styles.buttonDropdown}

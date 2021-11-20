@@ -1,5 +1,5 @@
 import React, {Component, useState} from 'react';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
+import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { auth } from '../firebase'
@@ -104,66 +104,68 @@ const LoginScreen = (props) => {
     }
 
     return (
-        /*<View style={styles.headerContainer}>
-                <SafeAreaView>
-                    <View style={styles.headerWrapper}>
-                        <Image
-                        source={require("../assets/images/logo.png")}
-                        style={styles.logoImage}
-                        />
-                    </View>
-                </SafeAreaView>
-        </View>*/
-        <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-            <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder="Email"
-                    onChangeText={text => setData({
-                        ...data,
-                        email: text,
-                    })}
-                    value={data.email}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Password"
-                    onChangeText={text => setData({
-                        ...data,
-                        password: text,
-                    })}
-                    value={data.password}
-                    style={styles.input}
-                    secureTextEntry
-                />
-            </View>
-            <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={() => {handleSubmitLogin()}}
-                    style={styles.button}
-                    error={errorData.showError}
-                    disabled={loading}
-                >
-                    {
-                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
-                    }
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => {handleSubmitSignUp()}}
-                    style={[styles.button, styles.buttonOutlined]}
-                >
-                    <Text style={styles.buttonOutlineText}>Sign Up</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => {handleSubmitForgotPassword()}}
-                    style={[styles.fadedButton]}
-                >
-                    <Text style={styles.buttonFadedText}>Forgot password?</Text>
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+        <View style={styles.container}>
+            {/*<View style={styles.headerContainer}>*/}
+                    <SafeAreaView>
+                        <View style={styles.headerWrapper}>
+                            <Image
+                            source={require("../assets/images/logo.png")}
+                            style={styles.logoImage}
+                            />
+                        </View>
+                    </SafeAreaView>
+            {/*</View>*/}
+            <KeyboardAvoidingView
+            style={styles.containerText}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            >
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        placeholder="Email"
+                        onChangeText={text => setData({
+                            ...data,
+                            email: text,
+                        })}
+                        value={data.email}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        placeholder="Password"
+                        onChangeText={text => setData({
+                            ...data,
+                            password: text,
+                        })}
+                        value={data.password}
+                        style={styles.input}
+                        secureTextEntry
+                    />
+                </View>
+                <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitLogin()}}
+                        style={styles.button}
+                        error={errorData.showError}
+                        disabled={loading}
+                    >
+                        {
+                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                        }
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitSignUp()}}
+                        style={[styles.button, styles.buttonOutlined]}
+                    >
+                        <Text style={styles.buttonOutlineText}>Sign Up</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitForgotPassword()}}
+                        style={[styles.fadedButton]}
+                    >
+                        <Text style={styles.buttonFadedText}>Forgot password?</Text>
+                    </TouchableOpacity>
+                </View>
+            </KeyboardAvoidingView>
+        </View>
     );
 }
 
@@ -172,6 +174,11 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    containerText: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 40
     },
     headerContainer: {
         flex: 2,
@@ -182,12 +189,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     logoImage: {
-        width: 75,
-        height: 75,
-        borderRadius: 40,
+        width: 155,
+        height: 85
     },
     inputContainer: {
-        width:'80%',
+        width: 280,
     },
     input: {
         backgroundColor:'white',
@@ -197,7 +203,7 @@ const styles = StyleSheet.create({
         marginTop: 5,
     },
     buttonContainer: {
-        width: '60%',
+        width: 280,
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 40,

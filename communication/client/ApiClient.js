@@ -118,9 +118,9 @@ class ApiClient {
         })
     }
 
-    getAllUsersInCourse(data, courseId, onResponse) {
+    getAllUsersInCourse(data, courseId, userType, onResponse) {
         return this._requester.call({
-            endpoint: new GetAllUsersInCourseEndpoint(courseId),
+            endpoint: new GetAllUsersInCourseEndpoint(courseId, userType),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

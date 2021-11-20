@@ -83,7 +83,7 @@ const CourseScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
-        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, handleGetAllUsersInCourses);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleGetAllUsersInCourses);
         setLoading(false);
     };
   
@@ -141,6 +141,15 @@ const CourseScreen = (props) => {
                         showsHorizontalScrollIndicator={false}
                     />
                     </View>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('Student List', {
+                            course_id: item.id
+                          });}}
+                        style={[styles.fadedButton]}
+                    >
+                        <Text style={styles.buttonFadedText}>Student List</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
             {subscribed === false && (
@@ -285,6 +294,18 @@ const styles = new StyleSheet.create({
         fontSize: 14,
         marginRight: 1,        
     },
+    buttonFadedText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        //textDecorationLine: 'underline',
+    },
+    fadedButton: {
+        width: '100%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    }
 });
 
 export default CourseScreen;

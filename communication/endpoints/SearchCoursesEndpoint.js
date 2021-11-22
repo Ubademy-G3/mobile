@@ -11,8 +11,9 @@ export class SearchCoursesEndpoint extends Endpoint {
     }
     url() {
         switch(this._keytype){
-            case "text":
-                this._searchKey = this_searchkey.replace(/ /g, "%20");
+            case "text":                
+                this._searchkey = this._searchkey.replace(/ /g, "%20");
+                console.log("url para busqueda con texto", this._searchkey);
                 return `/courses?text=${this._searchkey}`;
             case "category":
                 return `/courses?category=${this._searchkey}`;

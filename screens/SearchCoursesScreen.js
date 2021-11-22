@@ -30,6 +30,7 @@ const SearchCoursesScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().searchCourse({token: tokenLS}, searchKey, keyType, handleSearchCourses);
+        console.log(courses);
         setLoading(false);
     };
 

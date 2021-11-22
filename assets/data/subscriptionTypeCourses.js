@@ -8,13 +8,13 @@ const subscriptionTypeData = [
     {
       id: '1',
       image: require('../images/platinum_subscription.jpg'),
-      name: 'Platinum',
+      name: 'Gold',
       selected: false,
     },
     {
       id: '2',
       image: require('../images/gold_subscription.jpg'),
-      name: 'Gold',
+      name: 'Platinum',
       selected: false,
     },
   ];

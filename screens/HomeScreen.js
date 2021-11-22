@@ -50,7 +50,7 @@ const HomeScreen = (props) => {
         key={item.id}
         onPress={() => {
           props.navigation.navigate('Search Courses', {
-            searchKey: item.name,
+            searchKey: item.id,
             keyType: "category"
           });}
         }>

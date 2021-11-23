@@ -61,11 +61,11 @@ const SearchCoursesScreen = (props) => {
                             <View>
                             <View style={styles.courseCardTop}>
                                 <View>
-                                <Image source={item.image} style={styles.courseCardImage} />
+                                <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
                                 </View>
                                 <View style={styles.courseTitleWrapper}>
                                 <Text style={styles.courseTitlesTitle}>
-                                    {item.title}
+                                    {item.name}
                                 </Text>
                                 <View style={styles.courseTitlesRating}>
                                     <MaterialCommunityIcons
@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: "row",
-        paddingVertical:25,
+        //paddingVertical:25,
         paddingHorizontal: 15,
         //paddingTop: 5,
         //paddingLeft: 10,
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     titleWrapper: {
-        paddingVertical:35,
+        //paddingVertical:35,
         paddingHorizontal: 10,
         flex: 1, 
         flexWrap: 'wrap',

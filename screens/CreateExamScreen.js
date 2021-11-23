@@ -261,7 +261,7 @@ const CreateExamScreen = (props) => {
                                             ...inputs,
                                             correct: index,
                                         })}
-                                        value={inputs.correct}
+                                        value={inputs.options}
                                         defaultButtonText={"Select the correct answer"}
                                         buttonStyle={styles.buttonDropdown}
                                         buttonTextStyle={styles.textDropdown}

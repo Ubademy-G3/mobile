@@ -41,7 +41,7 @@ const MenuChangeSubscription = (props) => {
                     Free description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Free")}}
+                    onPress={() => {handleUpdateSubscription("free")}}
                     style={styles.button}
                     disabled={loading}
                 >
@@ -55,7 +55,7 @@ const MenuChangeSubscription = (props) => {
                     Platinum description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Platinnum")}}
+                    onPress={() => {handleUpdateSubscription("platinum")}}
                     style={styles.button}
                     disabled={loading}
                 >
@@ -69,7 +69,7 @@ const MenuChangeSubscription = (props) => {
                     Gold description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Gold")}}
+                    onPress={() => {handleUpdateSubscription("gold")}}
                     style={styles.button}
                     disabled={loading}
                 >

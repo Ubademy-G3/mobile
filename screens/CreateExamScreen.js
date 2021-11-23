@@ -102,6 +102,8 @@ const CreateExamScreen = (props) => {
     }
 
     const handleSaveQuestion = () => {
+        //llamar al back y guardar la pregunta
+        
         setQuestionSaved(true);
     }
 
@@ -116,6 +118,12 @@ const CreateExamScreen = (props) => {
     const handleSaveMC = () => {
         setFinishedMC(true);
     } 
+
+    const setCorrect = (key, idx) => {
+        const _inputs = [...inputs];
+        _inputs[key].correct = idx;
+        setInputs(_inputs);
+    }
 
     return (
         <View style={styles.container}>
@@ -257,11 +265,8 @@ const CreateExamScreen = (props) => {
                                     <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
                                     <SelectDropdown
                                         data={input.options}
-                                        onSelect={(selectedItem, index) => setInputs({
-                                            ...inputs,
-                                            correct: index,
-                                        })}
-                                        value={inputs.correct}
+                                        onSelect={(selectedItem, index) => {setCorrect(key, index)}}
+                                        //value={inputs.correct}
                                         defaultButtonText={"Select the correct answer"}
                                         buttonStyle={styles.buttonDropdown}
                                         buttonTextStyle={styles.textDropdown}

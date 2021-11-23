@@ -14,15 +14,17 @@ Feather.loadFont();
 
 const HomeScreen = (props) => {
 
-  const [data, setData] = useState([]);
+  const [categories, setCategories] = useState([]);
+
+  const [searchText, setSearchText] = useState("");
 
   const [loading, setLoading] = useState(false);
 
-  const handleGetAllCourses = (response) => {
+  const handleGetAllCategories = (response) => {
       console.log("[Home screen] content: ", response.content())
       if (!response.hasError()) {
-          setData(response.content().courses);
-          console.log("[Home screen] courses: ", data);
+          setCategories(response.content());
+          console.log("[Home screen] categories: ", categories);
       } else {
           console.log("[Home screen] error", response.content().message);
       }
@@ -32,8 +34,8 @@ const HomeScreen = (props) => {
       console.log("[Home screen] entro a onRefresh"); 
       setLoading(true);
       let tokenLS = await app.getToken();
-      console.log("[Home screen] token:", tokenLS); 
-      await app.apiClient().getAllCourses({token: tokenLS}, handleGetAllCourses);
+      console.log("[Home screen] token:", tokenLS);       
+      await app.apiClient().getAllCategories({token: tokenLS}, handleGetAllCategories);
       setLoading(false);
   };
 
@@ -42,75 +44,14 @@ const HomeScreen = (props) => {
       onRefresh();
   }, []);
 
-  /*const handleOnPressSubscription = ({ item }) => {
-    item.selected = true;
-    props.navigation.navigate('Course Screen', {
-      item: item,
-    });
-
-  }*/
-
-  const renderCoursesItem = ({item}) => {
-    return(
-      <TouchableOpacity
-        onPress={() =>
-          props.navigation.navigate('Course Screen', {
-            item: item,
-          })
-        }>
-        <View
-          style={[
-            styles.forYouCardWrapper,
-            {
-              marginTop: 15,
-            },
-          ]}>
-          <View>
-            <View style={styles.forYouCardTop}>
-              <View>
-                <Image source={item.profile_picture} style={styles.forYouCardImage} />
-              </View>
-              <View style={styles.forYouTitleWrapper}>
-                <Text style={styles.forYouTitlesTitle}>
-                  {item.name}
-                </Text>
-                <View style={styles.forYouTitlesRating}>
-                  <MaterialCommunityIcons
-                    name="star"
-                    size={10}
-                    color={'black'}
-                  />
-                  {/*<Text style={styles.rating}>{item.rating}</Text>*/}
-                </View>
-              </View>
-            </View>
-            <View style={styles.forYouDescriptionWrapper}>
-              <Text style={styles.forYouTitleDescription}>
-                {item.description}
-              </Text>
-            </View>
-            <View style={styles.forYouButtons} >
-              <View style={styles.addCourseButton}>
-                <Feather name="plus" size={16} color={'black'} />
-              </View>
-              <View style={styles.favoriteCourseButton}>
-                <Feather name="heart" size={16} color={'black'} />
-              </View>
-            </View>  
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
   const renderCategoryItem = ({ item }) => {
       return (
         <TouchableOpacity
         key={item.id}
         onPress={() => {
-          props.navigation.navigate('Search by subscription', {
-            //item: item,
-            subscription_type: item.title,
+          props.navigation.navigate('Search Courses', {
+            searchKey: item.id,
+            keyType: "category"
           });}
         }>
           <View
@@ -118,29 +59,40 @@ const HomeScreen = (props) => {
               styles.categoryItemWrapper,
               {
                 backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 1 ? 20 : 0,
+                marginLeft: item.id == 0 ? 20 : 0,
               },
             ]}>
-            <Image source={item.image} style={styles.categoryItemImage} />
-            <Text style={styles.categoryItemTitle}>{item.title}</Text>
-            {/*<View
-              style={[
-                styles.categorySelectWrapper,
-                {
-                  backgroundColor: item.selected ? 'white' : '#87ceeb',
-                },
-              ]}>
-                <Feather
-                name="plus"
-                size={8}
-                style={styles.categorySelectIcon}
-                color={item.selected ? 'black' : 'white'}
-              />
-            </View>*/}
+            {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+            <Text style={styles.categoryItemTitle}>{item.name}</Text>            
           </View>
         </TouchableOpacity>
       );
-    };    
+    };
+
+    const renderSubscriptionItem = ({ item }) => {
+        return (
+          <TouchableOpacity
+          key={item.id}
+          onPress={() => {
+            props.navigation.navigate('Search Courses', {
+              searchKey: item.name,
+              keyType: "subscription"
+            });}
+          }>
+            <View
+              style={[
+                styles.categoryItemWrapper,
+                {
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 0 ? 20 : 0,
+                },
+              ]}>
+              {<Image source={item.image} style={styles.categoryItemImage}/>}
+              <Text style={styles.categoryItemTitle}>{item.name}</Text>            
+            </View>
+          </TouchableOpacity>
+        );
+      };    
   return (
       <View style={styles.container}>
         <ScrollView
@@ -154,27 +106,39 @@ const HomeScreen = (props) => {
                       style={styles.logoImage}
                   />
               </View>
-          </SafeAreaView>
+          </SafeAreaView>                   
 
           {/* Search */}
           <View style={styles.searchWrapper}>
               <Feather name="search" size={16}/>
               <View style={styles.search}>
                   <TextInput 
-                  placeholder="Search course|"
-                  onChangeText={text => {}}
+                  placeholder="Search course"
+                  onChangeText={text => {setSearchText(text)}}
                   //value={}
                   style={styles.searchText}
                   />
-              </View>
+              </View>              
           </View>
+          <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                    onPress={() => {props.navigation.navigate('Search Courses', {
+                        searchKey: searchText,
+                        keyType:"text"
+                      });}}
+                    style={styles.button}
+                >
+                    <Text style={styles.buttonText}>Search</Text>
+                </TouchableOpacity>
+          </View>
+          
 
           {/* Categories */}
           <View style={styles.categoriesWrapper}>
               <Text style={styles.categoriesText}>Categories</Text>
               <View style={styles.categoriesListWrapper}>
                   <FlatList  
-                    data={categoriesData}
+                    data={categories}
                     renderItem={renderCategoryItem}
                     keyExtractor={(item) => item.id}
                     horizontal={true}
@@ -189,33 +153,22 @@ const HomeScreen = (props) => {
               <View style={styles.categoriesListWrapper}>
                   <FlatList  
                     data={subscriptionTypeData}
-                    renderItem={renderCategoryItem}
+                    renderItem={renderSubscriptionItem}
                     keyExtractor={(item) => item.id}
                     horizontal={true}
                     showsHorizontalScrollIndicator={false}
                   />
               </View>
           </View>
-
-          {/*For You */}
-          <View style={styles.forYouWrapper}>
-            <Text style={styles.forYouText}>Courses</Text>
-            <FlatList  
-              data={data}
-              renderItem={renderCoursesItem}
-              keyExtractor={(item) => item.id}
-              horizontal={false}
-              showsHorizontalScrollIndicator={false}
-            />
-          </View>
-        </ScrollView>
+        </ScrollView>        
       </View>
+      
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-      flex : 1,
+      flex : 1,      
   },
   headerWrapper: {
     justifyContent: 'center',
@@ -244,7 +197,6 @@ const styles = StyleSheet.create({
 },
   searchText: {
     fontSize: 14,
-    marginBottom: 5,
     color: "grey",
     alignItems: "center",
 },
@@ -383,6 +335,26 @@ const styles = StyleSheet.create({
     height: 60,
     resizeMode: 'contain',
   },
+  buttonContainer: {
+    width: '90%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 5,
+    marginLeft: 17,
+    flexDirection: 'row'
+  },
+  button: {
+      backgroundColor: `#87ceeb`,
+      width: '100%',
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+  },
+  buttonText: {
+      color:'white',
+      fontWeight: '700',
+      fontSize: 16,
+  }
 });
 
 export default HomeScreen;

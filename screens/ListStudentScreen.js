@@ -8,7 +8,7 @@ const ListStudentScreen = (props) => {
     const param_id = props.route.params ? props.route.params.course_id: '';
 
     const [loading, setLoading] = useState(false); 
-    const [students, setStudents] = useState([]);
+    //const [students, setStudents] = useState([]);
     const [studentsData, setStudentsData] = useState([]);
 
     const handleApiResponseProfile = (response) => {
@@ -23,9 +23,10 @@ const ListStudentScreen = (props) => {
     const handleGetAllUsersInCourse = async (response) => {
         console.log("[ListStudent Screen] content: ", response.content())
         if (!response.hasError()) {
-            setStudents(
-                response.content().users
-            )
+            let tokenLS = await app.getToken();
+            for(let student of response.content().users){
+                await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
+            }
         } else {
             console.log("[ListStudent Screen] error", response.content().message);
         }
@@ -35,14 +36,8 @@ const ListStudentScreen = (props) => {
         console.log("[Student screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-
         console.log("[Student screen] token:", tokenLS); 
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, "Student",handleGetAllUsersInCourse);
-        console.log("STUDENTS!!!!", students);
-        for(let student of students){
-            await app.apiClient().getProfile({token: tokenLS}, student.id, handleApiResponseProfile);
-        }
-
         setLoading(false);
     };
   

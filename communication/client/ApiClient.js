@@ -4,7 +4,7 @@ import {LoginEndpoint} from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
-import { SearchBySubscriptionEndpoint } from "../endpoints/SearchBySubscription.js";
+import { SearchCoursesEndpoint } from "../endpoints/SearchCoursesEndpoint";
 import { GetAllCoursesEndpoint } from "../endpoints/GetAllCoursesEndpoint.js";
 import { CreateCourseEndpoint } from "../endpoints/CreateCourseEndpoint.js";
 import { SubscribeToCourseEndpoint } from "../endpoints/SubscribeToCourseEndpoint.js";
@@ -71,9 +71,9 @@ class ApiClient {
         });
     }
 
-    searchCourseBySubscription(data, subscription, onResponse) {
+    searchCourse(data, searchKey, keyType, onResponse) {
         return this._requester.call({
-            endpoint: new SearchBySubscriptionEndpoint(subscription),
+            endpoint: new SearchCoursesEndpoint(searchKey, keyType),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

@@ -22,7 +22,7 @@ import MenuEditProfileScreen from './screens/menu/MenuEditProfileScreen';
 import MenuCreatedCoursesScreen from './screens/menu/MenuCreatedCoursesScreen';
 import MenuCreateNewCourseScreen from './screens/menu/MenuCreateNewCourseScreen';
 import MenuUpdateSubscription from './screens/menu/MenuUpdateSubscription';
-import SubscriptionCoursesScreen from './screens/SubscriptionCoursesScreen';
+import SearchCoursesScreen from './screens/SearchCoursesScreen';
 import MenuEditCoursesScreen from './screens/menu/MenuEditCoursesScreen';
 import ListStudentScreen from './screens/ListStudentScreen';
 import CreateExamScreen from './screens/CreateExamScreen';
@@ -114,7 +114,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: false}} name="Signup" component={SignupScreen} />
                   <Stack.Screen options={{headerShown: false}} name="TabNavigator" component={TabNavigator} />
                   <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="Course Screen" component={CourseScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="Search by subscription" component={SubscriptionCoursesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Search Courses" component={SearchCoursesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Student List" component={ListStudentScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Create New Exam" component={CreateExamScreen} />
               </Stack.Navigator>

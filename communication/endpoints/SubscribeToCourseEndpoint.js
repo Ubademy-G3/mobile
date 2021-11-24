@@ -1,7 +1,7 @@
 import {Endpoint} from "./Endpoint.js";
-import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
+//import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
 
-export class GetProfileEndpoint extends Endpoint {
+export class SubscribeToCourseEndpoint extends Endpoint {
     constructor(props) {
         super(props);
         console.log("entro al constructor:", props);
@@ -9,15 +9,15 @@ export class GetProfileEndpoint extends Endpoint {
         console.log("salgo del constructor:", this._id);
     }
     url() {
-        return `/users/${this._id}`
+        return `/courses/${this._id}/users`
     }
 
-    ownResponses() {
-        return [GetProfileSuccessful];
-    }
+    /*ownResponses() {
+        //return [GetProfileSuccessful];
+    }*/
 
     method() {
-        return 'GET'
+        return 'POST'
     }
 
     needsAuthorization() {

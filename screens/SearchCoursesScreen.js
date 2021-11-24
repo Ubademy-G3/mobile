@@ -1,103 +1,48 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, {useEffect, useState} from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const ProfileScreen = (props) => {
-    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
-    
-    const [loading, setLoading] = useState(false);
+const SearchCoursesScreen = (props) => {
+    const searchKey = props.route.params ? props.route.params.searchKey : null;
+    const keyType = props.route.params ? props.route.params.keyType : null;
     
     const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(false);
 
-    const handleCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
+    const handleSearchCourses = (response) => {
+        console.log("[Search by subscription screen] content: ", response.content())
         if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
+            setCourses(response.content().courses);
+            console.log("[Search by subscription screen] response: ", courses);
         } else {
-            console.log("[Profile Screen] error", response.content().message);
+            console.log("[Search by subscription screen] error", response.content().message);
         }
     }
-    
 
-    const handleGetCoursesByUser = async (response) => {
-        console.log("[Profile screen] content: ", response.content())
-        if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
-            }
-            console.log("[Profile screen] response: ", courses);
-        } else {
-            console.log("[Profile screen] error", response.content().message);
-        }
-    }
-    
-    const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
-        location: "",
-        profilePicture: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        coursesHistory: [],
-    });
-
-    const handleApiResponseProfile = (response) => {
-        console.log("[Profile screen] content: ", response.content())
-        if (!response.hasError()) {            
-            setData({
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                location: response.content().location,
-                profilePicture: response.content().profilePicture,
-                description: response.content().description
-            });
-            
-        } else {
-            console.log("[Profile screen] error", response.content().message);
-        }
-    }
-    
     const onRefresh = async () => {
-        console.log("[Profile screen] entro a onRefresh"); 
+        console.log("[Search by subscription screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Profile screen] token:",tokenLS);
-        await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, handleGetCoursesByUser)
+        await app.apiClient().searchCourse({token: tokenLS}, searchKey, keyType, handleSearchCourses);
         setLoading(false);
     };
 
     useEffect(() => {
-        console.log("[Profile screen] entro a useEffect"); 
-        console.log("[Profile screen] param id:", param_id);
-        console.log("[Profile screen] params: ", props.route.params)
+        console.log("[Search by subscription screen] entro a useEffect");
         onRefresh();
-    }, [param_id]);
+    }, []);
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={image} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
-                    </View>
-                </View>
-
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
+            <ScrollView>                
                 <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Your courses</Text>
+                    <Text style={styles.coursesTitle}>Courses</Text>
                     {courses.map(item => (
                         <TouchableOpacity
                         key={item.id}
@@ -116,11 +61,11 @@ const ProfileScreen = (props) => {
                             <View>
                             <View style={styles.courseCardTop}>
                                 <View>
-                                <Image source={item.image} style={styles.courseCardImage} />
+                                <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
                                 </View>
                                 <View style={styles.courseTitleWrapper}>
                                 <Text style={styles.courseTitlesTitle}>
-                                    {item.title}
+                                    {item.name}
                                 </Text>
                                 <View style={styles.courseTitlesRating}>
                                     <MaterialCommunityIcons
@@ -136,7 +81,7 @@ const ProfileScreen = (props) => {
                                 <Text style={styles.courseTitleDescription}>
                                 {item.description}
                                 </Text>
-                            </View> 
+                            </View>                             
                             </View>
                         </View>
                         </TouchableOpacity>
@@ -153,7 +98,7 @@ const styles = StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: "row",
-        paddingVertical:25,
+        //paddingVertical:25,
         paddingHorizontal: 15,
         //paddingTop: 5,
         //paddingLeft: 10,
@@ -166,7 +111,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     titleWrapper: {
-        paddingVertical:35,
+        //paddingVertical:35,
         paddingHorizontal: 10,
         flex: 1, 
         flexWrap: 'wrap',
@@ -278,4 +223,4 @@ const styles = StyleSheet.create({
       },
 })
 
-export default ProfileScreen;
+export default SearchCoursesScreen;

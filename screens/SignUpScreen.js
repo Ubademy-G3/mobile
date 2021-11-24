@@ -8,19 +8,26 @@ import { auth } from '../firebase'
 
 Feather.loadFont();
 
-const rols = ["Student", "Instructor"]
+const rols = ["Student", "Instructor"];
+const subscriptions = ["Free", "Platinum", "Gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
     const param_password = props.route.params ? props.route.params.password: '';
+    const param_signupGoogle = props.route.params ? props.route.params.google: '';
+    const param_firstName = props.route.params ? props.route.params.firstName: '';
+    const param_lastName = props.route.params ? props.route.params.lastName: '';
     
     const [SignUpData, setData] = useState({
-        firstname: '',
-        lastname: '',
+        firstName: param_firstName,
+        lastName: param_lastName,
         email: param_email, 
         password: param_password, 
         location: '',
-        rol:'', //deberia darle opciones a elegir
+        rol:'',
+        interests: [],
+        description: "",
+        subscription_type: '',//deberia darle opciones a elegir
     });
 
     const [errorData, setError] = useState({
@@ -31,6 +38,7 @@ const SignupScreen = (props) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
+        console.log("[Signup screen] params: ", props.route.params);
         console.log("[Signup screen] Entro a use effect")
     }, [errorData.showError]);
 
@@ -51,9 +59,14 @@ const SignupScreen = (props) => {
                 ]
               );
         } else {
-            app.loginUser(response.content().token);
+            app.loginUser(response.content().token, response.content().id);
             console.log("[Signup screen] token: ", response.content().token)
-            props.navigation.replace('TabNavigator', {screen: 'Explorer'})
+            props.navigation.replace('TabNavigator', {
+                screen: 'Drawer',
+                params: { screen: 'Profile',
+                    params: { id: response.content().id }
+                }
+            });
         }
     }
    
@@ -82,13 +95,14 @@ const SignupScreen = (props) => {
     const handleSubmitSignUp = async () => {
         console.log("[Signup screen] entro a submit signup")
         setLoading(true);
+        console.log("[Signup screen] data:", SignUpData)
         await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
         //handleFirebaseSignUp()
         if (!errorData.showError) {
-            console.log("[Signup screen] entro a submit login")
+            console.log("[Signup screen] entro a submit login");
             await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
-            console.log("[Signup screen] termino submit login")
+            console.log("[Signup screen] termino submit login");
         }
         setLoading(false);
         console.log("[Signup screen] termino submit signup")
@@ -121,43 +135,48 @@ const SignupScreen = (props) => {
                 </SafeAreaView>
             </View>*/}
             <View style={styles.inputContainer}>
-                <TextInput
-                    placeholder="First Name"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        firstname: text,
-                    })}
-                    value={SignUpData.firstname}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Last Name"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        lastname: text,
-                    })}
-                    value={SignUpData.lastname}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Email"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        email: text,
-                    })}
-                    value={SignUpData.email}
-                    style={styles.input}
-                />
-                <TextInput
-                    placeholder="Password"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        password: text,
-                    })}
-                    value={SignUpData.password}
-                    style={styles.input}
-                    secureTextEntry
-                />
+                
+                {!param_signupGoogle && (
+                    <>
+                        <TextInput
+                        placeholder="First Name"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            firstName: text,
+                        })}
+                        value={SignUpData.firstName}
+                        style={styles.input}
+                    />
+                    <TextInput
+                        placeholder="Last Name"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            lastName: text,
+                        })}
+                        value={SignUpData.lastName}
+                        style={styles.input}
+                    />
+                        <TextInput
+                        placeholder="Email"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            email: text,
+                        })}
+                        value={SignUpData.email}
+                        style={styles.input}
+                        />
+                        <TextInput
+                        placeholder="Password"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            password: text,
+                        })}
+                        value={SignUpData.password}
+                        style={styles.input}
+                        secureTextEntry
+                        />
+                    </>
+                )}
                 <TextInput
                     placeholder="Location"
                     onChangeText={text => setData({
@@ -182,6 +201,22 @@ const SignupScreen = (props) => {
                           <Feather name="chevron-down" color={"#444"} size={18} />
                         );
                       }}
+                />
+                <SelectDropdown
+                    data={subscriptions}
+                    onSelect={(selectedItem, index) => setData({
+                        ...SignUpData,
+                        subscription_type: selectedItem,
+                    })}
+                    value={SignUpData.subscription_type}
+                    defaultButtonText={"Select a subscription type"}
+                    buttonStyle={styles.buttonDropdown}
+                    buttonTextStyle={styles.textDropdown}
+                    renderDropdownIcon={() => {
+                        return (
+                          <Feather name="chevron-down" color={"#444"} size={18} />
+                        );
+                    }}
                 />
             </View>
             <View style={styles.buttonContainer}>

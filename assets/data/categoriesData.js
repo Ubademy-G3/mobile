@@ -1,6 +1,6 @@
 const categoriesData = [
     {
-      id: '1',
+      id: '0',
       image: require('../images/mathematics.jpg'),
       title: 'Mathematics',
       selected: false,
@@ -22,7 +22,8 @@ const categoriesData = [
         image: require('../images/finances.jpg'),
         title: 'Finances',
         selected: false,
-      },
+    },      
+    
   ];
   
   export default categoriesData;

@@ -3,6 +3,19 @@ import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
 import {LoginEndpoint} from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
+import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
+import { SearchCoursesEndpoint } from "../endpoints/SearchCoursesEndpoint";
+import { GetAllCoursesEndpoint } from "../endpoints/GetAllCoursesEndpoint.js";
+import { CreateCourseEndpoint } from "../endpoints/CreateCourseEndpoint.js";
+import { SubscribeToCourseEndpoint } from "../endpoints/SubscribeToCourseEndpoint.js";
+import { GetAllUsersInCourseEndpoint } from "../endpoints/GetAllUsersInCourse.js";
+import { GetAllCategoriesEndpoint } from "../endpoints/GetAllCategoriesEndpoint.js";
+import { UnsubscribeToCourseEndpoint } from "../endpoints/UnsubscribeToCourseEndpoint.js";
+import { GetCourseRatingEndpoint } from "../endpoints/GetCourseRatingEndpoint";
+import { CreateExamEndpoint } from "../endpoints/CreateExamEndpoint.js";
+import { CreateQuestionEndpoint } from "../endpoints/CreateQuestionEndpoint.js";
+import { GetAllCoursesByUserEndpoint } from "../endpoints/GetAllCoursesByUserEndpoint.js";
+import { GetCourseByIdEndpoint } from "../endpoints/GetCourseByIdEndpoint.js";
 
 
 class ApiClient {
@@ -46,10 +59,115 @@ class ApiClient {
         });
     }
 
-    getProfile(onResponse) {
+    getProfile(data, userId, onResponse) {
         return this._requester.call({
-            endpoint: new GetProfileEndpoint(),
-            onResponse: (response) => this._handleResponse(response, onResponse)
+            endpoint: new GetProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    editProfile(data, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new EditProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    searchCourse(data, searchKey, keyType, onResponse) {
+        return this._requester.call({
+            endpoint: new SearchCoursesEndpoint(searchKey, keyType),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getCourseById(data, id, onResponse){
+        return this._requester.call({
+            endpoint: new GetCourseByIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllCoursesByUser(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesByUserEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllCourses(data, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createCourse(data, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateCourseEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+    
+    createExam(data, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateExamEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createQuestion(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateQuestionEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    subscribeCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new SubscribeToCourseEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    unsubscribeCourse(data, courseId, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new UnsubscribeToCourseEndpoint(courseId, userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getCourseRating(data, courseId, onResponse){
+        return this._requester.call({
+            endpoint: new GetCourseRatingEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllUsersInCourse(data, courseId, userType, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllUsersInCourseEndpoint(courseId, userType),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllCategories(data, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCategoriesEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
         });
     }
 }

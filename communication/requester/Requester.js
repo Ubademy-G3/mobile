@@ -1,3 +1,4 @@
+import { or } from "react-native-reanimated";
 import { createIconSetFromFontello } from "react-native-vector-icons";
 import {ErrorApiResponse} from "../responses/generalResponses/ErrorApiResponse.js";
 
@@ -10,14 +11,16 @@ class Requester {
         let has_error = false;
         const request = this._buildRequest(endpoint, data);
         let url = endpoint.url();
-        if (endpoint.method() === 'GET' && data) {
+        /*if (endpoint.method() === 'GET' && data) {
             url += "?" + this._dataToQueryString(data);
-        }
+        }*/
+        console.log("request:", request);
+        console.log("url:", this._baseUrl + url);
 
         return fetch(this._baseUrl + url, request)
             .then(function(result) {
                 console.log("[function] status:", result.status);
-                if (result.status !== 200) {
+                if (!((result.status === 200) || (result.status === 201))) {
                     console.log("[function] entro a status error: ", has_error);
                     has_error = true;
                     console.log("[function] dalgo de status error: ", has_error);
@@ -42,7 +45,7 @@ class Requester {
     }
 
     _buildRequest(endpoint, data) {
-        let headers = this._buildHeadersFor(endpoint);
+        let headers = this._buildHeadersFor(endpoint, data);
         let requestOptions = {
             method: endpoint.method(),
             headers: headers
@@ -58,9 +61,9 @@ class Requester {
     }
 
     _buildResponse(jsonResponse, endpoint, has_error) {
+        console.log("mensaje crudo:", jsonResponse);
         jsonResponse.error = has_error;
         let endpointResponse;
-
         const availableResponsesForEndpoint = endpoint.responses();
         for (let responseType of availableResponsesForEndpoint) {
             if (responseType.understandThis(jsonResponse)) {
@@ -74,12 +77,15 @@ class Requester {
         return endpointResponse;
     }
 
-    _buildHeadersFor(endpoint) {
+    _buildHeadersFor(endpoint, data) {
         let headers = {};
         if (endpoint.contentType() && endpoint.contentType() !== "multipart/form-data") {
             headers['Content-Type'] = endpoint.contentType();
         }
-
+        if (endpoint.needsAuthorization()){
+            //console.log("entro a header authorization")
+            headers['authorization'] = data.token;
+        }
         return headers;
     }
 

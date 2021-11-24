@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
@@ -8,6 +8,40 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuFavoriteCoursesScreen = (props) => {
+    /*const param_favoriteCoursesIds = props.route.params ? props.route.params.favoriteCourses : null;
+
+    const [favoriteCoursesId, setFavoriteCoursesId] = useState(param_favoriteCoursesIds);
+    
+    var favoriteCoursesArray = [];
+
+    const handleApiResponseGetCourse = (response) => {
+        console.log("[Menu screen] content: ", response.content())
+        if (!response.hasError()) {
+            favoriteCoursesArray.push(response.content());
+        } else {
+            console.log("[Menu screen] error", response.content().message);
+        }
+    }
+
+    const onRefresh = async () => {
+        console.log("[Menu screen] entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        console.log("[Profile screen] token:",tokenLS);
+        if (favoriteCoursesId != null) {
+            for (id in favoriteCoursesId) {
+                await app.apiClient.getCourse({id: id, token: tokenLS}, id, handleApiResponseGetCourse)
+            }
+        }
+        console.log("Menu screen] id:", idLS);
+        setLoading(false);
+    };
+
+    useEffect(() => {
+        console.log("[Menu screen] entro a useEffect");
+        onRefresh();
+    }, []);*/
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -16,7 +50,7 @@ const MenuFavoriteCoursesScreen = (props) => {
                         <TouchableOpacity
                         key={item.id}
                         onPress={() =>
-                            props.navigation.navigate('UnsubscribedCourse', {
+                            props.navigation.navigate('Course Screen', {
                             item: item,
                             })
                         }>
@@ -24,7 +58,7 @@ const MenuFavoriteCoursesScreen = (props) => {
                             style={[
                             styles.courseCardWrapper,
                             {
-                                marginTop: item.id == 1 ? 10 : 20,
+                                marginTop: item.id == 1 ? 10 : 20,  //ESTO YA NO FUNCA
                             },
                             ]}>
                             <View>
@@ -52,11 +86,12 @@ const MenuFavoriteCoursesScreen = (props) => {
                                 </Text>
                             </View>
                             <View style={styles.forYouButtons} >
-                                <View style={styles.addCourseButton}>
-                                <Feather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
-                                </View>
+                                {/*<View style={styles.addCourseButton}>
+                                    eather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
+                                </View>*/}
                                 <View style={styles.favoriteCourseButton}>
-                                <MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />
+                                    <MaterialCommunityIcons name="heart" size={16} color={'black'} />
+                                    {/*<MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />*/}
                                 </View>
                             </View>  
                             </View>
@@ -73,51 +108,16 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
     },
-    titlesWrapper: {
-        flexDirection: "row",
-        paddingVertical:25,
-        paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
-    },
-    titlesImage: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
-    },
-    titleWrapper: {
-        paddingVertical:35,
-        paddingHorizontal: 10,
-    },
-    titlesTitle: {
-        fontSize: 24,
-        color: '#87ceeb',
-    },
-    titlesRating: {
-        paddingVertical: 5,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    rating: {
-        fontSize: 18,
-    },
-    descriptionWrapper: {
-        paddingHorizontal: 15,
-        // paddingVertical: 10,
-        paddingBottom: 10,
-    },
     description: {
         fontSize: 16,
     },
     coursesCardWrapper: {
         paddingHorizontal: 20,
       },
-      coursesTitle: {
+    coursesTitle: {
         fontSize: 20,
-      },
-      courseCardWrapper: {
+    },
+    courseCardWrapper: {
         backgroundColor: 'white',
         borderRadius: 25,
         paddingTop: 20,
@@ -131,30 +131,24 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2,  
-      },
-      courseTitleWrapper: {
+    },
+    courseTitleWrapper: {
         marginLeft: 5,
         flexDirection: 'column',
-      },
-      courseTitlesTitle: {
+    },
+    courseTitlesTitle: {
         fontSize: 16,
         color: 'black'
-      },
-      courseTitlesRating: {
+    },
+    courseTitlesRating: {
         flexDirection: 'row',
         alignItems: 'center',
-      },
-      forYouTitlesDescription: {
-        fontSize: 12,
-        color: 'grey',
-        marginTop: 7,
-        paddingRight: 40,
-      },
-      forYouButtons: {
+    },
+    forYouButtons: {
         flexDirection: 'row',
         alignItems: 'center',
-      },
-      addCourseButton: {
+    },
+    addCourseButton: {
         marginTop: 20,
         marginLeft: -20,
         backgroundColor: '#87ceeb',
@@ -162,8 +156,8 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         borderTopRightRadius: 25,
         borderBottomLeftRadius: 25,
-      },
-      favoriteCourseButton: {
+    },
+    favoriteCourseButton: {
         backgroundColor: '#87ceeb',
         marginTop: 20,
         marginLeft: 183,
@@ -171,29 +165,24 @@ const styles = StyleSheet.create({
         paddingVertical: 15,
         borderTopLeftRadius: 25,
         borderBottomRightRadius: 25,
-      },
-      ratingWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 20,
-      },
-      rating: {
+    },
+    rating: {
         fontSize: 12,
         color: 'black',
         marginLeft: 5,
-      },
-      courseCardTop: {
+    },
+    courseCardTop: {
         //marginLeft: 20,
         //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
         //marginRight: 80,
-      },
-      courseCardImage: {
+    },
+    courseCardImage: {
         width: 60,
         height: 60,
         resizeMode: 'contain',
-      },
+    },
 })
 
 export default MenuFavoriteCoursesScreen;

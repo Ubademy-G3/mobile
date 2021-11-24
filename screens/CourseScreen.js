@@ -16,6 +16,14 @@ const CourseScreen = (props) => {
 
     const [rating, setRating] = useState(0);
 
+    const [instructors, setInstructors] = useState([{
+        id: 0,
+        firstName: "",
+        lastName: "",
+        profilePictureUrl: "",
+        description: "" 
+    }])
+
     const handleSubscribeToCourse = (response) => {
         console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
@@ -41,8 +49,28 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
+                } else if (course.user_type === 'instructor') {
+                    handleListInstructors(course.user_id);
                 }
             }
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Course screen] content: ", response.content());
+        if (!response.hasError()) {            
+            const _instructors = [...instructors];
+            _instructors.push({
+                id: response.content().id,
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                profilePictureUrl: response.content().profilePictureUrl,
+                description: response.content().description, 
+            });
+            console.log("[Course screen] content: ", _instructors);
+            setInstructors(_instructors);
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -65,6 +93,11 @@ const CourseScreen = (props) => {
         } else {
             console.log("[Course screen] error", response.content().message);
         }        
+    }
+
+    const handleListInstructors = async (instructorId) => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getProfile({id: instructorId, token: tokenLS}, instructorId, handleApiResponseProfile);
     }
 
     const handleUnsubscribe = async () => {
@@ -92,7 +125,7 @@ const CourseScreen = (props) => {
         onRefresh();
     }, []);
 
-    const renderFeaturesItem = ({ item }) => {
+    /*const renderFeaturesItem = ({ item }) => {
         return (
             <View style={[
                 styles.featuresItemWrapper,
@@ -104,14 +137,14 @@ const CourseScreen = (props) => {
                 <Text style={styles.featuresItemText}>{item.name}</Text>
             </View>
         );
-    };
+    };*/
 
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={item.image} style={styles.titlesImage} />
+                        <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{item.name}</Text>
@@ -121,7 +154,7 @@ const CourseScreen = (props) => {
                                 size={18}
                                 color={'black'}
                             />
-                        <Text style={styles.rating}>{rating}</Text>
+                            <Text style={styles.rating}>{rating}</Text>
                         </View>
                     </View>
                 </View>
@@ -131,15 +164,18 @@ const CourseScreen = (props) => {
                 </View>
 
                 <View style={styles.featuresWrapper}>
-                    <Text style={styles.featuresTitle}>Features</Text>
+                    {/*<Text style={styles.featuresTitle}>Features</Text>*/}
                     <View style={styles.featuresListWrapper}>
-                    <FlatList
+                    {/*<FlatList
                         data={item.features}
                         renderItem={renderFeaturesItem}
                         keyExtractor={(item) => item.id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
-                    />
+                    />*/}
+                    <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
+                    <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
+                    <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
                     </View>
                     <TouchableOpacity
                         onPress={() => {
@@ -218,11 +254,11 @@ const styles = new StyleSheet.create({
     titleWrapper: {
         //paddingVertical:25,
         paddingHorizontal: 10,
-        flex: 1, 
-        flexWrap: 'wrap',
-        flexDirection: "row"
+        flexDirection: "column"
     },
     titlesTitle: {
+        flex: 1, 
+        flexWrap: 'wrap',
         fontSize: 24,
     },
     titlesRating: {
@@ -270,6 +306,7 @@ const styles = new StyleSheet.create({
     },
     featuresItemTitle: {
         fontSize: 16,
+        marginTop: 5,
     },
     featuresItemText: {},
     subscribeWrapper: {
@@ -298,13 +335,14 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //textDecorationLine: 'underline',
+        textDecorationLine: 'underline',
     },
     fadedButton: {
+        marginTop: 10,
         width: '100%',
-        padding: 15,
+        //padding: 15,
         borderRadius: 10,
-        alignItems: 'center',
+        //alignItems: 'center',
     }
 });
 

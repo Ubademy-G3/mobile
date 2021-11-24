@@ -13,6 +13,10 @@ import { GetAllCategoriesEndpoint } from "../endpoints/GetAllCategoriesEndpoint.
 import { UnsubscribeToCourseEndpoint } from "../endpoints/UnsubscribeToCourseEndpoint.js";
 import { GetCourseRatingEndpoint } from "../endpoints/GetCourseRatingEndpoint";
 import { CreateExamEndpoint } from "../endpoints/CreateExamEndpoint.js";
+import { CreateQuestionEndpoint } from "../endpoints/CreateQuestionEndpoint.js";
+import { GetAllCoursesByUserEndpoint } from "../endpoints/GetAllCoursesByUserEndpoint.js";
+import { GetCourseByIdEndpoint } from "../endpoints/GetCourseByIdEndpoint.js";
+
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -79,6 +83,22 @@ class ApiClient {
         });
     }
 
+    getCourseById(data, id, onResponse){
+        return this._requester.call({
+            endpoint: new GetCourseByIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllCoursesByUser(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesByUserEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     getAllCourses(data, onResponse) {
         return this._requester.call({
             endpoint: new GetAllCoursesEndpoint(),
@@ -98,6 +118,14 @@ class ApiClient {
     createExam(data, onResponse) {
         return this._requester.call({
             endpoint: new CreateExamEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createQuestion(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateQuestionEndpoint(examId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

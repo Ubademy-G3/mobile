@@ -14,7 +14,8 @@ const MenuEditProfileScreen = (props) => {
         lastName: "",
         location: "",
         //profilePicture: "",
-        //description: "",
+        description: "",
+        interests: []
     });
 
     const [loading, setLoading] = useState(false);
@@ -45,7 +46,8 @@ const MenuEditProfileScreen = (props) => {
             lastName: userData.lastName,
             location: userData.location,
             //profilePicture: "",
-            //description: userData.description, 
+            description: userData.description, 
+            interests: userData.interests,
             token: tokenLS}, idLS, handleApiResponseEditProfile);
         setLoading(false);
         console.log("[Edit Profile screen] termino submit signup")
@@ -59,7 +61,8 @@ const MenuEditProfileScreen = (props) => {
                 lastName: response.content().lastName,
                 location: response.content().location,
                 profilePicture: response.content().profilePicture,
-                //description: response.content().description,
+                description: response.content().description,
+                interests: response.content().interests
             });
         } else {
             console.log("[Edit Profile screen] error", response.content().message);
@@ -121,7 +124,7 @@ const MenuEditProfileScreen = (props) => {
                     value={userData.location}
                     style={styles.input}
                 />
-                {/**<Text style={styles.inputText}>Description</Text>
+                <Text style={styles.inputText}>Description</Text>
                 <TextInput
                     placeholder={userData.description}
                     onChangeText={text => setData({
@@ -130,7 +133,7 @@ const MenuEditProfileScreen = (props) => {
                     })}
                     value={userData.description}
                     style={styles.input}
-                />*/}
+                />
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity

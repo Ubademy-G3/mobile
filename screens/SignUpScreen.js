@@ -22,7 +22,9 @@ const SignupScreen = (props) => {
         email: param_email, 
         password: param_password, 
         location: '',
-        rol:'', 
+        rol:'',
+        interests: [],
+        description: "",
         subscription_type: '',//deberia darle opciones a elegir
     });
 
@@ -93,7 +95,7 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] entro a submit signup")
         setLoading(true);
         console.log("[Signup screen] data:", SignUpData)
-        await app.apiClient().signup(SignUpData, handleApiResponseSignUp)
+        await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
         //handleFirebaseSignUp()
         if (!errorData.showError) {

@@ -29,7 +29,8 @@ const LoginScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
-    const [signupGoogle, setsignupGoogle] = useState(false);
+    //const [signupGoogle, setsignupGoogle] = useState(false);
+    var signupGoogle = false;
 
     const handleApiResponseLogin = (response) => {
         console.log("[Login screen] entro a handle api response login")
@@ -209,7 +210,7 @@ const LoginScreen = (props) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            setsignupGoogle(true);
+                            signupGoogle = true;
                             handleGoogleLogin();                        
                         }}
                         style={styles.button}>

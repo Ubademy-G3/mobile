@@ -8,8 +8,8 @@ import { auth } from '../firebase'
 
 Feather.loadFont();
 
-const rols = ["Student", "Instructor"];
-const subscriptions = ["Free", "Platinum", "Gold"];
+const rols = ["student", "instructor"];
+const subscriptions = ["free", "platinum", "gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -42,7 +42,7 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] Entro a use effect")
     }, [errorData.showError]);
 
-    const handleApiResponseLogin = (response) => {
+    const handleApiResponseLogin = async (response) => {
         console.log("[Signup screen] entro a handle api response")
         if (response.hasError()) {
             setError({
@@ -59,7 +59,7 @@ const SignupScreen = (props) => {
                 ]
               );
         } else {
-            app.loginUser(response.content().token, response.content().id);
+            await app.loginUser(response.content().token, response.content().id);
             console.log("[Signup screen] token: ", response.content().token);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',

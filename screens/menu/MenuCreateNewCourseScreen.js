@@ -9,8 +9,8 @@ import { app } from '../../app/app';
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const subscriptions = ["Free", "Platinum", "Gold"];
-const levels = ["Easy", "Medium", "Hard"];
+const subscriptions = ["free", "platinum", "gold"];
+const levels = ["easy", "medium", "hard"];
 
 const MenuCreateNewCourseScreen = (props) => {
     const [courseData, setData] = useState({

@@ -2,12 +2,8 @@ import React, {Component, useEffect, useState, useCallback} from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../firebase'
+//import { auth } from '../firebase'
 import * as Google from 'expo-google-app-auth';
-//const admin = require('firebase-admin');
-
-//const nodemailer = require('nodemailer');
-//const functions = require('firebase-functions');
 
 const LoginScreen = (props) => {
     const [data, setData] = useState({
@@ -28,11 +24,12 @@ const LoginScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
+    
+    const [login, setLogin] = useState(false);
 
     const [signupGoogle, setsignupGoogle] = useState(false);
-    //var signupGoogle = false;
 
-    const handleApiResponseLogin = (response) => {
+    const handleApiResponseLogin = async (response) => {
         console.log("[Login screen] entro a handle api response login")
         console.log("[Login screen] has errors: ", response.hasError())
         console.log("[Login screen] error message: ", response.content().message)
@@ -66,7 +63,7 @@ const LoginScreen = (props) => {
             console.log("[Login screen] response: ", response.content())
             console.log("[Login screen] id: ", response.content().id)
             console.log("[Login screen] token: ", response.content().token)
-            app.loginUser(response.content().token, response.content().id);
+            await app.loginUser(response.content().token, response.content().id);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',
@@ -87,15 +84,6 @@ const LoginScreen = (props) => {
       
         if (response.type === 'success') {
             console.log("GOOGLE RESPONSE: ", response);
-            /*setGoogleData({...googleData, 
-                email: response.user.email, 
-                password: response.user.id,
-                firstName: response.user.givenName,
-                lastName: response.user.familyName});
-            handleSubmitLogin({
-                email: response.user.email,
-                password: response.user.id
-            });*/
           return response;
         } else {
           return { cancelled: true };
@@ -106,9 +94,7 @@ const LoginScreen = (props) => {
     }
 
     const handleApiResponseForgotPassword = (response) => {
-        console.log("[Login screen] entro a handle api response forgot password")
-        //console.log("[Login screen] has errors: ", response.hasError())
-        //console.log("[Login screen] error message: ", response.content().message)
+        console.log("[Login screen] entro a handle api response forgot password");
         if (response.hasError()) {
             setError({
                 messageError: response.content().message,
@@ -134,13 +120,13 @@ const LoginScreen = (props) => {
         }
     }
 
-    const handleSubmitLogin = async (loginData) => {
+    /*const handleSubmitLogin = async (loginData) => {
         console.log("[Login screen] entro a submit login")
         setLoading(true);
         await app.apiClient().login(loginData, handleApiResponseLogin);
         setLoading(false);
         console.log("[Login screen] termino submit login")
-    }
+    }*/
 
     const handleSubmitSignUp = () => {
         console.log("[Login screen] entro a submit sign up")
@@ -168,6 +154,16 @@ const LoginScreen = (props) => {
                 password: response.user.id})
         }
       }, [signupGoogle])
+
+    const callbackLogin = useCallback(async () => {
+      if (login === true) {
+        console.log("[Login screen] entro a submit login");
+        setLoading(true);
+        await app.apiClient().login(data, handleApiResponseLogin);
+        setLoading(false);
+        console.log("[Login screen] termino submit login");
+        }
+    }, [login])
     
     useEffect(() => {
         callback()
@@ -175,25 +171,16 @@ const LoginScreen = (props) => {
 
     useEffect(() => {
         if (signupGoogle === true){
-            handleSubmitLogin(data);
+            //handleSubmitLogin(data);
+            setLogin(true);
         }
     }, [data])
 
-    /*useEffect(() => {
-        async function signUpGoogle()
-        if (signupGoogle === true){
-            const response = await handleGoogleLogin()
-            setGoogleData({...googleData, 
-                email: response.user.email, 
-                password: response.user.id,
-                firstName: response.user.givenName,
-                lastName: response.user.familyName});
-            handleSubmitLogin({
-                email: response.user.email,
-                password: response.user.id
-            });
-        }
-      }, [signupGoogle])*/
+    
+    useEffect(() => {
+        callbackLogin()
+    }, [callbackLogin])
+
     return (
         <View style={styles.container}>
             {/*<View style={styles.headerContainer}>*/}
@@ -233,13 +220,13 @@ const LoginScreen = (props) => {
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        onPress={() => {handleSubmitLogin(data)}}
+                        onPress={() => {setLogin(true)}}
                         style={styles.button}
                         error={errorData.showError}
                         disabled={loading}
                     >
                         {
-                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                            loading ? <ActivityIndicator color="#0000ff" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
                         }
                     </TouchableOpacity>
                     <TouchableOpacity

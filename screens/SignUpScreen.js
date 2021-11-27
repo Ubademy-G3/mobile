@@ -60,7 +60,7 @@ const SignupScreen = (props) => {
               );
         } else {
             app.loginUser(response.content().token, response.content().id);
-            console.log("[Signup screen] token: ", response.content().token)
+            console.log("[Signup screen] token: ", response.content().token);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',

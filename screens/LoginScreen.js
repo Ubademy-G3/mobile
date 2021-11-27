@@ -1,4 +1,4 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useEffect, useState, useCallback} from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ const LoginScreen = (props) => {
     const [googleData, setGoogleData] = useState({
         firstName: "",
         lastName: "",
-        id: "",
+        password: "",
         email: ""
     })
 
@@ -29,8 +29,8 @@ const LoginScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
-    //const [signupGoogle, setsignupGoogle] = useState(false);
-    var signupGoogle = false;
+    const [signupGoogle, setsignupGoogle] = useState(false);
+    //var signupGoogle = false;
 
     const handleApiResponseLogin = (response) => {
         console.log("[Login screen] entro a handle api response login")
@@ -42,7 +42,7 @@ const LoginScreen = (props) => {
             signupGoogle === true){
                 props.navigation.replace('Signup', {
                     email: googleData.email, 
-                    password: googleData.id, 
+                    password: googleData.password, 
                     google: signupGoogle,
                     firstName: googleData.firstName,
                     lastName: googleData.lastName});
@@ -87,7 +87,7 @@ const LoginScreen = (props) => {
       
         if (response.type === 'success') {
             console.log("GOOGLE RESPONSE: ", response);
-            setGoogleData({...googleData, 
+            /*setGoogleData({...googleData, 
                 email: response.user.email, 
                 password: response.user.id,
                 firstName: response.user.givenName,
@@ -95,7 +95,7 @@ const LoginScreen = (props) => {
             handleSubmitLogin({
                 email: response.user.email,
                 password: response.user.id
-            });
+            });*/
           return response;
         } else {
           return { cancelled: true };
@@ -154,6 +154,46 @@ const LoginScreen = (props) => {
         console.log("[Login screen] termino forgot password")
     }
 
+    const callback = useCallback(async () => {
+        if (signupGoogle === true){
+            const response = await handleGoogleLogin();
+            console.log("response google:", response);
+            console.log("response google id:", response.user.id);
+            setGoogleData({...googleData, 
+                email: response.user.email, 
+                password: response.user.id,
+                firstName: response.user.givenName,
+                lastName: response.user.familyName});
+            setData({email: response.user.email,
+                password: response.user.id})
+        }
+      }, [signupGoogle])
+    
+    useEffect(() => {
+        callback()
+    }, [callback])
+
+    useEffect(() => {
+        if (signupGoogle === true){
+            handleSubmitLogin(data);
+        }
+    }, [data])
+
+    /*useEffect(() => {
+        async function signUpGoogle()
+        if (signupGoogle === true){
+            const response = await handleGoogleLogin()
+            setGoogleData({...googleData, 
+                email: response.user.email, 
+                password: response.user.id,
+                firstName: response.user.givenName,
+                lastName: response.user.familyName});
+            handleSubmitLogin({
+                email: response.user.email,
+                password: response.user.id
+            });
+        }
+      }, [signupGoogle])*/
     return (
         <View style={styles.container}>
             {/*<View style={styles.headerContainer}>*/}
@@ -210,8 +250,7 @@ const LoginScreen = (props) => {
                     </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {
-                            signupGoogle = true;
-                            handleGoogleLogin();                        
+                            setsignupGoogle(true);
                         }}
                         style={styles.button}>
                         <Text style={styles.buttonText}>Login with Google</Text>

@@ -27,7 +27,10 @@ const SignupScreen = (props) => {
         rol:'',
         interests: [],
         description: "",
-        subscription_type: '',//deberia darle opciones a elegir
+        subscription: '',//deberia darle opciones a elegir
+        profilePictureUrl: "",
+        favoriteCourses: []
+
     });
 
     const [errorData, setError] = useState({
@@ -43,7 +46,7 @@ const SignupScreen = (props) => {
     }, [errorData.showError]);
 
     const handleApiResponseLogin = async (response) => {
-        console.log("[Signup screen] entro a handle api response")
+        console.log("[Signup screen] entro a handle api response:", response.content());
         if (response.hasError()) {
             setError({
                 ...errorData,
@@ -206,9 +209,9 @@ const SignupScreen = (props) => {
                     data={subscriptions}
                     onSelect={(selectedItem, index) => setData({
                         ...SignUpData,
-                        subscription_type: selectedItem,
+                        subscription: selectedItem,
                     })}
-                    value={SignUpData.subscription_type}
+                    value={SignUpData.subscription}
                     defaultButtonText={"Select a subscription type"}
                     buttonStyle={styles.buttonDropdown}
                     buttonTextStyle={styles.textDropdown}

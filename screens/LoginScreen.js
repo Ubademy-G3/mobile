@@ -222,11 +222,11 @@ const LoginScreen = (props) => {
                     <TouchableOpacity
                         onPress={() => {setLogin(true)}}
                         style={styles.button}
-                        error={errorData.showError}
+                        //error={errorData.showError}
                         disabled={loading}
                     >
                         {
-                            loading ? <ActivityIndicator color="#0000ff" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                            loading ? <ActivityIndicator color="#a9a9a9" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
                         }
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -263,7 +263,7 @@ const styles = StyleSheet.create({
     containerText: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 40
+        paddingTop: 30
     },
     headerContainer: {
         flex: 2,
@@ -299,6 +299,7 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
+        paddingTop: 10,
     },
     buttonText: {
         color:'white',

@@ -13,7 +13,7 @@ const MenuEditProfileScreen = (props) => {
         firstName: "",
         lastName: "",
         location: "",
-        //profilePicture: "",
+        profilePictureUrl: "",
         description: "",
         interests: []
     });
@@ -42,10 +42,12 @@ const MenuEditProfileScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Edit Profile screen] token:",tokenLS);
-        await app.apiClient().editProfile({firstName: userData.firstName,
+        await app.apiClient().editProfile({
+            id: idLS,
+            firstName: userData.firstName,
             lastName: userData.lastName,
             location: userData.location,
-            //profilePicture: "",
+            profilePictureUrl: userData.profilePictureUrl,
             description: userData.description, 
             interests: userData.interests,
             token: tokenLS}, idLS, handleApiResponseEditProfile);

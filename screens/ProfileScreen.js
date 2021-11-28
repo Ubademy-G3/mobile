@@ -5,6 +5,7 @@ import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
+import CourseComponent from '../components/CourseComponent';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -70,7 +71,7 @@ const ProfileScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, handleGetCoursesByUser)
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, handleGetCoursesByUser);
         setLoading(false);
     };
 
@@ -98,48 +99,13 @@ const ProfileScreen = (props) => {
                 </View>
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
+                    {courses.length === 0 && (
+                        <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
+                    )}
                     {courses.map(item => (
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() =>
-                            props.navigation.navigate('Course Screen', {
-                            item: item,
-                            })
-                        }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,
-                            },
-                            ]}>
-                            <View>
-                            <View style={styles.courseCardTop}>
-                                <View>
-                                <Image source={item.image} style={styles.courseCardImage} />
-                                </View>
-                                <View style={styles.courseTitleWrapper}>
-                                <Text style={styles.courseTitlesTitle}>
-                                    {item.title}
-                                </Text>
-                                <View style={styles.courseTitlesRating}>
-                                    <MaterialCommunityIcons
-                                    name="star"
-                                    size={10}
-                                    color={'black'}
-                                    />
-                                    <Text style={styles.rating}>{item.rating}</Text>
-                                </View>
-                                </View>
-                            </View>
-                            <View style={styles.courseDescriptionWrapper}>
-                                <Text style={styles.courseTitleDescription}>
-                                {item.description}
-                                </Text>
-                            </View> 
-                            </View>
-                        </View>
-                        </TouchableOpacity>
+                        <CourseComponent 
+                        item={item}
+                        navigation={props.navigation}/>
                     ))}
                 </View>
             </ScrollView>
@@ -276,6 +242,12 @@ const styles = StyleSheet.create({
         height: 60,
         resizeMode: 'contain',
       },
+    courseText: {
+        marginTop: 15,
+        fontWeight: '300',
+        fontSize: 16,
+        paddingBottom: 5,
+    },
 })
 
 export default ProfileScreen;

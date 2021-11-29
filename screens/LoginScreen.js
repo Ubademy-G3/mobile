@@ -226,7 +226,7 @@ const LoginScreen = (props) => {
                         disabled={loading}
                     >
                         {
-                            loading ? <ActivityIndicator color="#a9a9a9" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                            loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
                         }
                     </TouchableOpacity>
                     <TouchableOpacity

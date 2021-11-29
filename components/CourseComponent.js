@@ -80,7 +80,7 @@ const CourseComponent = ({ item, navigation }) => {
                     </View> 
                 </View>
             </View>
-            </TouchableOpacity>
+        </TouchableOpacity>
     );
 }
 
@@ -90,9 +90,6 @@ const styles = StyleSheet.create({
     },
     coursesCardWrapper: {
         paddingHorizontal: 20,
-    },
-    coursesTitle: {
-        fontSize: 20,
     },
     courseCardWrapper: {
         backgroundColor: 'white',

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Alert, Component, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
@@ -6,6 +6,24 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
+
+import * as ImagePicker from "expo-image-picker"
+
+import firebase from "firebase";
+import "firebase/storage";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDRUanGZYpuMBy5BjydmRAEVgoDHT-Nv5E",
+    authDomain: "ubademy-mobile.firebaseapp.com",
+    projectId: "ubademy-mobile",
+    storageBucket: "ubademy-mobile.appspot.com",
+    messagingSenderId: "241878143297",
+    appId: "1:241878143297:web:73b561df646333256511c0",
+    measurementId: "G-233TRRELBZ"
+};
+
+
+
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -15,7 +33,13 @@ const ProfileScreen = (props) => {
     
     const [loading, setLoading] = useState(false);
     
-    const [courses, setCourses] = useState([]);
+    const [courses, setCourses] = useState([]);   
+
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    } else {
+        firebase.app();
+    }
 
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
@@ -81,9 +105,68 @@ const ProfileScreen = (props) => {
         console.log("[Profile screen] params: ", props.route.params)
         onRefresh();
     }, [param_id]);
+        
+
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadMediaOnFirebase(mediaUri);
+        
+        /*const blob = await new Promise<Blob>((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                resolve(xhr.response);
+            };
+            xhr.onerror = function (e) {
+                console.log(e);
+                reject(new TypeError('Network request failed'));
+            };
+            xhr.responseType = 'blob';
+            xhr.open('GET', mediaUri, true);
+            xhr.send(null);
+        });
+    
+        return {
+            blob: <Blob>blob</Blob>,
+            uri: mediaUri,
+        };*/
+    }
+    
+    const uploadMediaOnFirebase = async (mediaUri) => {
+        /*const result = await choosePhotoFromLibrary();
+        if (!result || !result.blob) return;
+        let filename = result.uri.substring(result.uri.lastIndexOf('/') + 1);
+
+        const ref = firebase
+            .storage()
+            .ref()
+            .child(filename);
+        await ref.put(result.blob);
+        const newURL = await ref.getDownloadURL();
+        console.log("NEW URL: ", newURL)*/
+        //updateProfilePicURL(newURL);
+        //await updateProfileInfo();
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const task = await firebase.storage().ref(filename).putFile(uploadUri);
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded to Firebase'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
+     
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container}>             
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
@@ -92,11 +175,21 @@ const ProfileScreen = (props) => {
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
                     </View>
+                    
                 </View>
-
+                
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
+                <TouchableOpacity
+                    onPress={() => {choosePhotoFromLibrary()}}
+                    style={styles.button}
+                    disabled={loading}
+                >
+                    {
+                        <Text style={styles.buttonText}>Add Media to Firebase</Text>
+                    }
+                </TouchableOpacity>
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
                     {courses.length === 0 && (
@@ -248,6 +341,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingBottom: 5,
     },
+    button: {
+        backgroundColor: `#87ceeb`,
+        width: '100%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color:'white',
+        fontWeight: '700',
+        fontSize: 16,
+    }
 })
 
 export default ProfileScreen;

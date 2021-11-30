@@ -4,7 +4,7 @@ import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableO
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
-import { auth } from '../firebase'
+
 
 Feather.loadFont();
 
@@ -101,7 +101,7 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] data:", SignUpData)
         await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
-        //handleFirebaseSignUp()
+       
         if (!errorData.showError) {
             console.log("[Signup screen] entro a submit login");
             await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
@@ -110,33 +110,12 @@ const SignupScreen = (props) => {
         setLoading(false);
         console.log("[Signup screen] termino submit signup")
     }
-    /*const handleFirebaseSignUp = () => {
-        console.log("[Signup screen] firebase signup")
-        auth
-          .createUserWithEmailAndPassword(SignUpData.email, SignUpData.password)
-          .then(userCredentials => {
-            const user = userCredentials.user;
-            console.log('Registered with:', user.email);
-          })
-          .catch(error => alert(error.message))
-        console.log("[Signup screen] termino firebase signup")
-    }*/
-
+    
     return (
         <KeyboardAvoidingView
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            {/*<View style={styles.headerContainer}>
-                <SafeAreaView>
-                    <View style={styles.headerWrapper}>
-                        <Image
-                        source={require("../assets/images/logo.png")}
-                        style={styles.logoImage}
-                        />
-                    </View>
-                </SafeAreaView>
-            </View>*/}
             <View style={styles.inputContainer}>
                 
                 {!param_signupGoogle && (

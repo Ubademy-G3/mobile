@@ -2,7 +2,6 @@ import React, {Component, useEffect, useState, useCallback} from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
-//import { auth } from '../firebase'
 import * as Google from 'expo-google-app-auth';
 
 const LoginScreen = (props) => {

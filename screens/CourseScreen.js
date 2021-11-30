@@ -98,7 +98,8 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
-                } else if (course.user_type === 'instructor') {
+                }
+                if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
                 }
             }

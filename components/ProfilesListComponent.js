@@ -25,9 +25,9 @@ const ProfilesListComponent = ({ item, navigation }) => {
           {/*</View>*/}
             <Text style={styles.profilesTitle}>{item.firstName} {item.lastName}</Text>  
           </View>
-          <View style={styles.profilesDescriptionWrapper}>
+          {/*<View style={styles.profilesDescriptionWrapper}>
             <Text style={styles.profilesDescription}>{item.description}</Text>
-          </View>              
+          </View>*/}        
         </View>
       </TouchableOpacity>
     );
@@ -64,6 +64,7 @@ const styles = StyleSheet.create({
       height: 60,
       borderRadius: 15,
       resizeMode: 'contain',
+      marginRight: 10,
     },
     profilesTitleWrapper: {
       marginLeft: 5,

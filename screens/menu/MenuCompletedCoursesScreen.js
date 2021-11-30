@@ -49,9 +49,10 @@ const MenuCompletedCoursesScreen = (props) => {
     };
 
     useEffect(() => {
+        setCourses([]);
         console.log("[Menu Subscribed Courses screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, [props]);
 
     return (
         <View style={styles.container}>

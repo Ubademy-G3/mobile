@@ -156,12 +156,13 @@ const LoginScreen = (props) => {
       }, [signupGoogle])
 
     const callbackLogin = useCallback(async () => {
-      if (login === true) {
-        console.log("[Login screen] entro a submit login");
-        setLoading(true);
-        await app.apiClient().login(data, handleApiResponseLogin);
-        setLoading(false);
-        console.log("[Login screen] termino submit login");
+        if (login === true) {
+            console.log("[Login screen] entro a submit login");
+            setLoading(true);
+            await app.apiClient().login(data, handleApiResponseLogin);
+            setLoading(false);
+            console.log("[Login screen] termino submit login");
+            setLogin(false);
         }
     }, [login])
     
@@ -300,6 +301,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
         paddingTop: 10,
+        marginBottom: 8,
     },
     buttonText: {
         color:'white',
@@ -308,7 +310,7 @@ const styles = StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        marginTop: 5,
+        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },

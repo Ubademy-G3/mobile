@@ -23,7 +23,6 @@ const MenuSubscribedCoursesScreen = (props) => {
             console.log("[Menu Subscribed Courses Screen] error", response.content().message);
         }
     }
-    
 
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Subscribed Courses screen] content: ", response.content())
@@ -49,9 +48,10 @@ const MenuSubscribedCoursesScreen = (props) => {
     };
 
     useEffect(() => {
+        setCourses([]);
         console.log("[Menu Subscribed Courses screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, [props]);
 
     return (
         <View style={styles.container}>

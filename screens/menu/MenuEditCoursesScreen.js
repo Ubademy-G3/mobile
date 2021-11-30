@@ -4,6 +4,7 @@ import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
+import CourseComponent from "../../components/CourseComponent"
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();

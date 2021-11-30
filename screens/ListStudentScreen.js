@@ -1,7 +1,7 @@
 import {app} from '../app/app';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
-import image from "../assets/images/profilePic.jpg";
+import ProfilesListComponent from '../components/ProfilesListComponent';
 
 
 const ListStudentScreen = (props) => {
@@ -9,7 +9,7 @@ const ListStudentScreen = (props) => {
   const param_id = props.route.params ? props.route.params.course_id: '';
 
   const [loading, setLoading] = useState(false); 
-  //const [students, setStudents] = useState([]);
+
   const [studentsData, setStudentsData] = useState([]);
 
   const handleApiResponseProfile = (response) => {
@@ -38,7 +38,7 @@ const ListStudentScreen = (props) => {
       setLoading(true);
       let tokenLS = await app.getToken();
       console.log("[Student screen] token:", tokenLS); 
-      await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, "Student",handleGetAllUsersInCourse);
+      await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, "student", handleGetAllUsersInCourse);
       setLoading(false);
   };
 
@@ -47,47 +47,20 @@ const ListStudentScreen = (props) => {
       onRefresh();
   }, []);
 
-  const renderStudentItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-      key={item.id}
-      onPress={() => {
-        props.navigation.navigate('Anothers Profile', {
-          id: item.id,
-        });
-      }}>
-        <View
-        style={[
-          styles.profilesCardWrapper,
-          {
-            backgroundColor: item.selected ? '#87ceeb' : 'white',
-            marginLeft: item.id == 1 ? 20 : 0,
-          },
-        ]}>
-          {/*<View>*/}
-          <View style={styles.profilesTitleWrapper}>
-            <Image source={image} style={styles.profilesCardImage} />
-          {/*</View>*/}
-            <Text style={styles.profilesTitle}>{item.firstName} {item.lastName}</Text>  
-          </View>
-          <View style={styles.profilesDescriptionWrapper}>
-            <Text style={styles.profilesDescription}>{item.description}</Text>
-          </View>              
-        </View>
-      </TouchableOpacity>
-    );
-  }; 
-
-
   return (
     <View style={styles.cardWrapper}>
-        <FlatList  
-          data={studentsData}
-          renderItem={renderStudentItem}
-          keyExtractor={(item) => item.id}
-          horizontal={false}
-          showsHorizontalScrollIndicator={false}
-        />
+      {/*<FlatList  
+        data={studentsData}
+        renderItem={renderStudentItem}
+        keyExtractor={(item) => item.id}
+        horizontal={false}
+        showsHorizontalScrollIndicator={false}
+      />*/}
+      {studentsData.map(item => (
+        <ProfilesListComponent 
+        item={item}
+        navigation={props.navigation}/>
+      ))}
     </View>
   );
 }

@@ -43,7 +43,6 @@ const CourseComponent = ({ item, navigation }) => {
             key={item.id}
             onPress={() =>
                 navigation.navigate('Course Screen', {
-                //props.navigation.navigate('Course Screen', {
                 item: item,
                 })
             }>

@@ -17,6 +17,7 @@ import { CreateQuestionEndpoint } from "../endpoints/CreateQuestionEndpoint.js";
 import { GetAllCoursesByUserEndpoint } from "../endpoints/GetAllCoursesByUserEndpoint.js";
 import { GetCourseByIdEndpoint } from "../endpoints/GetCourseByIdEndpoint.js";
 import { GetCategoryByIdEndpoint } from "../endpoints/GetCategoryByIdEndpoint.js";
+import { GetAllExamsByCourseIdEndpoint } from "../endpoints/GetAllExamsByCourseIdEndpoint.js";
 
 
 class ApiClient {
@@ -127,6 +128,14 @@ class ApiClient {
     createQuestion(data, examId, onResponse) {
         return this._requester.call({
             endpoint: new CreateQuestionEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllExamsByCourseId(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllExamsByCourseIdEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

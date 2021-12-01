@@ -10,7 +10,7 @@ MaterialCommunityIcons.loadFont();
 
 const CreateExamScreen = (props) => {
 
-    const param_course_id = props.route.params ? props.route.params.id : '278f684b-69e2-4ad2-9d23-b64f971cf874';
+    const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
 
     const [nameSaved, setNameSaved] = useState(false);
 

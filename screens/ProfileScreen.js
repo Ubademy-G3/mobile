@@ -1,5 +1,5 @@
-import React, { Alert, Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { Component, useState, useEffect } from 'react';
+import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -8,11 +8,11 @@ import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
 
 import * as ImagePicker from "expo-image-picker"
+import { firebase } from '../firebase'
+//import firebase from "firebase";
+//import {} from 'firebase/storage';
 
-import firebase from "firebase";
-import "firebase/storage";
-
-const firebaseConfig = {
+/*const firebaseConfig = {
     apiKey: "AIzaSyDRUanGZYpuMBy5BjydmRAEVgoDHT-Nv5E",
     authDomain: "ubademy-mobile.firebaseapp.com",
     projectId: "ubademy-mobile",
@@ -20,10 +20,7 @@ const firebaseConfig = {
     messagingSenderId: "241878143297",
     appId: "1:241878143297:web:73b561df646333256511c0",
     measurementId: "G-233TRRELBZ"
-};
-
-
-
+};*/
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -35,11 +32,12 @@ const ProfileScreen = (props) => {
     
     const [courses, setCourses] = useState([]);   
 
-    if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig);
-    } else {
-        firebase.app();
-    }
+    //if (!firebase.apps.length) {
+        //firebase.initializeApp(firebaseConfig);
+        //firebase.initializeApp(firebaseConfig);
+    //} else {
+    /*    firebase.app();
+    }*/
 
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
@@ -154,7 +152,9 @@ const ProfileScreen = (props) => {
         console.log("filename:", filename);  
 
         try{
-            const task = await firebase.storage().ref(filename).putFile(uploadUri);
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = await firebase.default.storage().ref(filename).put(blob);
             Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded to Firebase'

@@ -3,24 +3,8 @@ import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Al
 import forYouData from '../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
-
-import * as ImagePicker from "expo-image-picker"
-import { firebase } from '../firebase'
-//import firebase from "firebase";
-//import {} from 'firebase/storage';
-
-/*const firebaseConfig = {
-    apiKey: "AIzaSyDRUanGZYpuMBy5BjydmRAEVgoDHT-Nv5E",
-    authDomain: "ubademy-mobile.firebaseapp.com",
-    projectId: "ubademy-mobile",
-    storageBucket: "ubademy-mobile.appspot.com",
-    messagingSenderId: "241878143297",
-    appId: "1:241878143297:web:73b561df646333256511c0",
-    measurementId: "G-233TRRELBZ"
-};*/
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -30,15 +14,17 @@ const ProfileScreen = (props) => {
     
     const [loading, setLoading] = useState(false);
     
-    const [courses, setCourses] = useState([]);   
-
-    //if (!firebase.apps.length) {
-        //firebase.initializeApp(firebaseConfig);
-        //firebase.initializeApp(firebaseConfig);
-    //} else {
-    /*    firebase.app();
-    }*/
-
+    const [courses, setCourses] = useState([]);  
+    
+    const [userData, setData] = useState({
+        firstName: "Name",
+        lastName: "Last name",
+        location: "",
+        profilePicture: "",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        coursesHistory: [],
+    });
+    
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
         if (!response.hasError()) {
@@ -62,14 +48,6 @@ const ProfileScreen = (props) => {
         }
     }
     
-    const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
-        location: "",
-        profilePicture: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        coursesHistory: [],
-    });
 
     const handleApiResponseProfile = (response) => {
         console.log("[Profile screen] content: ", response.content())
@@ -78,7 +56,7 @@ const ProfileScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePicture: response.content().profilePicture,
+                profilePicture: response.content().profilePictureUrl,
                 description: response.content().description
             });
             
@@ -102,67 +80,7 @@ const ProfileScreen = (props) => {
         console.log("[Profile screen] param id:", param_id);
         console.log("[Profile screen] params: ", props.route.params)
         onRefresh();
-    }, [param_id]);
-        
-
-    const choosePhotoFromLibrary = async () => {
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
-        console.log("CARGO UNA IMAGEN:", pickerResult);
-        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
-        console.log("Media URi:", mediaUri);  
-        uploadMediaOnFirebase(mediaUri);
-        
-        /*const blob = await new Promise<Blob>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.onload = function () {
-                resolve(xhr.response);
-            };
-            xhr.onerror = function (e) {
-                console.log(e);
-                reject(new TypeError('Network request failed'));
-            };
-            xhr.responseType = 'blob';
-            xhr.open('GET', mediaUri, true);
-            xhr.send(null);
-        });
-    
-        return {
-            blob: <Blob>blob</Blob>,
-            uri: mediaUri,
-        };*/
-    }
-    
-    const uploadMediaOnFirebase = async (mediaUri) => {
-        /*const result = await choosePhotoFromLibrary();
-        if (!result || !result.blob) return;
-        let filename = result.uri.substring(result.uri.lastIndexOf('/') + 1);
-
-        const ref = firebase
-            .storage()
-            .ref()
-            .child(filename);
-        await ref.put(result.blob);
-        const newURL = await ref.getDownloadURL();
-        console.log("NEW URL: ", newURL)*/
-        //updateProfilePicURL(newURL);
-        //await updateProfileInfo();
-        const uploadUri = mediaUri;
-        console.log("uploadUri:", uploadUri);
-        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-        console.log("filename:", filename);  
-
-        try{
-            const response = await fetch(uploadUri);
-            const blob = await response.blob();
-            const task = await firebase.default.storage().ref(filename).put(blob);
-            Alert.alert(
-                'Image Uploaded',
-                'Your image has been uploaded to Firebase'
-            );
-        } catch(err) {
-            console.log("Error en el firebase storage:", err);
-        }
-    }
+    }, [param_id]);   
      
 
     return (
@@ -170,7 +88,7 @@ const ProfileScreen = (props) => {
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={image} style={styles.titlesImage} />
+                        <Image source={{uri: userData.profilePicture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
@@ -180,16 +98,7 @@ const ProfileScreen = (props) => {
                 
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
-                </View>
-                <TouchableOpacity
-                    onPress={() => {choosePhotoFromLibrary()}}
-                    style={styles.button}
-                    disabled={loading}
-                >
-                    {
-                        <Text style={styles.buttonText}>Add Media to Firebase</Text>
-                    }
-                </TouchableOpacity>
+                </View>                
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
                     {courses.length === 0 && (

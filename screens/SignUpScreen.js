@@ -28,7 +28,7 @@ const SignupScreen = (props) => {
         interests: [],
         description: "",
         subscription: '',//deberia darle opciones a elegir
-        profilePictureUrl: "",
+        profilePictureUrl: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/c23449d1-43e3-4cc5-9681-25d563ee5ab9.jpg?alt=media&token=8ec949cd-5ad1-4bbf-a1a5-c3d7c612e440",
         favoriteCourses: []
 
     });

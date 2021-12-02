@@ -29,7 +29,7 @@ const ProfileScreen = (props) => {
     });
 
     const handleCourseResponse = (response) => {
-        //console.log("[Profile Screen] content: ", response.content())
+        console.log("[Profile Screen] content: ", response.content())
         if (!response.hasError()) {
                setCourses(courses => [...courses, response.content()]);
         } else {

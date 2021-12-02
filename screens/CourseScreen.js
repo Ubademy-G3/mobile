@@ -23,10 +23,21 @@ const CourseScreen = (props) => {
 
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
 
+    const [exams, setExams] = useState([]);
+
     const removeElement = (arr, value) => { 
         return arr.filter(function(ele){ 
             return ele != value; 
         });
+    }
+
+    const handleResponseGetAllExams = (response) => {
+        console.log("[Course screen] get exams: ", response.content())
+        if (!response.hasError()) {
+            setExams(response.content().exam_templates);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }        
     }
 
     const handleResponseSubscribeToCourse = (response) => {
@@ -170,6 +181,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, handleResponseGetAllExams);
         setLoading(false);
     };
   
@@ -177,20 +189,6 @@ const CourseScreen = (props) => {
         console.log("[Course screen] entro a useEffect");
         onRefresh();
     }, []);
-
-    /*const renderFeaturesItem = ({ item }) => {
-        return (
-            <View style={[
-                styles.featuresItemWrapper,
-                {
-                  marginLeft: item.id === '1' ? 5 : 0,
-                },
-            ]}>
-                <Text style={styles.featuresItemTitle}>{item.key}</Text>
-                <Text style={styles.featuresItemText}>{item.name}</Text>
-            </View>
-        );
-    };*/
 
     return (
         <View style={styles.container}>
@@ -211,41 +209,53 @@ const CourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
-
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{item.description}</Text>
-                </View>
-
-                <View style={styles.featuresWrapper}>
-                    {/*<Text style={styles.featuresTitle}>Features</Text>*/}
-                    <View style={styles.featuresListWrapper}>
-                        {/*<FlatList
-                            data={item.features}
-                            renderItem={renderFeaturesItem}
-                            keyExtractor={(item) => item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />*/}
-                        <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
-                        <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
-                        <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
+                {subscribed === false && (
+                <>
+                    <View style={styles.descriptionWrapper}>
+                        <Text style={styles.description}>{item.description}</Text>
                     </View>
-                    <Text style={styles.instructorsTitle}>Instructors:</Text>
-                    {instructors.map(item => (
-                        <ProfilesListComponent 
-                        item={item}
-                        navigation={props.navigation}/>
+
+                    <View style={styles.featuresWrapper}>
+                        <View style={styles.featuresListWrapper}>
+                            <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
+                            <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
+                            <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
+                        </View>
+                        <Text style={styles.instructorsTitle}>Instructors:</Text>
+                        {instructors.map(item => (
+                            <ProfilesListComponent 
+                            item={item}
+                            navigation={props.navigation}/>
+                        ))}
+                        <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('Student List', {
+                                course_id: item.id
+                            });}}
+                            style={[styles.fadedButton]}
+                        >
+                            <Text style={styles.buttonFadedText}>Student List</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+                )}
+                {subscribed === true && (
+                <>
+                    {exams.length === 0 && (
+                        <Text style={styles.examsText}>This course doesn't have exams</Text>
+                    )}
+                    {exams.map(item => (
+                    <View style={styles.examsList}>
+                        <TouchableOpacity
+                            onPress={() => {props.navigation.navigate('Exam Screen', {id: item.id})}}
+                            style={[styles.fadedButton]}
+                        >
+                            <Text style={styles.buttonFadedText}>{item.name}</Text>
+                        </TouchableOpacity>
+                    </View>
                     ))}
-                    <TouchableOpacity
-                        onPress={() => {
-                            props.navigation.navigate('Student List', {
-                            course_id: item.id
-                          });}}
-                        style={[styles.fadedButton]}
-                    >
-                        <Text style={styles.buttonFadedText}>Student List</Text>
-                    </TouchableOpacity>
-                </View>
+                </>
+                )}
             </ScrollView>
             <View style={styles.buttonsWrapper}>
                 {subscribed === false && (
@@ -443,7 +453,11 @@ const styles = new StyleSheet.create({
         //padding: 15,
         borderRadius: 10,
         //alignItems: 'center',
-    }
+    },
+    examsList: {
+        marginBottom: 5,
+        marginLeft: 10,
+    },
 });
 
 export default CourseScreen;

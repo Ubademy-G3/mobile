@@ -1,5 +1,6 @@
 import React, {Component, useEffect, useState, useCallback} from 'react';
 import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../app/app';
@@ -8,6 +9,8 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const CourseComponent = ({ item, navigation }) => {
+
+    console.log("[Course component] item", item);
 
     const [loading, setLoading] = useState(false);
 

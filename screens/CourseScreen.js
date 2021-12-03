@@ -244,13 +244,13 @@ const CourseScreen = (props) => {
                     {exams.length === 0 && (
                         <Text style={styles.examsText}>This course doesn't have exams</Text>
                     )}
-                    {exams.map(item => (
+                    {exams.map(item_exam => (
                     <View style={styles.examsList}>
                         <TouchableOpacity
-                            onPress={() => {props.navigation.navigate('Exam Screen', {id: item.id})}}
+                            onPress={() => {props.navigation.navigate('Exam Screen', {id: item_exam.id})}}
                             style={[styles.fadedButton]}
                         >
-                            <Text style={styles.buttonFadedText}>{item.name}</Text>
+                            <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
                         </TouchableOpacity>
                     </View>
                     ))}

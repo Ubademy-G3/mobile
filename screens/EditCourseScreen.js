@@ -16,26 +16,26 @@ const EditCourseScreen = (props) => {
     const [rating, setRating] = useState(0);
 
     const handleResponseGetCourseRating = (response) => {
-        console.log("[Course screen] get rating: ", response.content())
+        console.log("[Edit Course screen] get rating: ", response.content())
         if (!response.hasError()) {
             setRating(response.content().rating);
         } else {
-            console.log("[Course screen] error", response.content().message);
+            console.log("[Edit Course screen] error", response.content().message);
         }        
     }
 
     const onRefresh = async () => {
-        console.log("[Course screen] entro a onRefresh"); 
+        console.log("[Edit Course screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Course screen] token:", tokenLS); 
+        console.log("[Edit Course screen] token:", tokenLS); 
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         setLoading(false);
     };
   
     useEffect(() => {
-        console.log("[Course screen] entro a useEffect");
+        console.log("[Edit Course screen] entro a useEffect");
         onRefresh();
     }, []);
 

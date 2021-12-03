@@ -1,7 +1,8 @@
 import React, {Component, useEffect, useState, useCallback} from 'react';
 import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import { createIconSetFromFontello } from 'react-native-vector-icons';
-import Feather from 'react-native-vector-icons/Feather'
+import Feather from 'react-native-vector-icons/Feather';
+import SelectDropdown from 'react-native-select-dropdown'
 
 Feather.loadFont();
 
@@ -23,18 +24,20 @@ const QuestionComponent = ({ item }) => {
     return(
         <TouchableOpacity
         key={item.id}
-        onPress={() => {}}>
+        onPress={() => {}}
+        style={styles.container}
+        >
             <View>
                 <Text style={styles.questionText}>{item.question}</Text>
-                <Text style={styles.questionText}>Hola</Text>
                 {item.question_type === "written" && (
                     <>
                         <TextInput
-                            placeholder={answer}
+                            placeholder="Write your answer"
+                            multiline = {true}
                             onChangeText={text => setAnswer({
                                 ...answer,
                                 answer: text})}
-                            value={answer}
+                            value={answer.answer}
                             style={styles.input}
                         />
                     </>
@@ -62,6 +65,12 @@ const QuestionComponent = ({ item }) => {
 }
 
 const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        marginLeft: 10,
+        marginTop: 10,
+        marginRight: 10,
+    },
     questionText: {
         marginTop: 15,
         fontWeight: '300',

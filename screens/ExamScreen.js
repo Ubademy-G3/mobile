@@ -16,18 +16,43 @@ const ExamScreen = (props) => {
 
     const [questions, setQuestions] = useState([]);
 
-    const [answer, setAnswer] = useState([{
-        answer: "",
-        question_template_id: 0,
-    }]);
+    const [answer, setAnswer] = useState([]);
 
-    const [selectedMC, setSelectedMC] = useState(0);
+    const [solutionId, setSolutionId] = useState([]);
 
-    const handleResponseGetAllQuestions = (response) => {
+    //const [selectedMC, setSelectedMC] = useState(0);
+
+    const handleResponseCreateNewSolution = async (response) => {
+        console.log("[Edit Exam screen] create new solution: ", response.content())
+        if (!response.hasError()) {
+            setSolutionId(solutionId => [...solutionId, {
+                solutionId: response.content().id,
+            }]);
+        } else {
+            console.log("[Edit Exam screen] error", response.content().message);
+        }  
+        /*dentro del handleResponseCreateNewSolution hago:
+            obtengo el solutionId
+            await app.apiClient().createNewExamAnswer({token: tokenLS}, data, handleResponseCreateNewAnswer);*/
+
+    }
+
+    const handleResponseCreateNewAnswer =  (response) => {
+        console.log("[Edit Exam screen] create new answer: ", response.content())
+        if (!response.hasError()) {
+            console.log("[Edit Exam screen] create new answer sucessfull");
+        } else {
+            console.log("[Edit Exam screen] error", response.content().message);
+        }  
+    }
+
+    const handleResponseGetAllQuestions = async (response) => {
         console.log("[Edit Exam screen] get questions: ", response.content())
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         if (!response.hasError()) {
             for(let question of response.content().question_templates) {
-                setQuestions(instructors => [...instructors, {
+                setQuestions(questions => [...questions, {
                 saved_question: true,
                 correct: question.correct,
                 exam_id: question.exam_id,
@@ -36,25 +61,28 @@ const ExamScreen = (props) => {
                 question: question.question,
                 question_type: question.question_type,
                 value: question.value}]);
-                const _answer = [...answer];
-                _answer.push({
+                console.log("course_id:", param_course_id);
+                await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: 100}, param_exam_id, handleResponseCreateNewSolution);
+                setAnswer(answer => [...answer, {
                     answer: "",
                     question_template_id: question.id,
-                });
-                setAnswer(_answer);
+                }]);
             }
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }        
     }
 
-    const handleSubmitSave = () => {
-        /*for asw in answer:
-        await app.apiClient().createNewExamSolution({token: tokenLS}, data, handleResponseCreateNewSolution);
-         dentro del handleResponseCreateNewSolution hago:
-            obtengo el solutionId
-            await app.apiClient().createNewExamAnswer({token: tokenLS}, data, handleResponseCreateNewAnswer);*/
-
+    const handleSubmitSave = async () => {
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        for (let [idx, asw] of answer.entries()) {
+            console.log("en el for asw: ", asw);
+            console.log("en el for idx: ", idx);
+            console.log("en el for solutionId[idx]: ", solutionId[idx]);
+            console.log("en el for solutionId[idx].solutionID: ", solutionId[idx].solutionId);
+            await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId[idx].solutionId, handleResponseCreateNewAnswer);
+        }
     }
 
     const handleSubmitSetAnswer = (key, asw, question_id) => {
@@ -62,7 +90,7 @@ const ExamScreen = (props) => {
         _answer[key].answer = asw;
         _answer[key].question_template_id = question_id;
         setAnswer(_answer);
-        console.log(answer);
+        console.log("Set answer", _answer);
     }
 
     const onRefresh = async () => {

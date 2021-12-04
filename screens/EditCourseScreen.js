@@ -62,6 +62,7 @@ const EditCourseScreen = (props) => {
                     <TouchableOpacity
                         onPress={() => {props.navigation.navigate('Edit Modules', {
                             id: item.id,
+                            course_name: item.name
                             })}}
                         style={styles.button}
                     >

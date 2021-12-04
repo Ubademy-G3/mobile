@@ -100,7 +100,7 @@ const CreateExamScreen = (props) => {
     const inputHandler = (text, key) => {
         const _inputs = [...inputs];
         _inputs[key].question = text;
-        _inputs[key].key   = key;
+        _inputs[key].key = key;
         setInputs(_inputs);
         
     }

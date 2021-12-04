@@ -50,7 +50,6 @@ const EditExamScreen = (props) => {
         if (!response.hasError()) {
             for(let question of response.content().question_templates) {
                 setQuestions(instructors => [...instructors, {
-                new_question: false,
                 saved_question: true,
                 correct: question.correct,
                 exam_id: question.exam_id,
@@ -84,7 +83,17 @@ const EditExamScreen = (props) => {
     const handleApiResponseCreateQuestion = (response) => {
         console.log("[Edit Exam screen] content: ", response.content())
         if (!response.hasError()) {
-            
+            setQuestions(questions => [...questions, {
+                id: response.content().id,
+                saved_question: false,
+                correct: response.content().correct,
+                exam_id: response.content().exam_id,
+                id: response.content().id,
+                options: response.content().options,
+                question: response.content().question,
+                question_type: response.content().question_type,
+                value: response.content().value
+            }]);
             console.log("[Edit Exam screen] response sucessfull");
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
@@ -127,31 +136,16 @@ const EditExamScreen = (props) => {
     const handleSaveQuestion = async (key) => {
         const _questions = [...questions];
         _questions[key].saved_question = true;
-        if (questions[key].new_question){
-            await app.apiClient().createQuestion(
-            {
-                token: tokenLS,
-                exam_id: selectedExam.id,
-                question: questions[key].question,
-                question_type: questions[key].question_type,
-                options: questions[key].options,
-                correct: questions[key].correct,
-                value: questions[key].value,
-            }, selectedExam.id, handleApiResponseCreateQuestion);
-            //de este llamado tengo que obtener el id de la pregunta y hacer _questions[key].id = response.id como carajos hago????
-            _questions[key].new_question = false;
-        } else {
-            await app.apiClient().updateQuestion(
-            {
-                token: tokenLS, 
-                question: questions[key].question,
-                question_type: questions[key].question_type,
-                options: questions[key].options,
-                correct: questions[key].correct,
-                value: questions[key].value,
-            }, 
-            selectedExam.id, questions[key].id, handleApiResponseUpdateQuestion);
-        }
+        await app.apiClient().updateQuestion(
+        {
+            token: tokenLS, 
+            question: questions[key].question,
+            question_type: questions[key].question_type,
+            options: questions[key].options,
+            correct: questions[key].correct,
+            value: questions[key].value,
+        }, 
+        selectedExam.id, questions[key].id, handleApiResponseUpdateQuestion);
         setQuestions(_questions);
         //setQuestionSaved(true);
     }
@@ -179,17 +173,17 @@ const EditExamScreen = (props) => {
 
     const addQuestion = async () => {
         let tokenLS = await app.getToken();
-        setQuestions(instructors => [...instructors, {
-            new_question: true,
-            saved_question: false,
-            correct: 0,
-            exam_id: selectedExam.id,
-            id: 0,
-            options: [],
-            question: "",
-            question_type: "",
-            value: 1
-        }]);
+        await app.apiClient().createQuestion(
+            {
+                token: tokenLS,
+                correct: 0,
+                exam_id: selectedExam.id,
+                id: 0,
+                options: [],
+                question: "",
+                question_type: "written",
+                value: 1
+            }, selectedExam.id, handleApiResponseCreateQuestion);
     }
 
     const handleMultipleChoicePressed = (key) => {

@@ -24,6 +24,9 @@ import { CreateNewExamSolutionEndpoint } from "../endpoints/CreateNewExamSolutio
 import { CreateNewExamAnswerEndpoint } from "../endpoints/CreateNewExamAnswerEndpoint.js";
 import { UpdateQuestionEndpoint } from "../endpoints/UpdateQuestionEndpoint.js";
 import { DeleteQuestionEndpoint } from "../endpoints/DeleteQuestionEndpoint.js";
+import { CreateNewModuleEndpoint } from "../endpoints/CreateNewModuleEndpoint.js";
+import { UpdateModuleEndpoint } from "../endpoints/UpdateModuleEndpoint.js";
+import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
 
 
 class ApiClient {
@@ -242,6 +245,31 @@ class ApiClient {
             data: data
         });
     }
+
+    createNewModule(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateNewModuleEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateModule(data, courseId, moduleId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateModuleEndpoint(courseId, moduleId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    deleteModule(data, courseId, moduleId, onResponse) {
+        return this._requester.call({
+            endpoint: new DeleteModuleEndpoint(courseId, moduleId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
 }
 
 export default ApiClient;

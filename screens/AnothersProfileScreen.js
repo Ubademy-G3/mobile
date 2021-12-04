@@ -10,57 +10,33 @@ import CourseComponent from '../components/CourseComponent';
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const ProfileScreen = (props) => {
+const AnothersProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
     
-    const [courses, setCourses] = useState([]);
-
     const [categories, setCategories] = useState([]);
-
+    
     const [userData, setData] = useState({
         firstName: "Name",
         lastName: "Last name",
         location: "",
         profilePicture: "../assets/images/profilePic.jpg",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        interests: []
+        interests: [],
     });
 
-    const handleCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    }
-    
     const handleResponseGetCategory = (response) => {
-        console.log("[Profile Screen] categories content: ", response.content())
+        console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             setCategories(categories => [...categories, response.content()]);
         } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    }
-
-    const handleGetCoursesByUser = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
-        if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
-            }
-            //console.log("[Profile screen] response: ", courses);
-        } else {
-            console.log("[Profile screen] error", response.content().message);
+            console.log("[Anothers Profile Screen] error", response.content().message);
         }
     }
 
     const handleApiResponseProfile = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
+        console.log("[Anothers Profile screen] content: ", response.content())
         if (!response.hasError()) {            
             setData({
                 firstName: response.content().firstName,
@@ -68,36 +44,34 @@ const ProfileScreen = (props) => {
                 location: response.content().location,
                 profilePicture: response.content().profilePicture,
                 description: response.content().description,
-                interests: response.content().interests,
+                interests: response.content().interests
             });
             let tokenLS = await app.getToken();
             for(let id of response.content().interests){
-                console.log("[Profile screen] interests id:", id);
+                console.log("[Anothers Profile screen] interests id:", id);
                 await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
             }
         } else {
-            console.log("[Profile screen] error", response.content().message);
+            console.log("[Anothers Profile screen] error", response.content().message);
         }
     }
     
     const onRefresh = async () => {
-        console.log("[Profile screen] entro a onRefresh"); 
+        console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        //console.log("[Profile screen] token:",tokenLS);
+        console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, handleGetCoursesByUser);
+        //await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, handleGetCoursesByUser);
         setLoading(false);
     };
 
     useEffect(() => {
-        setCourses([]);
-        setCategories([]);
-        //console.log("[Profile screen] entro a useEffect"); 
-        //console.log("[Profile screen] param id:", param_id);
-        //console.log("[Profile screen] params: ", props.route.params)
+        console.log("[Anothers Profile screen] entro a useEffect"); 
+        console.log("[Anothers Profile screen] param id:", param_id);
+        console.log("[Anothers Profile screen] params: ", props.route.params)
         onRefresh();
-    }, [param_id, props]);
+    }, [param_id]);
 
     const renderCategoryItem = ({ item }) => {
         return (
@@ -131,8 +105,12 @@ const ProfileScreen = (props) => {
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
+                <View style={styles.locationWrapper}>
+                    <Text style={styles.locationTitle}>Location:</Text>
+                    <Text style={styles.location}>{userData.location}</Text>
+                </View>
                 <View style={styles.categoriesWrapper}>
-                    <Text style={styles.categoriesText}>Your interests</Text>
+                    <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
                     <View style={styles.categoriesListWrapper}>
                         <FlatList  
                             data={categories}
@@ -143,18 +121,14 @@ const ProfileScreen = (props) => {
                         />
                     </View>
                 </View>
-                <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Your courses</Text>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
-                    )}
-                    {courses.map(item => (
-                        <CourseComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
-                </View>
             </ScrollView>
+            <View style={styles.buttonWrapper}>
+                <TouchableOpacity onPress={() => {}}> 
+                    <View style={styles.favoriteWrapper}>
+                        <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                    </View>
+                </TouchableOpacity> 
+            </View>
         </View>
     )
 }
@@ -189,14 +163,6 @@ const styles = StyleSheet.create({
         color: '#87ceeb',
         textAlign: 'justify',        
     },
-    titlesRating: {
-        paddingVertical: 5,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    rating: {
-        fontSize: 18,
-    },
     descriptionWrapper: {
         paddingHorizontal: 15,
         // paddingVertical: 10,
@@ -205,94 +171,31 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 16,
     },
-    coursesCardWrapper: {
-        paddingHorizontal: 20,
-      },
-      coursesTitle: {
-        fontSize: 20,
-      },
-      courseCardWrapper: {
-        backgroundColor: 'white',
-        borderRadius: 25,
-        paddingTop: 20,
-        paddingLeft: 20,
-        flexDirection: 'row',
-        shadowColor: 'black',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,  
-      },
-      courseTitleWrapper: {
-        marginLeft: 5,
-        flexDirection: 'column',
-      },
-      courseTitlesTitle: {
+    locationWrapper:{
+        paddingHorizontal: 15,
+        flexDirection: "row",
+        // paddingVertical: 10,
+        paddingBottom: 10,
+        marginTop: 5,
+    },
+    location: {
         fontSize: 16,
-        color: 'black'
-      },
-      courseTitlesRating: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      forYouTitlesDescription: {
-        fontSize: 12,
-        color: 'grey',
-        marginTop: 7,
-        paddingRight: 40,
-      },
-      forYouButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-      },
-      addCourseButton: {
-        marginTop: 20,
-        marginLeft: -20,
-        backgroundColor: '#87ceeb',
-        paddingHorizontal: 30,
-        paddingVertical: 15,
-        borderTopRightRadius: 25,
-        borderBottomLeftRadius: 25,
-      },
-      favoriteCourseButton: {
-        backgroundColor: '#87ceeb',
-        marginTop: 20,
-        marginLeft: 183,
-        paddingHorizontal: 30,
-        paddingVertical: 15,
-        borderTopLeftRadius: 25,
-        borderBottomRightRadius: 25,
-      },
-      ratingWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginLeft: 20,
-      },
-      rating: {
-        fontSize: 12,
-        color: 'black',
-        marginLeft: 5,
-      },
-      courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        //marginRight: 80,
-      },
-      courseCardImage: {
-        width: 60,
-        height: 60,
-        resizeMode: 'contain',
-      },
-    courseText: {
-        marginTop: 15,
-        fontWeight: '300',
+    },
+    locationTitle: {
+        fontWeight: '500',
         fontSize: 16,
-        paddingBottom: 5,
+        marginRight: 5,
+    },
+    interestsWrapper:{
+        paddingHorizontal: 15,
+        // paddingVertical: 10,
+        paddingBottom: 10,
+        marginTop: 5,
+    },
+    interestsTitle: {
+        fontWeight: '500',
+        fontSize: 16,
+        marginRight: 5,
     },
     categoriesWrapper: {
         //marginTop: 10,
@@ -336,6 +239,22 @@ const styles = StyleSheet.create({
         marginTop: 5,
         marginBottom: 5
     },
+    favoriteWrapper: {
+        marginBottom: 15,
+        marginLeft: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 10,
+        backgroundColor: '#87ceeb',
+        borderRadius: 10,
+        width: '50%',
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        //flexDirection: 'row',
+    },
+    buttonWrapper: {
+        alignItems: 'center',
+    },
 })
 
-export default ProfileScreen;
+export default AnothersProfileScreen;

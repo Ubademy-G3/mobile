@@ -22,20 +22,16 @@ class App {
     }
 
     loginUser = async (token, id) => {
-        const jsonValue = JSON.stringify(token)
+        const jsonValue = JSON.stringify(token);
+        const jsonValue2 = JSON.stringify(id);
         try {
             await AsyncStorage.setItem("@storageMobile:token", jsonValue);
+            await AsyncStorage.setItem("@storageMobile:id", jsonValue2);
             console.log("Guardo token: ", token);
+            console.log("Guardo id: ", id);
           } catch(e) {
                 console.warn("Local storage setItem error", e);
           }
-        const jsonValue2 = JSON.stringify(id)
-          try {
-              await AsyncStorage.setItem("@storageMobile:id", jsonValue2);
-              console.log("Guardo id: ", id);
-            } catch(e) {
-                  console.warn("Local storage setItem error", e);
-            }
     }
 
     getToken = async () => {

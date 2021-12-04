@@ -9,11 +9,12 @@ import { app } from '../../app/app';
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const subscriptions = ["Free", "Platinum", "Gold"];
-const levels = ["Easy", "Medium", "Hard"];
+const subscriptions = ["free", "platinum", "gold"];
+const levels = ["easy", "medium", "hard"];
 
 const MenuCreateNewCourseScreen = (props) => {
     const [courseData, setData] = useState({
+        user_id: "",
         name: "",
         description: "",
         category: 0,
@@ -23,6 +24,7 @@ const MenuCreateNewCourseScreen = (props) => {
         duration: "",
         language: "",
         level: "",
+        modules: [],
     });
 
     const [categories, setCategories] = useState([]);
@@ -42,7 +44,7 @@ const MenuCreateNewCourseScreen = (props) => {
         console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             Alert.alert(
-                "Create Course Succesfull:",
+                "Create Course Succesfull",
                 response.content().message,
                 [
                 { text: "OK", onPress: () => {} }
@@ -50,7 +52,7 @@ const MenuCreateNewCourseScreen = (props) => {
             );
         } else {
             Alert.alert(
-                "Create Course Unsuccesfull:",
+                "Create Course Unsuccesfull",
                 response.content().message,
                 [
                 { text: "Retry", onPress: () => {} }
@@ -81,9 +83,12 @@ const MenuCreateNewCourseScreen = (props) => {
         setLoading(true);
         console.log("[Create Course screen] data:", courseData)
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         console.log("[Create Course screen] token:",tokenLS);
         //await app.apiClient().
-        await app.apiClient().createCourse({name: courseData.name,
+        await app.apiClient().createCourse({
+            user_id: idLS,
+            name: courseData.name,
             description: courseData.description,
             category: courseData.category,
             subscription_type: courseData.subscription_type,
@@ -92,8 +97,10 @@ const MenuCreateNewCourseScreen = (props) => {
             duration: courseData.duration,
             language: courseData.language,
             level: courseData.level,
+            modules: courseData.modules,
             token: tokenLS}, handleApiResponseCreateCourse);
         setData({
+            user_id: idLS,
             name: "",
             description: "",
             category: 0,
@@ -103,6 +110,7 @@ const MenuCreateNewCourseScreen = (props) => {
             duration: "",
             language: "",
             level: "",
+            modules: [],
         })
         setLoading(false);
         console.log("[Create Course screen] termino submit signup")

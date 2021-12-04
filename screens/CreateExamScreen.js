@@ -4,13 +4,14 @@ import SelectDropdown from 'react-native-select-dropdown'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../app/app';
 import Feather from 'react-native-vector-icons/Feather'
+import NumberPlease from "react-native-number-please";
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 
 const CreateExamScreen = (props) => {
 
-    const param_course_id = props.route.params ? props.route.params.id : '278f684b-69e2-4ad2-9d23-b64f971cf874';
+    const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
 
     const [nameSaved, setNameSaved] = useState(false);
 
@@ -20,6 +21,12 @@ const CreateExamScreen = (props) => {
 
     const [finishedMC, setFinishedMC] = useState(false);
 
+    /*const initialValues = [{ id: "points", value: 1 }];
+    
+    const [points, setPoints] = useState(initialValues);
+    
+    const valueNumbers = [{ id: "points", min: 1, max: 100 }];*/
+
     const [inputs, setInputs] = useState([{
         key: '', 
         question: "",
@@ -27,6 +34,7 @@ const CreateExamScreen = (props) => {
         is_written: false,
         is_media: false,
         is_multiple_choice: false,
+        question_type: "",
         options: [],
         correct: 0,
         value: 1,
@@ -70,6 +78,7 @@ const CreateExamScreen = (props) => {
             is_written: false,
             is_media: false,
             is_multiple_choice: false,
+            question_type: "",
             options: [],
             correct: 0,
             value: 1,
@@ -99,12 +108,14 @@ const CreateExamScreen = (props) => {
     const handleMultipleChoicePressed = (key) => {
         const _inputs = [...inputs];
         _inputs[key].is_multiple_choice = true;
+        _inputs[key].question_type = "multiple_choice";
         setInputs(_inputs);
     }
 
     const handleDevelopPressed = (key) => {
         const _inputs = [...inputs];
         _inputs[key].is_written = true;
+        _inputs[key].question_type = "written";
         setInputs(_inputs);
     }
 
@@ -128,8 +139,9 @@ const CreateExamScreen = (props) => {
                 token: tokenLS, 
                 exam_id: exam.id,
                 question: inputs[key].question,
-                is_written: inputs[key].is_written,
-                is_media: inputs[key].is_media,
+                question_type: inputs[key].question_type,
+                /*is_written: inputs[key].is_written,
+                is_media: inputs[key].is_media,*/
                 options: inputs[key].options,
                 correct: inputs[key].correct,
                 value: inputs[key].value,
@@ -151,6 +163,14 @@ const CreateExamScreen = (props) => {
     const handleSaveMC = () => {
         setFinishedMC(true);
     } 
+
+    const handleSubmitValue = (value, key) => {
+        //setPoints(value);
+        const _inputs = [...inputs];
+        _inputs[key].value = value;
+        console.log("change value: ",value);
+        setInputs(_inputs);
+    }
 
     const setCorrect = (key, idx) => {
         const _inputs = [...inputs];
@@ -238,6 +258,22 @@ const CreateExamScreen = (props) => {
                                         </TouchableOpacity>
                                         </View>
                                     </View>
+                                    {/* <View>
+                                        <Text>Points assigned to this question</Text>
+                                        <NumberPlease
+                                            digits={valueNumbers}
+                                            values={points}
+                                            onChange={(values) => handleSubmitValue(key, values)}
+                                            pickerStyle={styles.numberPicker}
+                                        />
+                                    </View> */}
+                                    <Text style={styles.textAnswer}>Points:</Text>
+                                    <TextInput 
+                                            placeholder={"Points assigned to this question"}
+                                            value={input.value} 
+                                            onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
+                                            style={[styles.input,{marginBottom:10}]}
+                                        />
                                     <Text style={styles.textAnswer}>Answer</Text>
                                     {!(input.is_multiple_choice || input.is_written )&& (
                                         <View style={styles.buttonInputWrapper}>
@@ -372,6 +408,11 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: 15,
         
+    },
+    numberPicker: {
+        width: 50,
+        height: 5,
+        marginLeft: 10,
     },
     buttonWrapper: {
         alignItems: 'center',

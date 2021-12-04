@@ -1,12 +1,9 @@
-import React, {Component, useState} from 'react';
+import React, {Component, useEffect, useState, useCallback} from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { auth } from '../firebase'
-//const admin = require('firebase-admin');
-
-//const nodemailer = require('nodemailer');
-//const functions = require('firebase-functions');
+//import { auth } from '../firebase'
+import * as Google from 'expo-google-app-auth';
 
 const LoginScreen = (props) => {
     const [data, setData] = useState({
@@ -14,37 +11,59 @@ const LoginScreen = (props) => {
         password: ''
     });
 
+    const [googleData, setGoogleData] = useState({
+        firstName: "",
+        lastName: "",
+        password: "",
+        email: ""
+    })
+
     const [errorData, setError] = useState({
         messageError: '',
         showError: false,
     });
 
     const [loading, setLoading] = useState(false);
+    
+    const [login, setLogin] = useState(false);
 
-    const [signupGoogle, setsignupGooglle] = useState(false);
+    const [signupGoogle, setsignupGoogle] = useState(false);
 
-    const handleApiResponseLogin = (response) => {
+    const handleApiResponseLogin = async (response) => {
         console.log("[Login screen] entro a handle api response login")
         console.log("[Login screen] has errors: ", response.hasError())
         console.log("[Login screen] error message: ", response.content().message)
         if (response.hasError()) {
-            setError({
-                messageError: response.content().message,
-                showError: true,
-            });
-            console.log("[Login screen] error massage: ", response.content().message)
-            Alert.alert(
+            console.log("SIGNUPGOOGLE", signupGoogle);
+            if (response.content().message === "User not found" &&
+            signupGoogle === true){
+                props.navigation.replace('Signup', {
+                    email: googleData.email, 
+                    password: googleData.password, 
+                    google: signupGoogle,
+                    firstName: googleData.firstName,
+                    lastName: googleData.lastName});
+            }            
+            else {
+                setError({
+                    messageError: response.content().message,
+                    showError: true,
+                });
+                console.log("[Login screen] error massage: ", response.content().message)
+            
+                Alert.alert(
                 "Error:",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
               );
+            }
         } else {
             console.log("[Login screen] response: ", response.content())
             console.log("[Login screen] id: ", response.content().id)
             console.log("[Login screen] token: ", response.content().token)
-            app.loginUser(response.content().token, response.content().id);
+            await app.loginUser(response.content().token, response.content().id);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',
@@ -54,10 +73,28 @@ const LoginScreen = (props) => {
         }
     }
 
+    const handleGoogleLogin = async () => {
+      try {
+        const response = await Google.logInAsync({
+          behavior : 'web',
+          androidClientId: '241878143297-09seelcee2n82933e55m3rh1eocd7j2o.apps.googleusercontent.com',
+          iosClientId: '241878143297-gaovtdmo3if10taaulj8qbhkr5og4qa6.apps.googleusercontent.com',
+          scopes: ['profile', 'email'],
+        });
+      
+        if (response.type === 'success') {
+            console.log("GOOGLE RESPONSE: ", response);
+          return response;
+        } else {
+          return { cancelled: true };
+        }
+      } catch (e) {
+        return { error: true };
+      }
+    }
+
     const handleApiResponseForgotPassword = (response) => {
-        console.log("[Login screen] entro a handle api response forgot password")
-        //console.log("[Login screen] has errors: ", response.hasError())
-        //console.log("[Login screen] error message: ", response.content().message)
+        console.log("[Login screen] entro a handle api response forgot password");
         if (response.hasError()) {
             setError({
                 messageError: response.content().message,
@@ -83,14 +120,13 @@ const LoginScreen = (props) => {
         }
     }
 
-    const handleSubmitLogin = async () => {
+    /*const handleSubmitLogin = async (loginData) => {
         console.log("[Login screen] entro a submit login")
         setLoading(true);
-        await app.signOutUser();
-        await app.apiClient().login(data, handleApiResponseLogin);
+        await app.apiClient().login(loginData, handleApiResponseLogin);
         setLoading(false);
         console.log("[Login screen] termino submit login")
-    }
+    }*/
 
     const handleSubmitSignUp = () => {
         console.log("[Login screen] entro a submit sign up")
@@ -103,6 +139,48 @@ const LoginScreen = (props) => {
         await app.apiClient().resetPassword({email: data.email}, handleApiResponseForgotPassword);
         console.log("[Login screen] termino forgot password")
     }
+
+    const callback = useCallback(async () => {
+        if (signupGoogle === true){
+            const response = await handleGoogleLogin();
+            console.log("response google:", response);
+            console.log("response google id:", response.user.id);
+            setGoogleData({...googleData, 
+                email: response.user.email, 
+                password: response.user.id,
+                firstName: response.user.givenName,
+                lastName: response.user.familyName});
+            setData({email: response.user.email,
+                password: response.user.id})
+        }
+      }, [signupGoogle])
+
+    const callbackLogin = useCallback(async () => {
+        if (login === true) {
+            console.log("[Login screen] entro a submit login");
+            setLoading(true);
+            await app.apiClient().login(data, handleApiResponseLogin);
+            setLoading(false);
+            console.log("[Login screen] termino submit login");
+            setLogin(false);
+        }
+    }, [login])
+    
+    useEffect(() => {
+        callback()
+    }, [callback])
+
+    useEffect(() => {
+        if (signupGoogle === true){
+            //handleSubmitLogin(data);
+            setLogin(true);
+        }
+    }, [data])
+
+    
+    useEffect(() => {
+        callbackLogin()
+    }, [callbackLogin])
 
     return (
         <View style={styles.container}>
@@ -143,13 +221,13 @@ const LoginScreen = (props) => {
                 </View>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        onPress={() => {handleSubmitLogin()}}
+                        onPress={() => {setLogin(true)}}
                         style={styles.button}
-                        error={errorData.showError}
+                        //error={errorData.showError}
                         disabled={loading}
                     >
                         {
-                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                            loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
                         }
                     </TouchableOpacity>
                     <TouchableOpacity
@@ -158,6 +236,13 @@ const LoginScreen = (props) => {
                     >
                         <Text style={styles.buttonOutlineText}>Sign Up</Text>
                     </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            setsignupGoogle(true);
+                        }}
+                        style={styles.button}>
+                        <Text style={styles.buttonText}>Login with Google</Text>
+                    </TouchableOpacity> 
                     <TouchableOpacity
                         onPress={() => {handleSubmitForgotPassword()}}
                         style={[styles.fadedButton]}
@@ -179,7 +264,7 @@ const styles = StyleSheet.create({
     containerText: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: 40
+        paddingTop: 30
     },
     headerContainer: {
         flex: 2,
@@ -215,6 +300,8 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         alignItems: 'center',
+        paddingTop: 10,
+        marginBottom: 8,
     },
     buttonText: {
         color:'white',
@@ -223,7 +310,7 @@ const styles = StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        marginTop: 5,
+        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },

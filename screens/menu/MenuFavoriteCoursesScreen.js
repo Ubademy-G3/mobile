@@ -1,102 +1,68 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
-import Feather from 'react-native-vector-icons/Feather'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import forYouData from '../../assets/data/forYouData';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import CourseComponent from '../../components/CourseComponent';
+import { app } from '../../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuFavoriteCoursesScreen = (props) => {
-    /*const param_favoriteCoursesIds = props.route.params ? props.route.params.favoriteCourses : null;
 
-    const [favoriteCoursesId, setFavoriteCoursesId] = useState(param_favoriteCoursesIds);
+    const [courses, setCourses] = useState([]);
     
-    var favoriteCoursesArray = [];
+    const [loading, setLoading] = useState(false);
 
-    const handleApiResponseGetCourse = (response) => {
-        console.log("[Menu screen] content: ", response.content())
+    const handleResponseCourseResponse = (response) => {
+        console.log("[Menu Subscribed Courses Screen] content: ", response.content())
         if (!response.hasError()) {
-            favoriteCoursesArray.push(response.content());
+               setCourses(courses => [...courses, response.content()]);
         } else {
-            console.log("[Menu screen] error", response.content().message);
+            console.log("[Menu Subscribed Courses Screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseGetProfile = async (response) => {
+        console.log("[Menu Subscribed Courses screen] content: ", response.content())
+        if (!response.hasError()) {
+            let tokenLS = await app.getToken();
+            for(let id of response.content().favoriteCourses){
+                await app.apiClient().getCourseById({token: tokenLS}, id, handleResponseCourseResponse)
+            }
+            console.log("[Profile screen] error", response.content().message);
         }
     }
 
     const onRefresh = async () => {
-        console.log("[Menu screen] entro a onRefresh"); 
+        console.log("[Menu Favorite Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Profile screen] token:",tokenLS);
-        if (favoriteCoursesId != null) {
-            for (id in favoriteCoursesId) {
-                await app.apiClient.getCourse({id: id, token: tokenLS}, id, handleApiResponseGetCourse)
-            }
-        }
-        console.log("Menu screen] id:", idLS);
+        let idLS = await app.getId();
+        console.log("[Menu Favorite Courses screen] token:",tokenLS);
+        await app.apiClient().getProfile({token: tokenLS}, idLS, handleApiResponseGetProfile);
+        console.log("[Menu Favorite Courses screen] id:", idLS);
         setLoading(false);
     };
 
     useEffect(() => {
-        console.log("[Menu screen] entro a useEffect");
+        setCourses([]);
+        console.log("[Menu Favorite Courses screen] entro a useEffect");
         onRefresh();
-    }, []);*/
+    }, [props]);
 
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.coursesCardWrapper}>
-                    {forYouData.map((item) => (
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() =>
-                            props.navigation.navigate('Course Screen', {
-                            item: item,
-                            })
-                        }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,  //ESTO YA NO FUNCA
-                            },
-                            ]}>
-                            <View>
-                            <View style={styles.courseCardTop}>
-                                <View>
-                                <Image source={item.image} style={styles.courseCardImage} />
-                                </View>
-                                <View style={styles.courseTitleWrapper}>
-                                <Text style={styles.courseTitlesTitle}>
-                                    {item.title}
-                                </Text>
-                                <View style={styles.courseTitlesRating}>
-                                    <MaterialCommunityIcons
-                                    name="star"
-                                    size={10}
-                                    color={'black'}
-                                    />
-                                    <Text style={styles.rating}>{item.rating}</Text>
-                                </View>
-                                </View>
-                            </View>
-                            <View style={styles.courseDescriptionWrapper}>
-                                <Text style={styles.courseTitleDescription}>
-                                {item.description}
-                                </Text>
-                            </View>
-                            <View style={styles.forYouButtons} >
-                                {/*<View style={styles.addCourseButton}>
-                                    eather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
-                                </View>*/}
-                                <View style={styles.favoriteCourseButton}>
-                                    <MaterialCommunityIcons name="heart" size={16} color={'black'} />
-                                    {/*<MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />*/}
-                                </View>
-                            </View>  
-                            </View>
-                        </View>
-                        </TouchableOpacity>
+                    {courses.length === 0 && (
+                        <Text style={styles.courseText}>Favorite courses to see your courses here.</Text>
+                    )}
+                    {courses.map((item) => (
+                        <CourseComponent 
+                        item={item}
+                        navigation={props.navigation}/>
                     ))}
                 </View>
             </ScrollView>
@@ -108,80 +74,14 @@ const styles = StyleSheet.create({
     container:{
         flex: 1,
     },
-    description: {
-        fontSize: 16,
-    },
     coursesCardWrapper: {
         paddingHorizontal: 20,
-      },
-    coursesTitle: {
-        fontSize: 20,
     },
-    courseCardWrapper: {
-        backgroundColor: 'white',
-        borderRadius: 25,
-        paddingTop: 20,
-        paddingLeft: 20,
-        flexDirection: 'row',
-        shadowColor: 'black',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
-        elevation: 2,  
-    },
-    courseTitleWrapper: {
-        marginLeft: 5,
-        flexDirection: 'column',
-    },
-    courseTitlesTitle: {
+    courseText: {
+        marginTop: 15,
+        fontWeight: '300',
         fontSize: 16,
-        color: 'black'
-    },
-    courseTitlesRating: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    forYouButtons: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    addCourseButton: {
-        marginTop: 20,
-        marginLeft: -20,
-        backgroundColor: '#87ceeb',
-        paddingHorizontal: 30,
-        paddingVertical: 15,
-        borderTopRightRadius: 25,
-        borderBottomLeftRadius: 25,
-    },
-    favoriteCourseButton: {
-        backgroundColor: '#87ceeb',
-        marginTop: 20,
-        marginLeft: 183,
-        paddingHorizontal: 30,
-        paddingVertical: 15,
-        borderTopLeftRadius: 25,
-        borderBottomRightRadius: 25,
-    },
-    rating: {
-        fontSize: 12,
-        color: 'black',
-        marginLeft: 5,
-    },
-    courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
-        flexDirection: 'row',
-        alignItems: 'center',
-        //marginRight: 80,
-    },
-    courseCardImage: {
-        width: 60,
-        height: 60,
-        resizeMode: 'contain',
+        paddingBottom: 5,
     },
 })
 

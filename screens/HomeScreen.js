@@ -45,54 +45,54 @@ const HomeScreen = (props) => {
   }, []);
 
   const renderCategoryItem = ({ item }) => {
-      return (
-        <TouchableOpacity
-        key={item.id}
-        onPress={() => {
-          props.navigation.navigate('Search Courses', {
-            searchKey: item.id,
-            keyType: "category"
-          });}
-        }>
-          <View
-            style={[
-              styles.categoryItemWrapper,
-              {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 0 ? 20 : 0,
-              },
-            ]}>
-            {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
-            <Text style={styles.categoryItemTitle}>{item.name}</Text>            
-          </View>
-        </TouchableOpacity>
-      );
-    };
+    return (
+      <TouchableOpacity
+      key={item.id}
+      onPress={() => {
+        props.navigation.navigate('Search Courses', {
+          searchKey: item.id,
+          keyType: "category"
+        });}
+      }>
+        <View
+          style={[
+            styles.categoryItemWrapper,
+            {
+              backgroundColor: item.selected ? '#87ceeb' : 'white',
+              marginLeft: item.id == 0 ? 20 : 0,
+            },
+          ]}>
+          {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+          <Text style={styles.categoryItemTitle}>{item.name}</Text>            
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
-    const renderSubscriptionItem = ({ item }) => {
-        return (
-          <TouchableOpacity
-          key={item.id}
-          onPress={() => {
-            props.navigation.navigate('Search Courses', {
-              searchKey: item.name,
-              keyType: "subscription"
-            });}
-          }>
-            <View
-              style={[
-                styles.categoryItemWrapper,
-                {
-                  backgroundColor: item.selected ? '#87ceeb' : 'white',
-                  marginLeft: item.id == 0 ? 20 : 0,
-                },
-              ]}>
-              {<Image source={item.image} style={styles.categoryItemImage}/>}
-              <Text style={styles.categoryItemTitle}>{item.name}</Text>            
-            </View>
-          </TouchableOpacity>
-        );
-      };    
+  const renderSubscriptionItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+      key={item.id}
+      onPress={() => {
+        props.navigation.navigate('Search Courses', {
+          searchKey: item.name,
+          keyType: "subscription"
+        });}
+      }>
+        <View
+          style={[
+            styles.categoryItemWrapper,
+            {
+              backgroundColor: item.selected ? '#87ceeb' : 'white',
+              marginLeft: item.id == 0 ? 20 : 0,
+            },
+          ]}>
+          {<Image source={item.image} style={styles.categoryItemImage}/>}
+          <Text style={styles.categoryItemTitle}>{item.name}</Text>            
+        </View>
+      </TouchableOpacity>
+    );
+    };    
   return (
       <View style={styles.container}>
         <ScrollView

@@ -45,7 +45,8 @@ const MenuScreen = (props) => {
         let idLS = await app.getId();
         let tokenLS = await app.getToken();
         await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
-        console.log("Menu screen] id:", idLS);
+        console.log("[Menu screen] token:", tokenLS);
+        console.log("[Menu screen] id:", idLS);
         setId(idLS);
         setLoading(false);
     };

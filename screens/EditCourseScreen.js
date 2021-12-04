@@ -60,7 +60,9 @@ const EditCourseScreen = (props) => {
                 </View>
                 <View style={styles.buttonsWrapper}>
                     <TouchableOpacity
-                        onPress={() => {}}
+                        onPress={() => {props.navigation.navigate('Edit Modules', {
+                            id: item.id,
+                            })}}
                         style={styles.button}
                     >
                         <Text style={styles.buttonText}>Edit Modules</Text>
@@ -74,9 +76,7 @@ const EditCourseScreen = (props) => {
                         <Text style={styles.buttonText}>Edit Exams</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('Edit Exam', {
-                            id: item.id,
-                            })}}
+                        onPress={() => {}}
                         style={styles.button}
                     >
                         <Text style={styles.buttonText}>Grade Exams</Text>

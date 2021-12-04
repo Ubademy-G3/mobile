@@ -19,7 +19,7 @@ const MenuEditProfileScreen = (props) => {
         location: "",
         profilePictureUrl: "",
         description: "",
-        interests: []
+        interests: [],
     });
 
     const [loading, setLoading] = useState(false);
@@ -59,7 +59,7 @@ const MenuEditProfileScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePicture: response.content().profilePicture,
+                profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests
             });

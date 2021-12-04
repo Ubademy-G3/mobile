@@ -1,13 +1,13 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const MenuCollaborationsScreen = (props) => {
+const MenuSubscribedCoursesScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -150,4 +150,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default MenuCollaborationsScreen;
+export default MenuSubscribedCoursesScreen;

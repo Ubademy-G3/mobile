@@ -1,4 +1,55 @@
 const forYouData = [
+  {
+    "category": 1,
+    "description": "This course was made to overcome the inner force that keeps us from our true potential",
+    "duration": 43.2,
+    "id": "278f684b-69e2-4ad2-9d23-b64f971cf874",
+    "language": "english",
+    "level": "easy",
+    "location": "US",
+    "name": "How to Unlock Your True Potential",
+    "profile_picture": "https://cdn.mos.cms.futurecdn.net/cbqizJs2ravFTf43Xd3VrA-320-80.jpg",
+    "subscription_type": "free",
+  },
+  {
+    "category": 2,
+    "description": "Don't limit the usage of typescript to angular! Learn the basics, its features, workflows and how to use it!",
+    "duration": 25.6,
+    "id": "278f684b-69e2-4ad2-9d23-b64f971cf875",
+    "language": "english",
+    "level": "intermediate",
+    "location": "US",
+    "name": "Understanding TypeScript",
+    "profile_picture": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/1200px-Typescript_logo_2020.svg.png",
+    "subscription_type": "gold",
+  },
+  {
+    "category": 2,
+    "description": "Aprende SQL desde cero para manejar bases de datos y grandes cantidades de información.",
+    "duration": 50,
+    "id": "378f684b-69e2-4ad2-9d23-b64f971cf875",
+    "language": "spanish",
+    "level": "hard",
+    "location": "ES",
+    "name": "SQL Básico",
+    "profile_picture": "https://taiwebs.com/upload/icons/databasenet220-220.png",
+    "subscription_type": "free",
+  },
+  {
+    "category": 0,
+    "description": "testing",
+    "duration": 0,
+    "id": "458f1474-5a2f-4fe0-b46b-27be9b57ca39",
+    "language": "testing",
+    "level": "testing",
+    "location": "testing",
+    "name": "testing",
+    "profile_picture": "testing",
+    "subscription_type": "testing",
+  },
+];
+
+/*[
     {
       id: '1',
       image: require('../images/mathematics.jpg'),
@@ -127,6 +178,6 @@ const forYouData = [
       favorited: false,
       subscribed: true,
       },
-  ];
+  ];*/
   
   export default forYouData;

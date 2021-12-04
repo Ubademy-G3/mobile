@@ -1,3 +1,4 @@
+import { or } from "react-native-reanimated";
 import { createIconSetFromFontello } from "react-native-vector-icons";
 import {ErrorApiResponse} from "../responses/generalResponses/ErrorApiResponse.js";
 
@@ -13,12 +14,13 @@ class Requester {
         /*if (endpoint.method() === 'GET' && data) {
             url += "?" + this._dataToQueryString(data);
         }*/
-        //console.log("request:", request)
+        console.log("request:", request);
+        console.log("url:", this._baseUrl + url);
 
         return fetch(this._baseUrl + url, request)
             .then(function(result) {
                 console.log("[function] status:", result.status);
-                if (result.status !== 200) {
+                if (!((result.status === 200) || (result.status === 201))) {
                     console.log("[function] entro a status error: ", has_error);
                     has_error = true;
                     console.log("[function] dalgo de status error: ", has_error);

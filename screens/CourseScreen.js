@@ -1,15 +1,131 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
+import { app } from '../app/app';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 
 const CourseScreen = (props) => {
     const { item } = props.route.params;
+
+    const [loading, setLoading] = useState(false);
+
+    const [subscribed, setSubscribed] = useState(false);
+
+    const [rating, setRating] = useState(0);
+
+    const [instructors, setInstructors] = useState([{
+        id: 0,
+        firstName: "",
+        lastName: "",
+        profilePictureUrl: "",
+        description: "" 
+    }])
+
+    const handleSubscribeToCourse = (response) => {
+        console.log("[Course screen] subscribe content: ", response.content())
+        if (!response.hasError()) {
+            setSubscribed(true);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleUnsubscribeToCourse = (response) => {
+        console.log("[Course screen] unsubscribe content: ", response.content())
+        if (!response.hasError()) {
+            setSubscribed(false);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleGetAllUsersInCourses = async (response) => {
+        console.log("[Course screen] content: ", response.content())
+        if (!response.hasError()) {
+            let idLS = await app.getId();
+            for (let course of response.content().users){
+                if (course.user_id === idLS){
+                    setSubscribed(true);
+                } else if (course.user_type === 'instructor') {
+                    handleListInstructors(course.user_id);
+                }
+            }
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Course screen] content: ", response.content());
+        if (!response.hasError()) {            
+            const _instructors = [...instructors];
+            _instructors.push({
+                id: response.content().id,
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                profilePictureUrl: response.content().profilePictureUrl,
+                description: response.content().description, 
+            });
+            console.log("[Course screen] content: ", _instructors);
+            setInstructors(_instructors);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
     
-    const renderFeaturesItem = ({ item }) => {
+    const handleSubmitSubscribe = async () => {
+        console.log("[Course screen] entro submit button"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "Student"}, item.id, handleSubscribeToCourse);
+        setLoading(false);
+    }
+
+    const handleResponseGetCourseRating = (response) => {
+        console.log("[Course screen] get rating: ", response.content())
+        if (!response.hasError()) {
+            setRating(response.content().rating);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }        
+    }
+
+    const handleListInstructors = async (instructorId) => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getProfile({id: instructorId, token: tokenLS}, instructorId, handleApiResponseProfile);
+    }
+
+    const handleUnsubscribe = async () => {
+        console.log("[Course screen] unsubcribe");
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, idLS, handleUnsubscribeToCourse);
+        setLoading(false);
+
+    }
+
+    const onRefresh = async () => {
+        console.log("[Course screen] entro a onRefresh"); 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleGetAllUsersInCourses);
+        setLoading(false);
+    };
+  
+    useEffect(() => {
+        console.log("[Course screen] entro a useEffect");
+        onRefresh();
+    }, []);
+
+    /*const renderFeaturesItem = ({ item }) => {
         return (
             <View style={[
                 styles.featuresItemWrapper,
@@ -21,24 +137,24 @@ const CourseScreen = (props) => {
                 <Text style={styles.featuresItemText}>{item.name}</Text>
             </View>
         );
-    };
+    };*/
 
     return (
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={item.image} style={styles.titlesImage} />
+                        <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{item.title}</Text>
+                        <Text style={styles.titlesTitle}>{item.name}</Text>
                         <View style={styles.titlesRating}>
                             <MaterialCommunityIcons
                                 name="star"
                                 size={18}
                                 color={'black'}
                             />
-                        <Text style={styles.rating}>{item.rating}</Text>
+                            <Text style={styles.rating}>{rating}</Text>
                         </View>
                     </View>
                 </View>
@@ -48,24 +164,50 @@ const CourseScreen = (props) => {
                 </View>
 
                 <View style={styles.featuresWrapper}>
-                    <Text style={styles.featuresTitle}>Features</Text>
+                    {/*<Text style={styles.featuresTitle}>Features</Text>*/}
                     <View style={styles.featuresListWrapper}>
-                    <FlatList
+                    {/*<FlatList
                         data={item.features}
                         renderItem={renderFeaturesItem}
                         keyExtractor={(item) => item.id}
                         horizontal={true}
                         showsHorizontalScrollIndicator={false}
-                    />
+                    />*/}
+                    <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
+                    <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
+                    <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
                     </View>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('Student List', {
+                            course_id: item.id
+                          });}}
+                        style={[styles.fadedButton]}
+                    >
+                        <Text style={styles.buttonFadedText}>Student List</Text>
+                    </TouchableOpacity>
                 </View>
             </ScrollView>
-            <TouchableOpacity onPress={() => {}}> 
+            {subscribed === false && (
+            <>
+            <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
                 <View style={styles.subscribeWrapper}>
                     <Feather name="plus" size={18} color="black" />
                     <Text style={styles.subscribeText}>Subscribe</Text>
                 </View>
-            </TouchableOpacity>
+            </TouchableOpacity>            
+            </>
+            )}
+            {subscribed === true && (
+            <>
+            <TouchableOpacity onPress={() => handleUnsubscribe()}> 
+                <View style={styles.subscribeWrapper}>
+                    <Feather name="x" size={18} color="black" />
+                    <Text style={styles.unsubscribeText}>Unsubscribe</Text>
+                </View>
+            </TouchableOpacity>            
+            </>
+            )}
         </View>
         /*<View style={styles.container}>
           <SafeAreaView>
@@ -112,8 +254,11 @@ const styles = new StyleSheet.create({
     titleWrapper: {
         //paddingVertical:25,
         paddingHorizontal: 10,
+        flexDirection: "column"
     },
     titlesTitle: {
+        flex: 1, 
+        flexWrap: 'wrap',
         fontSize: 24,
     },
     titlesRating: {
@@ -161,6 +306,7 @@ const styles = new StyleSheet.create({
     },
     featuresItemTitle: {
         fontSize: 16,
+        marginTop: 5,
     },
     featuresItemText: {},
     subscribeWrapper: {
@@ -179,8 +325,25 @@ const styles = new StyleSheet.create({
     },
     subscribeText: {
         fontSize: 14,
-        marginRight: 10,
+        marginRight: 10,        
     },
+    unsubscribeText: {
+        fontSize: 14,
+        marginRight: 1,        
+    },
+    buttonFadedText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    fadedButton: {
+        marginTop: 10,
+        width: '100%',
+        //padding: 15,
+        borderRadius: 10,
+        //alignItems: 'center',
+    }
 });
 
 export default CourseScreen;

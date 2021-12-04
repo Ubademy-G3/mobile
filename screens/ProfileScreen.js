@@ -13,37 +13,52 @@ const ProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
+    
+    const [courses, setCourses] = useState([]);
 
+    const handleCourseResponse = (response) => {
+        console.log("[Profile Screen] content: ", response.content())
+        if (!response.hasError()) {
+               setCourses(courses => [...courses, response.content()]);
+        } else {
+            console.log("[Profile Screen] error", response.content().message);
+        }
+    }
+    
+
+    const handleGetCoursesByUser = async (response) => {
+        console.log("[Profile screen] content: ", response.content())
+        if (!response.hasError()) {
+            let tokenLS = await app.getToken();
+            for(let course of response.content().courses){
+                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
+            }
+            console.log("[Profile screen] response: ", courses);
+        } else {
+            console.log("[Profile screen] error", response.content().message);
+        }
+    }
+    
     const [userData, setData] = useState({
         firstName: "Name",
         lastName: "Last name",
         location: "",
         profilePicture: "../assets/images/profilePic.jpg",
-        //description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
         coursesHistory: [],
     });
 
     const handleApiResponseProfile = (response) => {
         console.log("[Profile screen] content: ", response.content())
-        if (!response.hasError()) {
-            if (response.content().coursesHistory === null){
-                setData({
-                    firstName: response.content().firstName,
-                    lastName: response.content().lastName,
-                    location: response.content().location,
-                    profilePicture: response.content().profilePicture,
-                    //description: response.content().description,
-                });
-            } else {
-                setData({
-                    firstName: response.content().firstName,
-                    lastName: response.content().lastName,
-                    location: response.content().location,
-                    profilePicture: response.content().profilePicture,
-                    //description: response.content().description,
-                    coursesHistory: response.content().coursesHistory,
-                });
-            }
+        if (!response.hasError()) {            
+            setData({
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                location: response.content().location,
+                profilePicture: response.content().profilePicture,
+                description: response.content().description
+            });
+            
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -55,9 +70,7 @@ const ProfileScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        /*for (id in userData.coursesHistory) {
-            await app.apiClient.getCourse({id: id, token: tokenLS}, id, handleApiResponseGetCourse)
-        }*/
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, handleGetCoursesByUser)
         setLoading(false);
     };
 
@@ -80,12 +93,12 @@ const ProfileScreen = (props) => {
                     </View>
                 </View>
 
-                {/*<View style={styles.descriptionWrapper}>
+                <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
-                </View>*/}
+                </View>
                 <View style={styles.coursesCardWrapper}>
                     <Text style={styles.coursesTitle}>Your courses</Text>
-                    {forYouData.map(item => (
+                    {courses.map(item => (
                         <TouchableOpacity
                         key={item.id}
                         onPress={() =>
@@ -123,15 +136,7 @@ const ProfileScreen = (props) => {
                                 <Text style={styles.courseTitleDescription}>
                                 {item.description}
                                 </Text>
-                            </View>
-                            <View style={styles.forYouButtons} >
-                                <View style={styles.addCourseButton}>
-                                <Feather name={item.subscribed ? "check" : "plus"} size={16} color={'black'} />
-                                </View>
-                                <View style={styles.favoriteCourseButton}>
-                                <MaterialCommunityIcons name={item.favorited ? "heart" : "heart-outline"} size={16} color={'black'} />
-                                </View>
-                            </View>  
+                            </View> 
                             </View>
                         </View>
                         </TouchableOpacity>

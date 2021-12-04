@@ -1,9 +1,9 @@
 import React, {useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Button, Alert } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import {app} from '../app/app';
+import {app} from '../../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -41,7 +41,7 @@ const MenuChangeSubscription = (props) => {
                     Free description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Free")}}
+                    onPress={() => {handleUpdateSubscription("free")}}
                     style={styles.button}
                     disabled={loading}
                 >
@@ -55,7 +55,7 @@ const MenuChangeSubscription = (props) => {
                     Platinum description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Platinnum")}}
+                    onPress={() => {handleUpdateSubscription("platinum")}}
                     style={styles.button}
                     disabled={loading}
                 >
@@ -69,7 +69,7 @@ const MenuChangeSubscription = (props) => {
                     Gold description.
                 </Text>
                 <TouchableOpacity
-                    onPress={() => {handleUpdateSubscription("Gold")}}
+                    onPress={() => {handleUpdateSubscription("gold")}}
                     style={styles.button}
                     disabled={loading}
                 >

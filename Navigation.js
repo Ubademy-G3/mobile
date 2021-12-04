@@ -12,16 +12,20 @@ import ProfileScreen from './screens/ProfileScreen';
 import MessagesScreen from './screens/MessagesScreen';
 import SignupScreen from './screens/SignUpScreen';
 import CourseScreen from './screens/CourseScreen';
-import MenuScreen from './screens/MenuScreen';
+import MenuScreen from './screens/menu/MenuScreen';
 import { createDrawerNavigator} from '@react-navigation/drawer';
-import MenuFavoriteCoursesScreen from './screens/MenuFavoriteCoursesScreen';
-import MenuCompletedCoursesScreen from './screens/MenuCompletedCoursesScreen';
-import MenuSubscribedCoursesScreen from './screens/MenuSubscribedCoursesScreen';
-import MenuCollaborationsScreen from './screens/MenuCollaborationsScree';
-import MenuEditProfileScreen from './screens/MenuEditProfileScreen';
-import MenuCreatedCoursesScreen from './screens/MenuCreatedCoursesScreen';
-import MenuCreateNewCourseScreen from './screens/MenuCreateNewCourseScreen';
-import MenuUpdateSubscription from './screens/MenuUpdateSubscription';
+import MenuFavoriteCoursesScreen from './screens/menu/MenuFavoriteCoursesScreen';
+import MenuCompletedCoursesScreen from './screens/menu/MenuCompletedCoursesScreen';
+import MenuSubscribedCoursesScreen from './screens/menu/MenuSubscribedCoursesScreen';
+import MenuCollaborationsScreen from './screens/menu/MenuCollaborationsScree';
+import MenuEditProfileScreen from './screens/menu/MenuEditProfileScreen';
+import MenuCreatedCoursesScreen from './screens/menu/MenuCreatedCoursesScreen';
+import MenuCreateNewCourseScreen from './screens/menu/MenuCreateNewCourseScreen';
+import MenuUpdateSubscription from './screens/menu/MenuUpdateSubscription';
+import SearchCoursesScreen from './screens/SearchCoursesScreen';
+import MenuEditCoursesScreen from './screens/menu/MenuEditCoursesScreen';
+import ListStudentScreen from './screens/ListStudentScreen';
+import CreateExamScreen from './screens/CreateExamScreen';
 
 
 Entypo.loadFont();
@@ -50,6 +54,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Edit Profile" component={MenuEditProfileScreen} />
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
+          <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
     </Drawer.Navigator>
   );
 }
@@ -109,6 +114,9 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: false}} name="Signup" component={SignupScreen} />
                   <Stack.Screen options={{headerShown: false}} name="TabNavigator" component={TabNavigator} />
                   <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="Course Screen" component={CourseScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Search Courses" component={SearchCoursesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Student List" component={ListStudentScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Create New Exam" component={CreateExamScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

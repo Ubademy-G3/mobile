@@ -86,6 +86,7 @@ const LoginScreen = (props) => {
     const handleSubmitLogin = async () => {
         console.log("[Login screen] entro a submit login")
         setLoading(true);
+        await app.signOutUser();
         await app.apiClient().login(data, handleApiResponseLogin);
         setLoading(false);
         console.log("[Login screen] termino submit login")

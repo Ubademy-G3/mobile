@@ -1,18 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, setStatus } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, ActivityIndicator, KeyboardAvoidingView, Alert } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
 import MultiSelect from 'react-native-multiple-select';
+import { Video, AVPlaybackStatus } from 'expo-av';
+//import VideoPlayer from "react-native-video-player";
 
-import * as ImagePicker from "expo-image-picker"
-import { firebase } from '../../firebase'
+import * as ImagePicker from "expo-image-picker";
+import { firebase } from '../../firebase';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuEditProfileScreen = (props) => {
+    const [status, setStatus] = React.useState({});
+
     const [userData, setData] = useState({
         firstName: "",
         lastName: "",
@@ -21,6 +24,10 @@ const MenuEditProfileScreen = (props) => {
         description: "",
         interests: [],
     });
+
+    const video = React.useRef(null);
+
+    let videoUri = "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61";
 
     const [loading, setLoading] = useState(false);
 
@@ -105,7 +112,9 @@ const MenuEditProfileScreen = (props) => {
     }, []);
 
     const choosePhotoFromLibrary = async () => {
-        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+          });
         console.log("CARGO UNA IMAGEN:", pickerResult);
         const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
         console.log("Media URi:", mediaUri);  
@@ -137,6 +146,7 @@ const MenuEditProfileScreen = (props) => {
             console.log("Error en el firebase storage:", err);
         }
     }
+
     useEffect(() => {
         console.log("[Edit Profile screen] entro a useEffect"); 
         setData({
@@ -154,6 +164,24 @@ const MenuEditProfileScreen = (props) => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
+            <Video
+                ref={video}
+                source={{
+                uri: videoUri,
+                }}
+                useNativeControls
+                resizeMode="contain"
+                isLooping
+                onPlaybackStatusUpdate={status => setStatus(() => status)}
+            />
+            <View>
+                <Button
+                title={status.isPlaying ? 'Pause' : 'Play'}
+                onPress={() =>
+                    status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
+                }
+                />
+            </View>            
             {/*<View>
                     <Image source={image} style={styles.titlesImage} />
             </View>*/}

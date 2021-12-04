@@ -1,5 +1,5 @@
 import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert, FlatList } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../app/app';
@@ -25,15 +25,6 @@ const ProfileScreen = (props) => {
     });
 
     const [categories, setCategories] = useState([]);
-
-    const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
-        location: "",
-        profilePicture: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        interests: []
-    });
 
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())

@@ -47,9 +47,10 @@ const MenuFavoriteCoursesScreen = (props) => {
     };
 
     useEffect(() => {
+        setCourses([]);
         console.log("[Menu Favorite Courses screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, [props]);
 
     return (
         <View style={styles.container}>

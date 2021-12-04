@@ -4,6 +4,7 @@ import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
+import MultiSelect from 'react-native-multiple-select';
 
 import * as ImagePicker from "expo-image-picker"
 import { firebase } from '../../firebase'
@@ -23,6 +24,10 @@ const MenuEditProfileScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const [categories, setCategories] = useState([]);
+
+    const [selectedItems, setSelectedItems] = useState([]);
+
     const handleApiResponseEditProfile = (response) => {
         console.log("[Edit Profile screen] response content: ", response.content())
         if (!response.hasError()) {
@@ -37,7 +42,32 @@ const MenuEditProfileScreen = (props) => {
             console.log("[Edit Profile screen] error", response.content().message);
         }
     }
-    
+
+    const handleApiResponseGetCategories = (response) => {
+        console.log("[Create Course screen] response content: ", response.content())
+        if (!response.hasError()) {
+            setCategories(response.content())
+        } else {
+            console.log("[Create Course screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Edit Profile screen] content: ", response.content())
+        if (!response.hasError()) {
+            setData({
+                firstName: response.content().firstName,
+                lastName: response.content().lastName,
+                location: response.content().location,
+                profilePicture: response.content().profilePicture,
+                description: response.content().description,
+                interests: response.content().interests
+            });
+        } else {
+            console.log("[Edit Profile screen] error", response.content().message);
+        }
+    }
+
     const handleSubmitEditProfile = async () =>{
         console.log("[Edit Profile screen] entro a submit edit profile")
         setLoading(true);
@@ -57,22 +87,6 @@ const MenuEditProfileScreen = (props) => {
         setLoading(false);
         console.log("[Edit Profile screen] termino submit signup")
     }
-
-    const handleApiResponseProfile = (response) => {
-        console.log("[Edit Profile screen] content: ", response.content())
-        if (!response.hasError()) {
-            setData({
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                location: response.content().location,
-                profilePicture: response.content().profilePicture,
-                description: response.content().description,
-                interests: response.content().interests
-            });
-        } else {
-            console.log("[Edit Profile screen] error", response.content().message);
-        }
-    }
     
     const onRefresh = async () => {
         console.log("[Edit Profile screen] entro a onRefresh"); 
@@ -81,12 +95,12 @@ const MenuEditProfileScreen = (props) => {
         let idLS = await app.getId();
         console.log("[Edit Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
+        await app.apiClient().getAllCategories({token: tokenLS}, handleApiResponseGetCategories);
         setLoading(false);
     };
 
     useEffect(() => {
         console.log("[Edit Profile screen] entro a useEffect"); 
-        console.log("[Edit Profile screen] params: ", props.route.params)
         onRefresh();
     }, []);
 
@@ -123,6 +137,17 @@ const MenuEditProfileScreen = (props) => {
             console.log("Error en el firebase storage:", err);
         }
     }
+    useEffect(() => {
+        console.log("[Edit Profile screen] entro a useEffect"); 
+        setData({
+            ...userData,
+            interests: selectedItems,
+        })
+    }, [selectedItems]);
+
+    const onSelectedItemsChange = (selectedItems) => {
+        setSelectedItems(selectedItems);
+    };
 
     return (
         <KeyboardAvoidingView
@@ -173,6 +198,28 @@ const MenuEditProfileScreen = (props) => {
                     value={userData.description}
                     style={styles.input}
                 />
+                <Text style={styles.inputText}>Interests</Text>
+                <MultiSelect
+                    hideTags
+                    items={categories}
+                    uniqueKey="id"
+                    onSelectedItemsChange={onSelectedItemsChange}
+                    selectedItems={selectedItems}
+                    selectText="Pick all your interests"
+                    searchInputPlaceholderText="Select your interests..."
+                    onChangeInput={(text) => console.log(text)}
+                    tagRemoveIconColor="#CCC"
+                    tagBorderColor="#CCC"
+                    tagTextColor="#CCC"
+                    selectedItemTextColor="#CCC"
+                    selectedItemIconColor="#CCC"
+                    itemTextColor="#000"
+                    displayKey="name"
+                    styleMainWrapper={styles.inputMultiSelect}
+                    searchInputStyle={{color: '#CCC'}}
+                    submitButtonColor="#48d22b"
+                    submitButtonText="Submit"
+                />
             </View>
             <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -220,6 +267,13 @@ const styles = StyleSheet.create({
         backgroundColor:'white',
         paddingHorizontal: 15,
         paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    inputMultiSelect : {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        //paddingVertical: 5,
         borderRadius: 10,
         marginTop: 5,
     },

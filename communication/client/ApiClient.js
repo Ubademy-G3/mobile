@@ -16,6 +16,14 @@ import { CreateExamEndpoint } from "../endpoints/CreateExamEndpoint.js";
 import { CreateQuestionEndpoint } from "../endpoints/CreateQuestionEndpoint.js";
 import { GetAllCoursesByUserEndpoint } from "../endpoints/GetAllCoursesByUserEndpoint.js";
 import { GetCourseByIdEndpoint } from "../endpoints/GetCourseByIdEndpoint.js";
+import { GetCategoryByIdEndpoint } from "../endpoints/GetCategoryByIdEndpoint.js";
+import { GetAllExamsByCourseIdEndpoint } from "../endpoints/GetAllExamsByCourseIdEndpoint.js";
+import { GetAllQuestionsByExamIdEndpoint } from "../endpoints/GetAllQuestionsByExamIdEndpoint.js";
+import { GetQuestionByIdEndpoint } from "../endpoints/GetQuestionByIdEndpoint.js";
+import { CreateNewExamSolutionEndpoint } from "../endpoints/CreateNewExamSolutionEndpoint.js";
+import { CreateNewExamAnswerEndpoint } from "../endpoints/CreateNewExamAnswerEndpoint.js";
+import { UpdateQuestionEndpoint } from "../endpoints/UpdateQuestionEndpoint.js";
+import { DeleteQuestionEndpoint } from "../endpoints/DeleteQuestionEndpoint.js";
 
 
 class ApiClient {
@@ -131,6 +139,62 @@ class ApiClient {
         });
     }
 
+    updateQuestion(data, examId, questionId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateQuestionEndpoint(examId, questionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    deleteQuestion(data, examId, questionId, onResponse) {
+        return this._requester.call({
+            endpoint: new DeleteQuestionEndpoint(examId, questionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllExamsByCourseId(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllExamsByCourseIdEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllQuestionsByExamId(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllQuestionsByExamIdEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getQuestionById(data, examId, questionId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetQuestionByIdEndpoint(questionId, examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createNewExamSolution(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateNewExamSolutionEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createNewExamAnswer(data, examId, solutionId, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateNewExamAnswerEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     subscribeCourse(data, courseId, onResponse) {
         return this._requester.call({
             endpoint: new SubscribeToCourseEndpoint(courseId),
@@ -166,6 +230,14 @@ class ApiClient {
     getAllCategories(data, onResponse) {
         return this._requester.call({
             endpoint: new GetAllCategoriesEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getCategoryById(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetCategoryByIdEndpoint(id),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

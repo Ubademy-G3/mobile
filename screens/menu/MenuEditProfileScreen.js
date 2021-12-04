@@ -6,6 +6,9 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { app } from '../../app/app';
 import MultiSelect from 'react-native-multiple-select';
 
+import * as ImagePicker from "expo-image-picker"
+import { firebase } from '../../firebase'
+
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
@@ -101,6 +104,39 @@ const MenuEditProfileScreen = (props) => {
         onRefresh();
     }, []);
 
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync();
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadMediaOnFirebase(mediaUri);
+    }
+    
+    const uploadMediaOnFirebase = async (mediaUri) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            setData({
+                ...userData,
+                profilePictureUrl: newURL,
+            })
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
     useEffect(() => {
         console.log("[Edit Profile screen] entro a useEffect"); 
         setData({
@@ -186,6 +222,18 @@ const MenuEditProfileScreen = (props) => {
                 />
             </View>
             <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                        onPress={() => {choosePhotoFromLibrary()}}
+                        style={styles.button}
+                        disabled={loading}
+                    >
+                        {
+                            <Text style={styles.buttonText}>Change Profile Photo</Text>
+                        }
+                    </TouchableOpacity>
+            </View>
+            <View style={styles.buttonContainer}>
+                
                 <TouchableOpacity
                     onPress={() => {handleSubmitEditProfile()}}
                     style={styles.button}
@@ -240,7 +288,7 @@ const styles = StyleSheet.create({
         width: '60%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 40,
+        marginTop: 5,
     },
     button: {
         backgroundColor: `#87ceeb`,

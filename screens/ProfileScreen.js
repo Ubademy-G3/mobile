@@ -1,9 +1,7 @@
 import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
 
@@ -15,7 +13,16 @@ const ProfileScreen = (props) => {
     
     const [loading, setLoading] = useState(false);
     
-    const [courses, setCourses] = useState([]);
+    const [courses, setCourses] = useState([]);  
+    
+    const [userData, setData] = useState({
+        firstName: "Name",
+        lastName: "Last name",
+        location: "",
+        profilePicture: "",
+        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        coursesHistory: [],
+    });
 
     const [categories, setCategories] = useState([]);
 
@@ -66,7 +73,7 @@ const ProfileScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePicture: response.content().profilePicture,
+                profilePicture: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests,
             });
@@ -117,17 +124,18 @@ const ProfileScreen = (props) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container}>             
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={image} style={styles.titlesImage} />
+                        <Image source={{uri: userData.profilePicture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
                     </View>
+                    
                 </View>
-
+                
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
@@ -293,6 +301,18 @@ const styles = StyleSheet.create({
         fontWeight: '300',
         fontSize: 16,
         paddingBottom: 5,
+    },
+    button: {
+        backgroundColor: `#87ceeb`,
+        width: '100%',
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+    },
+    buttonText: {
+        color:'white',
+        fontWeight: '700',
+        fontSize: 16,
     },
     categoriesWrapper: {
         //marginTop: 10,

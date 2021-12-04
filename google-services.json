@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "241878143297",
+    "project_id": "ubademy-mobile",
+    "storage_bucket": "ubademy-mobile.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:241878143297:android:6d952dd47c5c89d86511c0",
+        "android_client_info": {
+          "package_name": "com.ubademy.storage"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "241878143297-rfaean3jstuao68t5j0i2d9c7bndokpv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlciYvFvUtb6Y8xnZzVJBSM73BpTJVrsQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "241878143297-rfaean3jstuao68t5j0i2d9c7bndokpv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "241878143297-gaovtdmo3if10taaulj8qbhkr5og4qa6.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "host.exp.exponent"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

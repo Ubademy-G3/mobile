@@ -3,6 +3,7 @@ import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, Scro
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
+import { Video, AVPlaybackStatus } from 'expo-av';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -15,6 +16,12 @@ const EditModulesScreen = (props) => {
     const [loading, setLoading] = useState(false);
 
     const [modules, setModules] = useState([]);
+
+    const video = React.useRef(null);
+    
+    const [status, setStatus] = React.useState({});
+
+    const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
     const handleApiResponseCreateModule = () => {
         console.log("[Edit Modules screen] create module: ", response.content())
@@ -189,6 +196,28 @@ const EditModulesScreen = (props) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
+                            {mediaUrl.map(item => (
+                                <View style={styles.containerVideo}>
+                                    <Video
+                                        ref={video}
+                                        style={styles.video}
+                                        source={{uri: item}}
+                                        resizeMode="contain"
+                                        isLooping
+                                        useNativeControls={true}
+                                        shouldPlay={true}
+                                        onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                    />
+                                    <View style={styles.buttons}>
+                                        <Button
+                                        title={status.isPlaying ? 'Pause' : 'Play'}
+                                        onPress={() =>
+                                            status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
+                                        }
+                                        />
+                                    </View>
+                                </View>
+                            ))}
                         </>
                     )}
                     </>
@@ -499,6 +528,21 @@ const styles = new StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+    },
+    containerVideo: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#ecf0f1',
+    },
+    video: {
+        alignSelf: 'center',
+        width: 320,
+        height: 200,
+    },
+    buttons: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

@@ -245,17 +245,21 @@ const CourseScreen = (props) => {
                         <Text style={styles.examsText}>This course doesn't have exams</Text>
                     )}
                     {exams.map(item_exam => (
-                    <View style={styles.examsList}>
-                        <TouchableOpacity
-                            onPress={() => {props.navigation.navigate('Exam Screen', {
-                                id: item_exam.id,
-                                course_id : item.id,
-                            })}}
-                            style={[styles.fadedButton]}
-                        >
-                            <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
-                        </TouchableOpacity>
-                    </View>
+                        <>
+                        {item_exam.state === "active" && (
+                            <View style={styles.examsList}>
+                                <TouchableOpacity
+                                    onPress={() => {props.navigation.navigate('Exam Screen', {
+                                        id: item_exam.id,
+                                        course_id : item.id,
+                                    })}}
+                                    style={[styles.fadedButton]}
+                                >
+                                    <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        </>
                     ))}
                 </>
                 )}

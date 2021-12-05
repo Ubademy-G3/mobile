@@ -36,6 +36,14 @@ const EditExamScreen = (props) => {
     
     const [selected, setSelected] = useState(false);
 
+    const handleApiResponseUpdateExam = (response) => {
+        console.log("[Edit Exam screen] update exam: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Edit Exam screen] error", response.content().message);
+        }        
+    }
+
     const handleResponseGetAllExams = (response) => {
         console.log("[Edit Exam screen] get exams: ", response.content())
         if (!response.hasError()) {
@@ -240,6 +248,17 @@ const EditExamScreen = (props) => {
                 state: "draft",
             });
         }
+    }
+
+    const handleSubmitSave = async() => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().updateExam(
+            {
+                token: tokenLS,
+                state: selectedExam.state,
+            }, 
+        selectedExam.id, handleApiResponseUpdateExam);
+        props.navigation.goBack();
     }
 
     useEffect(() => {
@@ -491,7 +510,7 @@ const EditExamScreen = (props) => {
             {selected === true && (
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity
-                        onPress={() => {}}
+                        onPress={() => {handleSubmitSave()}}
                         style={[styles.button,{backgroundColor:`#87ceeb`}]}
                     >
                         <Text style={styles.buttonText}>Save Exam</Text>

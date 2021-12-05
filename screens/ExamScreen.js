@@ -46,6 +46,17 @@ const ExamScreen = (props) => {
         }  
     }
 
+    const handleResponseGetCourse = async (response) => {
+        console.log("[Edit Exam screen] create new answer: ", response.content())
+        if (!response.hasError()) {
+            let tokenLS = await app.getToken();
+            let idLS = await app.getId();
+            await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: response.content().max_score}, param_exam_id, handleResponseCreateNewSolution);
+        } else {
+            console.log("[Edit Exam screen] error", response.content().message);
+        }  
+    }
+
     const handleResponseGetAllQuestions = async (response) => {
         console.log("[Edit Exam screen] get questions: ", response.content())
         let tokenLS = await app.getToken();
@@ -62,7 +73,8 @@ const ExamScreen = (props) => {
                 question_type: question.question_type,
                 value: question.value}]);
                 console.log("course_id:", param_course_id);
-                await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: 100}, param_exam_id, handleResponseCreateNewSolution);
+                await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetCourse)
+                //await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: 100}, param_exam_id, handleResponseCreateNewSolution);
                 setAnswer(answer => [...answer, {
                     answer: "",
                     question_template_id: question.id,

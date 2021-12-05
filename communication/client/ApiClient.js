@@ -27,7 +27,8 @@ import { DeleteQuestionEndpoint } from "../endpoints/DeleteQuestionEndpoint.js";
 import { CreateNewModuleEndpoint } from "../endpoints/CreateNewModuleEndpoint.js";
 import { UpdateModuleEndpoint } from "../endpoints/UpdateModuleEndpoint.js";
 import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
-
+import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
+import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -129,6 +130,22 @@ class ApiClient {
     createExam(data, onResponse) {
         return this._requester.call({
             endpoint: new CreateExamEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateExam(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateExamEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getExamsById(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetExamByIdEndpoint(examId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

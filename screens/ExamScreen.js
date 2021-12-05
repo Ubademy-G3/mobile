@@ -95,6 +95,7 @@ const ExamScreen = (props) => {
             console.log("en el for solutionId[idx].solutionID: ", solutionId[idx].solutionId);
             await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId[idx].solutionId, handleResponseCreateNewAnswer);
         }
+        props.navigation.goBack();
     }
 
     const handleSubmitSetAnswer = (key, asw, question_id) => {
@@ -151,7 +152,7 @@ const ExamScreen = (props) => {
                             )}
                             {item.question_type === "multiple_choice" && (
                                 <>
-                                    {/* Chequear que funcione esto */}
+                                    {/* Chequear que funcione esto -> parece funcionar */}
                                     <SelectDropdown
                                         data={item.options}
                                         onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}

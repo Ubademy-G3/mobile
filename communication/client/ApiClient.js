@@ -29,6 +29,7 @@ import { UpdateModuleEndpoint } from "../endpoints/UpdateModuleEndpoint.js";
 import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
 import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
 import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
+import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -82,6 +83,14 @@ class ApiClient {
     editProfile(data, userId, onResponse) {
         return this._requester.call({
             endpoint: new EditProfileEndpoint(userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getUsersByEmail(data, email, onResponse) {
+        return this._requester.call({
+            endpoint: new GetUserByEmailEndpoint(email),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

@@ -134,7 +134,7 @@ const CourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Course screen] token:", tokenLS); 
-        await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "Student"}, item.id, handleResponseSubscribeToCourse);
+        await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "student"}, item.id, handleResponseSubscribeToCourse);
         setLoading(false);
     }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, TextInput } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
@@ -15,6 +15,10 @@ const EditCourseScreen = (props) => {
 
     const [rating, setRating] = useState(0);
 
+    const [collaborator, setCollaborator] = useState(false);
+
+    const [email, setEmail] = useState("");
+
     const handleResponseGetCourseRating = (response) => {
         console.log("[Edit Course screen] get rating: ", response.content())
         if (!response.hasError()) {
@@ -23,13 +27,60 @@ const EditCourseScreen = (props) => {
             console.log("[Edit Course screen] error", response.content().message);
         }        
     }
+    
+    const handleResponseSubscribeToCourse = (response) => {
+        console.log("[Edit Course screen] subscribe to course: ", response.content())
+        if (!response.hasError()) {
+            Alert.alert(
+                "Collaborator added to course",
+                [
+                  { text: "OK", onPress: () => {} }
+                ]
+            );
+        } else {
+            if (response.content().message == "Course already acquired by this user") {
+                Alert.alert(
+                    "Error: User is subscribe to this course",
+                    "Unable to make this user a collaborator",
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                );
+            }
+            console.log("[Edit Course screen] error", response.content().message);
+        }        
+    }
+
+    const handleResponseGetUsersByEmail = async (response) => {
+        console.log("[Edit Course screen] get user by emaill: ", response.content())
+        if (!response.hasError()) {
+            if(response.content().length === 1) {
+                let tokenLS = await app.getToken();
+                console.log("USER ID: ", response.content()[0].id);
+                await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
+            } else {
+                Alert.alert(
+                    "Unable to find a user with given email",
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                )
+            }
+        } else {
+            console.log("[Edit Course screen] error", response.content().message);
+        }        
+    }
+
+    const searchCollaborator = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getUsersByEmail({token: tokenLS}, email, handleResponseGetUsersByEmail);
+        setCollaborator(false);
+    }
 
     const onRefresh = async () => {
         console.log("[Edit Course screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        let idLS = await app.getId();
-        console.log("[Edit Course screen] token:", tokenLS); 
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         setLoading(false);
     };
@@ -58,7 +109,38 @@ const EditCourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
+                {collaborator && (
+                    <>
+                    <View style={styles.searchWrapper}>
+                        <Feather name="search" size={16}/>
+                        <View style={styles.search}>
+                            <TextInput 
+                            placeholder="Search collaborator by email"
+                            onChangeText={text => {setEmail(text)}}
+                            //value={}
+                            style={styles.searchText}
+                            />
+                        </View>              
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            onPress={() => {searchCollaborator()}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Search</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </>
+                )}
                 <View style={styles.buttonsWrapper}>
+                    {!collaborator && (
+                        <TouchableOpacity
+                            onPress={() => {setCollaborator(true)}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Add a collaborator</Text>
+                        </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                         onPress={() => {props.navigation.navigate('Edit Modules', {
                             id: item.id,
@@ -135,6 +217,14 @@ const styles = new StyleSheet.create({
     rating: {
         fontSize: 18,
     },
+    buttonContainer: {
+        width: '90%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 5,
+        marginLeft: 17,
+        flexDirection: 'row'
+    },
     button: {
         backgroundColor: `#87ceeb`,
         width: "80%",
@@ -153,6 +243,25 @@ const styles = new StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         marginTop: 20,
+    },
+    searchWrapper: {
+        flexDirection: "row",
+        width:'90%',
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        marginTop: 10,
+        marginLeft: 18,
+        backgroundColor:'white',
+    },
+    search: {
+        marginLeft: 10,
+        alignItems: "center",
+    },
+    searchText: {
+        fontSize: 14,
+        color: "grey",
+        alignItems: "center",
     },
 });
 

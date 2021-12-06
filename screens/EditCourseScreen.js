@@ -17,6 +17,8 @@ const EditCourseScreen = (props) => {
 
     const [collaborator, setCollaborator] = useState(false);
 
+    const [collaboratorsData, setCollaboratorsData] = useState([]);
+
     const [email, setEmail] = useState("");
 
     const handleResponseGetCourseRating = (response) => {
@@ -26,6 +28,27 @@ const EditCourseScreen = (props) => {
         } else {
             console.log("[Edit Course screen] error", response.content().message);
         }        
+    }
+
+    const handleApiResponseProfile = (response) => {
+        console.log("[Edit Course Screen] content: ", response.content())
+        if (!response.hasError()) {
+                setCollaboratorsData(collaboratorsData => [...collaboratorsData, response.content()]);
+        } else {
+            console.log("[Edit Course Screen] error", response.content().message);
+        }
+    }
+
+    const handleGetAllUsersInCourse = async (response) => {
+        console.log("[Edit Course Screen] content: ", response.content())
+        if (!response.hasError()) {
+            let tokenLS = await app.getToken();
+            for(let student of response.content().users){
+              await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
+            }
+        } else {
+            console.log("[Edit Course Screen] error", response.content().message);
+        }
     }
     
     const handleResponseSubscribeToCourse = (response) => {
@@ -54,11 +77,14 @@ const EditCourseScreen = (props) => {
     const handleResponseGetUsersByEmail = async (response) => {
         console.log("[Edit Course screen] get user by emaill: ", response.content())
         if (!response.hasError()) {
+            console.log("content lenght: ", response.content().length);
             if(response.content().length === 1) {
+                console.log("ENTRO AL IF: ");
                 let tokenLS = await app.getToken();
                 console.log("USER ID: ", response.content()[0].id);
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
+                console.log("ENTRO AL ELSE: ");
                 Alert.alert(
                     "Unable to find a user with given email",
                     [
@@ -82,6 +108,7 @@ const EditCourseScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, "collaborator", handleGetAllUsersInCourse);
         setLoading(false);
     };
   
@@ -132,6 +159,14 @@ const EditCourseScreen = (props) => {
                     </View>
                     </>
                 )}
+                <Text>Collaborators:</Text>
+                <View style={styles.cardWrapper}>
+                    {collaboratorsData.map(item => (
+                        <ProfilesListComponent 
+                        item={item}
+                        navigation={props.navigation}/>
+                    ))}
+                </View>
                 <View style={styles.buttonsWrapper}>
                     {!collaborator && (
                         <TouchableOpacity
@@ -198,6 +233,9 @@ const styles = new StyleSheet.create({
         width: 80,
         height: 80,
         borderRadius: 10,
+    },
+    cardWrapper: {
+        paddingHorizontal: 20,
     },
     titleWrapper: {
         //paddingVertical:25,

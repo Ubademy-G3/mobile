@@ -21,7 +21,7 @@ const ProfilesListComponent = ({ item, navigation }) => {
         ]}>
           {/*<View>*/}
           <View style={styles.profilesTitleWrapper}>
-            <Image source={image} style={styles.profilesCardImage} />
+            <Image source={{uri: item.profilePictureUrl}} style={styles.profilesCardImage} />
           {/*</View>*/}
             <Text style={styles.profilesTitle}>{item.firstName} {item.lastName}</Text>  
           </View>

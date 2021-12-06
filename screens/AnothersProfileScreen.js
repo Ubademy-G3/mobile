@@ -21,7 +21,7 @@ const AnothersProfileScreen = (props) => {
         firstName: "Name",
         lastName: "Last name",
         location: "",
-        profilePicture: "../assets/images/profilePic.jpg",
+        profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
         interests: [],
     });
@@ -42,7 +42,7 @@ const AnothersProfileScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePicture: response.content().profilePicture,
+                profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests
             });
@@ -95,7 +95,7 @@ const AnothersProfileScreen = (props) => {
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={image} style={styles.titlesImage} />
+                        <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>

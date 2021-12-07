@@ -17,7 +17,7 @@ import { createDrawerNavigator} from '@react-navigation/drawer';
 import MenuFavoriteCoursesScreen from './screens/menu/MenuFavoriteCoursesScreen';
 import MenuCompletedCoursesScreen from './screens/menu/MenuCompletedCoursesScreen';
 import MenuSubscribedCoursesScreen from './screens/menu/MenuSubscribedCoursesScreen';
-import MenuCollaborationsScreen from './screens/menu/MenuCollaborationsScree';
+import MenuCollaborationsScreen from './screens/menu/MenuCollaborationsScreen';
 import MenuEditProfileScreen from './screens/menu/MenuEditProfileScreen';
 import MenuCreatedCoursesScreen from './screens/menu/MenuCreatedCoursesScreen';
 import MenuCreateNewCourseScreen from './screens/menu/MenuCreateNewCourseScreen';

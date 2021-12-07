@@ -55,7 +55,7 @@ const MenuEditCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Edit Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, undefined, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, undefined, undefined, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 

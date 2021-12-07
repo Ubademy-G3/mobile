@@ -15,6 +15,8 @@ const EditCourseScreen = (props) => {
 
     const [rating, setRating] = useState(0);
 
+    const [rol, setRol] = useState("");
+
     const [addCollaborator, setAddCollaborator] = useState(false);
 
     const [removeCollaborator, setRemoveCollaborator] = useState(false);
@@ -27,6 +29,15 @@ const EditCourseScreen = (props) => {
         console.log("[Edit Course screen] get rating: ", response.content())
         if (!response.hasError()) {
             setRating(response.content().rating);
+        } else {
+            console.log("[Edit Course screen] error", response.content().message);
+        }        
+    }
+
+    const  handleResponseGetProfile = (response) => {
+        console.log("[Edit Course screen] get profile: ", response.content())
+        if (!response.hasError()) {
+            setRol(response.content().rol);
         } else {
             console.log("[Edit Course screen] error", response.content().message);
         }        
@@ -141,8 +152,10 @@ const EditCourseScreen = (props) => {
         console.log("[Edit Course screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, "collaborator", handleGetAllUsersInCourse);
+        await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
         setLoading(false);
     };
   
@@ -226,52 +239,56 @@ const EditCourseScreen = (props) => {
                     ))}
                 </View>
                 <View style={styles.buttonsWrapper}>
-                    {!addCollaborator && (
+                    {rol === "instructor" && (
+                        <>
+                        {!addCollaborator && (
+                            <TouchableOpacity
+                                onPress={() => {setAddCollaborator(true)}}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Add a collaborator</Text>
+                            </TouchableOpacity>
+                        )}
+                        {!removeCollaborator && (
+                            <TouchableOpacity
+                                onPress={() => {setRemoveCollaborator(true)}}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Remove a collaborator</Text>
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity
-                            onPress={() => {setAddCollaborator(true)}}
+                            onPress={() => {props.navigation.navigate('Edit Modules', {
+                                id: item.id,
+                                course_name: item.name
+                                })}}
                             style={styles.button}
                         >
-                            <Text style={styles.buttonText}>Add a collaborator</Text>
+                            <Text style={styles.buttonText}>Edit Modules</Text>
                         </TouchableOpacity>
-                    )}
-                    {!removeCollaborator && (
                         <TouchableOpacity
-                            onPress={() => {setRemoveCollaborator(true)}}
+                            onPress={() => {props.navigation.navigate('Edit Exam', {
+                                id: item.id,
+                                })}}
                             style={styles.button}
                         >
-                            <Text style={styles.buttonText}>Remove a collaborator</Text>
+                            <Text style={styles.buttonText}>Edit Exams</Text>
                         </TouchableOpacity>
+                        <TouchableOpacity
+                            onPress={() => {props.navigation.navigate('Create New Exam', {
+                                id: item.id,
+                                })}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Create New Exam</Text>
+                        </TouchableOpacity>
+                        </>
                     )}
-                    <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('Edit Modules', {
-                            id: item.id,
-                            course_name: item.name
-                            })}}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Edit Modules</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('Edit Exam', {
-                            id: item.id,
-                            })}}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Edit Exams</Text>
-                    </TouchableOpacity>
                     <TouchableOpacity
                         onPress={() => {}}
                         style={styles.button}
                     >
                         <Text style={styles.buttonText}>Grade Exams</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('Create New Exam', {
-                            id: item.id,
-                            })}}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Create New Exam</Text>
                     </TouchableOpacity>
                 </View>
             </ScrollView>

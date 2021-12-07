@@ -15,7 +15,9 @@ const EditCourseScreen = (props) => {
 
     const [rating, setRating] = useState(0);
 
-    const [collaborator, setCollaborator] = useState(false);
+    const [addCollaborator, setAddCollaborator] = useState(false);
+
+    const [removeCollaborator, setRemoveCollaborator] = useState(false);
 
     const [collaboratorsData, setCollaboratorsData] = useState([]);
 
@@ -54,8 +56,9 @@ const EditCourseScreen = (props) => {
     const handleResponseSubscribeToCourse = (response) => {
         console.log("[Edit Course screen] subscribe to course: ", response.content())
         if (!response.hasError()) {
-            Alert.alert("Successful:",
-                "Collaborator added to course",
+            Alert.alert(
+                "Successful:",
+                "Collaborator's updated in course",
                 [
                   { text: "OK", onPress: () => {} }
                 ]
@@ -74,7 +77,7 @@ const EditCourseScreen = (props) => {
         }        
     }
 
-    const handleResponseGetUsersByEmail = async (response) => {
+    const handleResponseGetUsersByEmailSubscribe = async (response) => {
         console.log("[Edit Course screen] get user by emaill: ", response.content())
         if (!response.hasError()) {
             console.log("content lenght: ", response.content().length);
@@ -85,7 +88,8 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert("Error:",
+                Alert.alert(
+                    "Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }
@@ -97,10 +101,40 @@ const EditCourseScreen = (props) => {
         }        
     }
 
-    const searchCollaborator = async () => {
+    const handleResponseGetUsersByEmailUnsubscribe = async (response) => {
+        console.log("[Edit Course screen] get user by emaill: ", response.content())
+        if (!response.hasError()) {
+            console.log("content lenght: ", response.content().length);
+            if(response.content().length === 1) {
+                console.log("ENTRO AL IF: ");
+                let tokenLS = await app.getToken();
+                console.log("USER ID: ", response.content()[0].id);
+                await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, response.content()[0].id, handleResponseSubscribeToCourse)
+            } else {
+                console.log("ENTRO AL ELSE: ");
+                Alert.alert(
+                    "Error:",
+                    "Unable to find a user with given email",
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                )
+            }
+        } else {
+            console.log("[Edit Course screen] error", response.content().message);
+        }        
+    }
+
+    const addNewCollaborator = async () => {
         let tokenLS = await app.getToken();
-        await app.apiClient().getUsersByEmail({token: tokenLS}, email, handleResponseGetUsersByEmail);
-        setCollaborator(false);
+        await app.apiClient().getUsersByEmail({token: tokenLS}, email, handleResponseGetUsersByEmailSubscribe);
+        setAddCollaborator(false);
+    }
+
+    const removeNewCollaborator = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getUsersByEmail({token: tokenLS}, email, handleResponseGetUsersByEmailUnsubscribe);
+        setRemoveCollaborator(false);
     }
 
     const onRefresh = async () => {
@@ -113,9 +147,10 @@ const EditCourseScreen = (props) => {
     };
   
     useEffect(() => {
+        setCollaboratorsData([]);
         console.log("[Edit Course screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, [addCollaborator,removeCollaborator]);
 
     return (
         <View style={styles.container}>
@@ -136,7 +171,7 @@ const EditCourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
-                {collaborator && (
+                {addCollaborator && (
                     <>
                     <View style={styles.searchWrapper}>
                         <Feather name="search" size={16}/>
@@ -151,7 +186,30 @@ const EditCourseScreen = (props) => {
                     </View>
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity
-                            onPress={() => {searchCollaborator()}}
+                            onPress={() => {addNewCollaborator()}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Search</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </>
+                )}
+                {removeCollaborator && (
+                    <>
+                    <View style={styles.searchWrapper}>
+                        <Feather name="search" size={16}/>
+                        <View style={styles.search}>
+                            <TextInput 
+                            placeholder="Search collaborator by email"
+                            onChangeText={text => {setEmail(text)}}
+                            //value={}
+                            style={styles.searchText}
+                            />
+                        </View>              
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            onPress={() => {removeNewCollaborator()}}
                             style={styles.button}
                         >
                             <Text style={styles.buttonText}>Search</Text>
@@ -168,12 +226,20 @@ const EditCourseScreen = (props) => {
                     ))}
                 </View>
                 <View style={styles.buttonsWrapper}>
-                    {!collaborator && (
+                    {!addCollaborator && (
                         <TouchableOpacity
-                            onPress={() => {setCollaborator(true)}}
+                            onPress={() => {setAddCollaborator(true)}}
                             style={styles.button}
                         >
                             <Text style={styles.buttonText}>Add a collaborator</Text>
+                        </TouchableOpacity>
+                    )}
+                    {!removeCollaborator && (
+                        <TouchableOpacity
+                            onPress={() => {setRemoveCollaborator(true)}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Remove a collaborator</Text>
                         </TouchableOpacity>
                     )}
                     <TouchableOpacity

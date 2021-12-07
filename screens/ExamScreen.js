@@ -20,6 +20,8 @@ const ExamScreen = (props) => {
 
     const [solutionId, setSolutionId] = useState([]);
 
+    const [blocked, setBlocked] = useState(false);
+
     //const [selectedMC, setSelectedMC] = useState(0);
 
     const handleResponseCreateNewSolution = async (response) => {
@@ -30,11 +32,10 @@ const ExamScreen = (props) => {
             }]);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
-        }  
-        /*dentro del handleResponseCreateNewSolution hago:
-            obtengo el solutionId
-            await app.apiClient().createNewExamAnswer({token: tokenLS}, data, handleResponseCreateNewAnswer);*/
-
+            if (response.content().message === "This user already reached the maximum amount of attempts for this exam") {
+                setBlocked(true);
+            }
+        }
     }
 
     const handleResponseCreateNewAnswer =  (response) => {
@@ -128,49 +129,54 @@ const ExamScreen = (props) => {
                 {questions.length === 0 && (
                     <Text style={styles.examsText}>This exam has no questions</Text>
                 )}
-                {questions.map((item, idx) => (
-                    /*<QuestionComponent
-                        item={item}
-                    />*/
-                    <TouchableOpacity
-                    key={item.id}
-                    onPress={() => {}}
-                    style={styles.containerQuestions}
-                    >
-                        <View>
-                            <Text style={styles.questionText}>{item.question}</Text>
-                            {item.question_type === "written" && (
-                                <>
-                                    <TextInput
-                                        placeholder="Write your answer"
-                                        multiline = {true}
-                                        onChangeText={text => handleSubmitSetAnswer(idx, text, item.id)}
-                                        value={answer.answer}
-                                        style={styles.input}
-                                    />
-                                </>
-                            )}
-                            {item.question_type === "multiple_choice" && (
-                                <>
-                                    {/* Chequear que funcione esto -> parece funcionar */}
-                                    <SelectDropdown
-                                        data={item.options}
-                                        onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}
-                                        defaultButtonText={"Select an option"}
-                                        buttonStyle={styles.buttonDropdown}
-                                        buttonTextStyle={styles.textDropdown}
-                                        renderDropdownIcon={() => {
-                                            return (
-                                            <Feather name="chevron-down" color={"#444"} size={18} />
-                                            );
-                                        }}
-                                    />
-                                </>
-                            )}
-                        </View>
-                    </TouchableOpacity>
-                ))}
+                {blocked && (
+                    <Text style={styles.examsText}>You reached the maximum amount of attempts for this exam</Text>
+                )}
+                {!blocked && (
+                    <>
+                    {questions.map((item, idx) => (
+                        <TouchableOpacity
+                        key={item.id}
+                        onPress={() => {}}
+                        style={styles.containerQuestions}
+                        >
+                            <View>
+                                <Text style={styles.questionText}>{item.question}</Text>
+                                {item.question_type === "written" && (
+                                    <>
+                                        <TextInput
+                                            placeholder="Write your answer"
+                                            multiline = {true}
+                                            onChangeText={text => handleSubmitSetAnswer(idx, text, item.id)}
+                                            value={answer.answer}
+                                            style={styles.input}
+                                        />
+                                    </>
+                                )}
+                                {item.question_type === "multiple_choice" && (
+                                    <>
+                                        {/* Chequear que funcione esto -> parece funcionar */}
+                                        <SelectDropdown
+                                            data={item.options}
+                                            onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}
+                                            defaultButtonText={"Select an option"}
+                                            buttonStyle={styles.buttonDropdown}
+                                            buttonTextStyle={styles.textDropdown}
+                                            renderDropdownIcon={() => {
+                                                return (
+                                                <Feather name="chevron-down" color={"#444"} size={18} />
+                                                );
+                                            }}
+                                        />
+                                    </>
+                                )}
+                            </View>
+                        </TouchableOpacity>
+                    ))}
+                    </>
+                )}
             </ScrollView>
+            {!blocked && (
             <View style={styles.saveButtonWrapper}>
                 <TouchableOpacity onPress={() => handleSubmitSave()}> 
                     <View style={styles.saveWrapper}>
@@ -178,6 +184,7 @@ const ExamScreen = (props) => {
                     </View>
                 </TouchableOpacity> 
             </View>  
+            )}
         </View>
     );
 };

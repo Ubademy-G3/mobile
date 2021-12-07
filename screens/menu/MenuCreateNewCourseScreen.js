@@ -20,7 +20,7 @@ const MenuCreateNewCourseScreen = (props) => {
         category: 0,
         subscription_type: "",
         location: "",
-        profile_picture: "",
+        profile_picture: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/icon.png?alt=media&token=7fd2278c-dd3d-443c-9a86-bacca98ef702",
         duration: "",
         language: "",
         level: "",
@@ -35,9 +35,12 @@ const MenuCreateNewCourseScreen = (props) => {
         console.log("[Create Course screen] name: ", name);
         console.log("[Create Course screen] idx: ", idx);
         console.log("[Create Course screen] categories array: ", categories[idx]);
-        category_id = categories[idx].id;
+        let category_id = categories[idx].id;
         console.log("[Create Course screen] category id: ", category_id);
-        //set category
+        setData({
+            ...courseData,
+            category: category_id,
+        });
     }
 
     const handleApiResponseCreateCourse = (response) => {
@@ -85,7 +88,6 @@ const MenuCreateNewCourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Create Course screen] token:",tokenLS);
-        //await app.apiClient().
         await app.apiClient().createCourse({
             user_id: idLS,
             name: courseData.name,
@@ -106,7 +108,7 @@ const MenuCreateNewCourseScreen = (props) => {
             category: 0,
             subscription_type: "",
             location: "",
-            profile_picture: "",
+            profile_picture: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/icon.png?alt=media&token=7fd2278c-dd3d-443c-9a86-bacca98ef702",
             duration: "",
             language: "",
             level: "",
@@ -136,9 +138,13 @@ const MenuCreateNewCourseScreen = (props) => {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-                {/*<View>
-                        <Image source={image} style={styles.titlesImage} />
-                </View>*/}
+                {/*<TouchableOpacity
+                onPress={() => {choosePhotoFromLibrary()}}
+                >*/}
+                <View>
+                    <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                </View>
+                {/*</TouchableOpacity>*/}
                 <View style={styles.inputContainer}>
                     <Text style={styles.inputText}>Course Name</Text>
                     <TextInput
@@ -164,7 +170,6 @@ const MenuCreateNewCourseScreen = (props) => {
                     <SelectDropdown
                         data={categories.map(function(item, idx) {return item.name;})}
                         onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
-                        value={courseData.subscription_type}
                         defaultButtonText={"Select a category"}
                         buttonStyle={styles.buttonDropdown}
                         buttonTextStyle={styles.textDropdown}
@@ -263,11 +268,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         //paddingTop: 5,
     },
-    /*logoImage: {
-        width: 75,
-        height: 75,
+    logoImage: {
+        width: 80,
+        height: 80,
         borderRadius: 40,
-    },*/
+    },
     inputContainer: {
         width:'80%',
     },

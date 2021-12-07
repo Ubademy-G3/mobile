@@ -44,10 +44,25 @@ const CreateExamScreen = (props) => {
         id: "",
         name: "",
         course_id: "",
-        active: "",
+        state: "draft",
+        max_score: 0,
+        has_multiple_choice: false,
+        has_written: false,
+        has_media: false,
+        max_attempts: 1
     });
 
     //const [showButtons, setShowButtons] = useState(true);
+
+    const handleResponseUpdateExam = (response) => {
+        console.log("[Create Exam screen] update: ", response.content())
+        if (!response.hasError()) {
+            setExam(response.content());
+            console.log("[Create Exam screen] courses: ", exam);
+        } else {
+            console.log("[Create Exam screen] error", response.content().message);
+        }
+    }
 
     const handleApiResponseCreateExam = (response) => {
         console.log("[Create Exam screen] content: ", response.content())
@@ -178,7 +193,22 @@ const CreateExamScreen = (props) => {
         setInputs(_inputs);
     }
 
-    const saveExam = () => {
+    const saveExam = async () => {
+        let tokenLS = await app.getToken();
+        var total_score = 0
+        for (let question of inputs) {
+            console.log("total scrore", total_score);
+            total_score = total_score + +question.value;
+        }
+        console.log("total scrore final", total_score);
+        await app.apiClient().updateExam(
+            {
+                token: tokenLS,
+                name: exam.name,
+                max_score: total_score,
+                max_attempts: exam.max_attempts
+
+            }, exam.id, handleResponseUpdateExam)
         /*Alert.alert(
             "Exam saved.",
             [

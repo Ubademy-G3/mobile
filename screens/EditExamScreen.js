@@ -252,10 +252,16 @@ const EditExamScreen = (props) => {
 
     const handleSubmitSave = async() => {
         let tokenLS = await app.getToken();
+        var total_score = 0
+        for (let question of inputs) {
+            console.log("total scrore", total_score);
+            total_score = total_score + +question.value;
+        }
         await app.apiClient().updateExam(
             {
                 token: tokenLS,
                 state: selectedExam.state,
+                max_score: total_score,
             }, 
         selectedExam.id, handleApiResponseUpdateExam);
         props.navigation.goBack();
@@ -619,7 +625,7 @@ const styles = new StyleSheet.create({
         //marginRight: 80,
     },
     courseDescriptionWrapper: {
-        paddingLeft: 120,
+        paddingLeft: 10,
         //paddingRight: 40,
         flexDirection: 'column',
         alignItems: 'flex-end',

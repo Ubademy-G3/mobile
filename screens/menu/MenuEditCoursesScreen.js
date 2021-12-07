@@ -63,56 +63,60 @@ const MenuEditCoursesScreen = (props) => {
         setCourses([]);
         console.log("[Menu Edit Courses screen] entro a useEffect");
         onRefresh();
-    }, [props]);
+    }, [props.navigate]);
 
     return (
         <View style={styles.container}>
-            {courses.length === 0 && (
-                <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
-            )}
-            {courses.map((item) => (
-                <TouchableOpacity
-                key={item.id}
-                onPress={() =>
-                    props.navigation.navigate('Edit Course', {
-                    item: item,
-                    })
-                }>
-                    <View
-                        style={[
-                        styles.courseCardWrapper,
-                        {
-                            marginTop: item.id == 1 ? 10 : 20,
-                        },
-                        ]}>
-                        <View>
-                            <View style={styles.courseCardTop}>
-                                <View>
-                                    <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                </View>
-                                <View style={styles.courseTitleWrapper}>
-                                    <Text style={styles.courseTitlesTitle}>
-                                        {item.name}
-                                    </Text>
-                                    <View style={styles.courseTitlesRating}>
-                                        <MaterialCommunityIcons
-                                        name="star"
-                                        size={20}
-                                        color={'black'}
-                                        />
-                                        <Text style={styles.rating}>{rating}</Text>
+            <ScrollView>
+                {courses.length === 0 && (
+                    <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
+                )}
+                {courses.map((item) => (
+                    <View style={styles.coursesCardWrapper}>
+                    <TouchableOpacity
+                    key={item.id}
+                    onPress={() =>
+                        props.navigation.navigate('Edit Course', {
+                        item: item,
+                        })
+                    }>
+                        <View
+                            style={[
+                            styles.courseCardWrapper,
+                            {
+                                marginTop: item.id == 1 ? 10 : 20,
+                            },
+                            ]}>
+                            <View>
+                                <View style={styles.courseCardTop}>
+                                    <View>
+                                        <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+                                    </View>
+                                    <View style={styles.courseTitleWrapper}>
+                                        <Text style={styles.courseTitlesTitle}>
+                                            {item.name}
+                                        </Text>
+                                        <View style={styles.courseTitlesRating}>
+                                            <MaterialCommunityIcons
+                                            name="star"
+                                            size={20}
+                                            color={'black'}
+                                            />
+                                            <Text style={styles.rating}>{rating}</Text>
+                                        </View>
                                     </View>
                                 </View>
+                                <View style={styles.courseDescriptionWrapper}>
+                                    <Text style={styles.courseTitleDescription}>
+                                    {item.description}
+                                    </Text>
+                                </View> 
                             </View>
-                            <View style={styles.courseDescriptionWrapper}>
-                                <Text style={styles.courseTitleDescription}>
-                                {item.description}
-                                </Text>
-                            </View> 
                         </View>
+                    </TouchableOpacity>
                     </View>
-                </TouchableOpacity>
-            ))}
+                ))}
+            </ScrollView>
         </View>
     )
 }

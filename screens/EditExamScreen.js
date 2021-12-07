@@ -144,6 +144,7 @@ const EditExamScreen = (props) => {
     const handleSaveQuestion = async (key) => {
         const _questions = [...questions];
         _questions[key].saved_question = true;
+        let tokenLS = await app.getToken();
         await app.apiClient().updateQuestion(
         {
             token: tokenLS, 

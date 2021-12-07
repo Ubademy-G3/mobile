@@ -159,15 +159,6 @@ const SignupScreen = (props) => {
                         />
                     </>
                 )}
-                <TextInput
-                    placeholder="Location"
-                    onChangeText={text => setData({
-                        ...SignUpData,
-                        location: text,
-                    })}
-                    value={SignUpData.location}
-                    style={styles.input}
-                />
                 <SelectDropdown
                     data={rols}
                     onSelect={(selectedItem, index) => setData({
@@ -184,6 +175,19 @@ const SignupScreen = (props) => {
                         );
                       }}
                 />
+                {SignUpData.rol === "student" &&(
+                    <>
+                    <TextInput
+                        placeholder="Location"
+                        onChangeText={text => setData({
+                            ...SignUpData,
+                            location: text,
+                        })}
+                        value={SignUpData.location}
+                        style={styles.input}
+                    />
+                    </>
+                )}
                 <SelectDropdown
                     data={subscriptions}
                     onSelect={(selectedItem, index) => setData({
@@ -208,7 +212,7 @@ const SignupScreen = (props) => {
                     disabled={loading}
                 >
                     {
-                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                        loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
                     }
                 </TouchableOpacity>
             </View>

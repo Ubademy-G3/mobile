@@ -5,6 +5,8 @@ import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
+import * as ImagePicker from "expo-image-picker";
+import { firebase } from '../../firebase';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -30,6 +32,42 @@ const MenuCreateNewCourseScreen = (props) => {
     const [categories, setCategories] = useState([]);
 
     const [loading, setLoading] = useState(false);
+
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+          });
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadMediaOnFirebase(mediaUri);
+    }
+    
+    const uploadMediaOnFirebase = async (mediaUri) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            setData({
+                ...userData,
+                profilePictureUrl: newURL,
+            })
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
 
     const setCategorySelected = (name, idx) => {
         console.log("[Create Course screen] name: ", name);
@@ -138,13 +176,13 @@ const MenuCreateNewCourseScreen = (props) => {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-                {/*<TouchableOpacity
-                onPress={() => {choosePhotoFromLibrary()}}
-                >*/}
-                <View>
+                <TouchableOpacity
+                    onPress={() => {choosePhotoFromLibrary()}}
+                    /*style={styles.button}*/
+                    disabled={loading}
+                >
                     <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
-                </View>
-                {/*</TouchableOpacity>*/}
+                </TouchableOpacity>
                 <View style={styles.inputContainer}>
                     <Text style={styles.inputText}>Course Name</Text>
                     <TextInput

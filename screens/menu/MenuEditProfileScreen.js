@@ -4,7 +4,6 @@ import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
 import MultiSelect from 'react-native-multiple-select';
-//import VideoPlayer from "react-native-video-player";
 
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from '../../firebase';

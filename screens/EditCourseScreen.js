@@ -54,7 +54,7 @@ const EditCourseScreen = (props) => {
     const handleResponseSubscribeToCourse = (response) => {
         console.log("[Edit Course screen] subscribe to course: ", response.content())
         if (!response.hasError()) {
-            Alert.alert(
+            Alert.alert("Successful:",
                 "Collaborator added to course",
                 [
                   { text: "OK", onPress: () => {} }
@@ -85,7 +85,7 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert(
+                Alert.alert("Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }

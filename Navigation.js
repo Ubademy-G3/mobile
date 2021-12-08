@@ -31,6 +31,7 @@ import EditCourseScreen from './screens/EditCourseScreen';
 import EditExamScreen from './screens/EditExamScreen';
 import ExamScreen from './screens/ExamScreen';
 import EditModulesScreen from './screens/EditModulesScreen';
+import CourseMetricsScreen from './screens/CourseMetricsScreeen';
 
 
 Entypo.loadFont();
@@ -127,6 +128,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Screen" component={ExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Modules" component={EditModulesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Course Metrics" component={CourseMetricsScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

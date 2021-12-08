@@ -30,6 +30,7 @@ import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
 import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
 import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
+import { GetCourseMetricsEndpoint } from "../endpoints/GetCourseMetricsEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -131,6 +132,14 @@ class ApiClient {
     createCourse(data, onResponse) {
         return this._requester.call({
             endpoint: new CreateCourseEndpoint(),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getCourseMetrics(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetCourseMetricsEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

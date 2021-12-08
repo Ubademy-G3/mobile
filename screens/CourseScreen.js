@@ -230,7 +230,8 @@ const CourseScreen = (props) => {
                         <TouchableOpacity
                             onPress={() => {
                                 props.navigation.navigate('Student List', {
-                                course_id: item.id
+                                course_id: item.id,
+                                filter: false,
                             });}}
                             style={[styles.fadedButton]}
                         >

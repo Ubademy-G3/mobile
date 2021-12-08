@@ -32,6 +32,7 @@ import EditExamScreen from './screens/EditExamScreen';
 import ExamScreen from './screens/ExamScreen';
 import EditModulesScreen from './screens/EditModulesScreen';
 import CourseMetricsScreen from './screens/CourseMetricsScreeen';
+import MenuWalletScreen from './screens/menu/MenuWalletScreen';
 
 
 Entypo.loadFont();
@@ -61,6 +62,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
           <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
+          <Drawer.Screen name="Wallet Screen" component={MenuWalletScreen} />
     </Drawer.Navigator>
   );
 }

@@ -1,6 +1,6 @@
-import {ServerErrorResponse} from "../responses/generalResponses/ServerErrorResponse.js";
-import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
-import {LoginEndpoint} from "../endpoints/LoginEndpoint";
+import { ServerErrorResponse } from "../responses/generalResponses/ServerErrorResponse.js";
+import { GetProfileEndpoint } from "../endpoints/GetProfileEndpoint.js";
+import { LoginEndpoint } from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
@@ -31,6 +31,8 @@ import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
 import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
 import { GetCourseMetricsEndpoint } from "../endpoints/GetCourseMetricsEndpoint.js";
+import { GetWalletByIdEndpoint } from "../endpoints/GetWalletByIdEndpoint.js";
+import { CreateWalletEndpoint } from "../endpoints/CreateWalletEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -305,6 +307,21 @@ class ApiClient {
         });
     }
 
+    getWalletById(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetWalletByIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    createWallet(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateWalletEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
 }
 
 export default ApiClient;

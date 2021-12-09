@@ -62,7 +62,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
           <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
-          <Drawer.Screen name="Wallet Screen" component={MenuWalletScreen} />
+          <Drawer.Screen name="Wallet" component={MenuWalletScreen} />
     </Drawer.Navigator>
   );
 }

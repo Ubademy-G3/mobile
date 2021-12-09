@@ -7,7 +7,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/Ionicons';
 import image from "../../assets/images/profilePic.jpg"
 import { useState, useEffect } from 'react';
-import {app} from '../../app/app';
+import { app } from '../../app/app';
 
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
@@ -146,7 +146,7 @@ const MenuScreen = (props) => {
                                     />
                                 )}
                                 label="Wallet"
-                                onPress={() => {props.navigation.navigate('Wallet Screen')}}
+                                onPress={() => { props.navigation.navigate('Wallet') }}
                             />
                             </>
                         )}

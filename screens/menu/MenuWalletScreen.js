@@ -73,7 +73,12 @@ const MenuWalletScreen = (props) => {
     return (
       <View style={styles.container}>
         {wallet ? (
-          <Text style={styles.title}>Holi!!!</Text>
+          <>
+            <Text style={styles.titleBalance}>Balance</Text>
+            <Image source={require("../../assets/images/balance.png")} style={styles.image} />
+            <Text style={styles.subtitleBalance}>$ {wallet.balance}</Text>
+            <Text style={styles.subtitle} selectable={true}>Address: {wallet.address}</Text>
+          </>
         ) : (
           <>
             <Text style={styles.title}>Wallet for course subscriptions</Text>
@@ -101,14 +106,26 @@ const styles = StyleSheet.create({
         backgroundColor: '#87ceeb',
         color: 'white'
     },
+    titleBalance: {
+        textAlign: 'center',
+        fontSize: 30,
+        marginTop: 30,
+        backgroundColor: 'green',
+        color: 'white'
+    },
     subtitle: {
         textAlign: 'center',
         fontSize: 20,
         margin: 20
     },
+    subtitleBalance: {
+        textAlign: 'center',
+        fontSize: 50,
+        margin: 20
+    },
     image: {
         width: 150,
-        height: 150,
+        height: 160,
         marginLeft: 120,
         marginTop: 50
     },

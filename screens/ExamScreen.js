@@ -18,7 +18,7 @@ const ExamScreen = (props) => {
 
     const [answer, setAnswer] = useState([]);
 
-    const [solutionId, setSolutionId] = useState([]);
+    const [solutionId, setSolutionId] = useState(0);
 
     const [blocked, setBlocked] = useState(false);
 
@@ -27,9 +27,7 @@ const ExamScreen = (props) => {
     const handleResponseCreateNewSolution = async (response) => {
         console.log("[Edit Exam screen] create new solution: ", response.content())
         if (!response.hasError()) {
-            setSolutionId(solutionId => [...solutionId, {
-                solutionId: response.content().id,
-            }]);
+            setSolutionId(response.content().id);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
             if (response.content().message === "This user already reached the maximum amount of attempts for this exam") {
@@ -74,8 +72,6 @@ const ExamScreen = (props) => {
                 question_type: question.question_type,
                 value: question.value}]);
                 console.log("course_id:", param_course_id);
-                await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetCourse)
-                //await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: 100}, param_exam_id, handleResponseCreateNewSolution);
                 setAnswer(answer => [...answer, {
                     answer: "",
                     question_template_id: question.id,
@@ -89,12 +85,12 @@ const ExamScreen = (props) => {
     const handleSubmitSave = async () => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        for (let [idx, asw] of answer.entries()) {
-            console.log("en el for asw: ", asw);
+        for (let asw of answer) {
+            /* console.log("en el for asw: ", asw);
             console.log("en el for idx: ", idx);
             console.log("en el for solutionId[idx]: ", solutionId[idx]);
-            console.log("en el for solutionId[idx].solutionID: ", solutionId[idx].solutionId);
-            await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId[idx].solutionId, handleResponseCreateNewAnswer);
+            console.log("en el for solutionId[idx].solutionID: ", solutionId[idx].solutionId); */
+            await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId, handleResponseCreateNewAnswer);
         }
         props.navigation.goBack();
     }
@@ -111,7 +107,8 @@ const ExamScreen = (props) => {
         console.log("[Exam screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Exam screen] token:", tokenLS); 
+        console.log("[Exam screen] token:", tokenLS);
+        await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetCourse);
         await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllQuestions);
         setLoading(false);
     };

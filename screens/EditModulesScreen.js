@@ -117,7 +117,7 @@ const EditModulesScreen = (props) => {
     };
   
     useEffect(() => {
-        console.log("[Edit Course screen] entro a useEffect");
+        console.log("[Edit Modules screen] entro a useEffect");
         onRefresh();
     }, []);
 

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Image, Pressable, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../../app/app';
 
 const MenuWalletScreen = (props) => {
@@ -48,8 +49,6 @@ const MenuWalletScreen = (props) => {
             let idLS = await app.getId();
             if (response.content().walletId) {
                 await app.apiClient().getWalletById({ token: tokenLS }, idLS, handleResponseGetWallet);
-            } else {
-                console.log("FAIL")
             }
         } else {
             console.log("[Wallet screen] error", response.content().message);
@@ -66,9 +65,12 @@ const MenuWalletScreen = (props) => {
         console.log("[Menu Wallet screen] salgo del onRefresh");
     };
 
-    useEffect(() => {
-        onRefresh();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+            //return () => unsubscribe();
+        }, [])
+    );
 
     return (
       <View style={styles.container}>

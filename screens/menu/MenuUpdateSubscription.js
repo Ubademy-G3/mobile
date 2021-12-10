@@ -27,18 +27,23 @@ const MenuChangeSubscription = (props) => {
     const handleApiResponseDeposit = async (response) => {
         console.log("[Subscription screen] content: ", response.content())
         if (!response.hasError()) {
+            let tokenLS = await app.getToken();
+            let user_id = await app.getId();
+            await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
+            setSubscription(selected);
             Alert.alert(
-                "Deposit Succesfull:",
+                "Deposit Successful",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
             );
-            await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
         } else {
             console.log("[Subscription screen] error", response.content().message);
             if (response.content().message.includes("insufficient funds")) {
                 Alert.alert("Insufficient funds for transaction");
+            } else {
+                Alert.alert("Please, try again in a few minutes");
             }
         }
     }

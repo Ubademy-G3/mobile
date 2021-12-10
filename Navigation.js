@@ -30,6 +30,7 @@ import AnothersProfileScreen from './screens/AnothersProfileScreen';
 import EditCourseScreen from './screens/EditCourseScreen';
 import EditExamScreen from './screens/EditExamScreen';
 import ExamScreen from './screens/ExamScreen';
+import ChatScreen from './screens/ChatScreen';
 
 
 Entypo.loadFont();
@@ -98,8 +99,8 @@ const TabNavigator = () => {
           component={DrawerNavigator}
         />*/}
         <Tab.Screen
-          name="Messages"
-          component={MessagesScreen}
+          name="Chat"
+          component={ChatScreen}
           options={{
             tabBarIcon: ({color}) => (
               <Entypo name="chat" size={30} color={color} />
@@ -125,6 +126,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Course" component={EditCourseScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Screen" component={ExamScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Messages Screen" component={MessagesScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

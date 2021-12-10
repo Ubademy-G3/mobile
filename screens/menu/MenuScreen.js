@@ -91,7 +91,7 @@ const MenuScreen = (props) => {
                             label="Profile"
                             onPress={() => {props.navigation.navigate('Profile', { id: userId })}}
                         />
-                        {userData.rol === "Student" && (
+                        {userData.rol === "student" && (
                             <>
                             <DrawerItem 
                                 icon={({color, size}) => (
@@ -139,7 +139,7 @@ const MenuScreen = (props) => {
                             />
                             </>
                         )}
-                        {userData.rol === "Instructor" && (
+                        {userData.rol === "instructor" && (
                             <>
                             <DrawerItem 
                                 icon={({color, size}) => (

@@ -146,7 +146,7 @@ const ListExamsScreen = (props) => {
                     {solutions.map(item => (
                         <TouchableOpacity
                             onPress={() => {props.navigation.navigate('Exam Correction', {
-                                solution: item,
+                                param_solution: item,
                             })}}
                             style={styles.fadedButton}
                         >
@@ -162,7 +162,7 @@ const ListExamsScreen = (props) => {
                     {/* <View style={[styles.newExamWrapper, {paddingBottom: 20}]}> */}
                     <TouchableOpacity
                         onPress = {()=> {props.navigation.navigate('Create New Exam', {
-                            id: item.id,
+                            id: param_course_id,
                             })}}
                         style={styles.questionWrapper}
                     >

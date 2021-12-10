@@ -1,17 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../app/app';
+
+MaterialCommunityIcons.loadFont();
 
 const ExamCorrectionScreen = (props) => {
 
-    const { solution } = props.route.params;
+    const { param_solution } = props.route.params;
 
     console.log("solution", solution);
 
     const [loading, setLoading] = useState(false);
 
+    const [solution, setSolution] = useState(param_solution);
+    console.log("solution", solution);
+
     const [answers, setAnswers] = useState([]);
+
+    const getAnswerMC = (key) => {
+        const _answers = [...answers];
+        return _answers[key].options[_answers[key].answer];
+    }
+
+    const handleResponseUpdateSolution = (response) => {
+        console.log("[Exam Correction screen] update solution: ", response.content())
+        if (!response.hasError()) {
+            console.log("[Exam Correction screen] ok");
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }        
+    }
+
+    const handleResponseUpdateAnswer = (response) => {
+        console.log("[Exam Correction screen] update answer: ", response.content())
+        if (!response.hasError()) {
+            console.log("[Exam Correction screen] ok");
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }        
+    }
 
     const handleResponseGetQuestion = (response) => {
         console.log("[Exam Correction screen] get question: ", response.content())
@@ -24,7 +52,7 @@ const ExamCorrectionScreen = (props) => {
                     _answers[idx].options = response.content().options;
                     _answers[idx].correct = response.content().correct;
                     _answers[idx].value = response.content().value;
-                    setSolutions(_answers);
+                    setAnswers(_answers);
                 }
             }
         } else {
@@ -53,6 +81,66 @@ const ExamCorrectionScreen = (props) => {
             console.log("[Exam Correction screen] error", response.content().message);
         }
     }
+
+    const handleSumbitAddScore = async (key) => {
+        const _answers = [...answers];
+        _answers[key].score = _answers[key].value;
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().updateAnswer({token: tokenLS, score: _answers[key].score}, solution.exam_template_id, _answers[key].exam_solution_id, _answers[key].id, handleResponseUpdateAnswer);
+        var total_score = 0
+        for (let answ of _answers) {
+            console.log("total scrore", total_score);
+            total_score = total_score + +answ.score;
+        }
+        await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS}, solution.exam_template_id, _answers[key].exam_solution_id, handleResponseUpdateSolution);
+        setAnswers(_answers);
+        setSolution({...solution, score: total_score});
+    };
+
+    const handleSumbitRemoveScore = async (key) => {
+        const _answers = [...answers];
+        _answers[key].score = 0;
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().updateAnswer({token: tokenLS, score: _answers[key].score}, solution.exam_template_id, _answers[key].exam_solution_id, _answers[key].id, handleResponseUpdateAnswer);
+        var total_score = 0
+        for (let answ of _answers) {
+            console.log("total scrore", total_score);
+            total_score = total_score + +answ.score;
+        }
+        await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+        setAnswers(_answers);
+        setSolution({...solution, score: total_score});
+    };
+
+    const handleSubmitChangeState = async () => {
+        //updeatear solution y actualizar el aprobal state
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        if(solution.approval_state){
+            await app.apiClient().updateSolution({token: tokenLS, approval_state: false, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({
+                ...solution,
+                approval_state: false,
+            });
+        } else {
+            await app.apiClient().updateSolution({token: tokenLS, approval_state: true, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({
+                ...solution,
+                approval_state: true,
+            });
+        }
+    };
+
+    const handleSubmitSave = async () => {
+        //updeatear solution y poner graded: true
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().updateSolution({token: tokenLS, graded: true, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+        setSolution({...solution, graded: true});
+    }
+
 
     const getQuestions = async () => {
         console.log("[Exam Correction screen] entro a onRefresh"); 
@@ -94,29 +182,101 @@ const ExamCorrectionScreen = (props) => {
                 )}
                 {solution.graded && (
                     <>
-                        <Text style={styles.examsText}>The exam was already corrected.</Text>
-                        <Text style={styles.examsText}>Total score: {solution.score}</Text>
-                        {solution.aprobal_state && (
-                            <Text style={styles.examsText}>Approved{solution.score}</Text>
+                        <Text style={styles.examsText}>This exam is corrected.</Text>
+                        <Text style={styles.examsText}>Total score: {solution.score}/{solution.max_score}</Text>
+                        {solution.approval_state && (
+                            <Text style={styles.examsText}>Approved</Text>
                         )}
-                        {!solution.aprobal_state && (
-                            <Text style={styles.examsText}>Failed{solution.score}</Text>
+                        {!solution.approval_state && (
+                            <Text style={styles.examsText}>Failed</Text>
                         )}
                     </>
                 )}
                 {!solution.graded && (
                     <>
+                    <View style={[styles.stateCardWrapper,
+                        {
+                            backgroundColor: solution.approval_state ? "white": '#87ceeb',
+                        }]}>
+                        <View style={styles.examDescritpionWrapper}>
+                            <TouchableOpacity
+                                onPress = {()=> {handleSubmitChangeState()}}
+                                style={styles.questionWrapper}
+                            >
+                                <View style={styles.questionView}>
+                                {solution.approval_state && (
+                                    <Text style={styles.examDescription}>Approved: {solution.score}/{solution.max_score}</Text>
+                                )}
+                                {!solution.approval_state && (
+                                    <Text style={styles.examDescription}>Failed: {solution.score}/{solution.max_score}</Text>
+                                )}
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     {answers.map((item, idx) => (
                             <View>
                                 <Text style={styles.questionText}>{item.question}</Text>
                                 {item.question_type === "written" && (
                                     <>
                                         <Text style={styles.questionText}>{item.answer}</Text>
+                                        <View style={styles.buttonInputWrapper}>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleSumbitAddScore(idx)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.score === 0 ? "white" : "green"
+                                                }]}
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="check"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleSumbitRemoveScore(idx)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.score === 0 ? "red" : "white"
+                                                }]}
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="close"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
                                     </>
                                 )}
                                 {item.question_type === "multiple_choice" && (
                                     <>
-                                        <Text style={styles.questionText}>{item.answer}</Text>
+                                        <Text style={styles.questionText}>{getAnswerMC(idx)}</Text>
+                                        <View style={styles.buttonInputWrapper}>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleSumbitAddScore(idx)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.score === 0 ? "white" : "green"
+                                                }]}
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="check"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleSumbitRemoveScore(idx)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.score === 0 ? "red" : "white"
+                                                }]}
+                                            >
+                                                <MaterialCommunityIcons
+                                                    name="close"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
                                     </>
                                 )}
                             </View>
@@ -140,9 +300,8 @@ const ExamCorrectionScreen = (props) => {
 const styles = new StyleSheet.create({
     container: {
         flex: 1,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
+        paddingTop: 10,
+        paddingLeft: 10,
     },
     containerQuestions: {
         flex: 1,
@@ -246,7 +405,56 @@ const styles = new StyleSheet.create({
     saveButtonWrapper:{
         justifyContent: 'center',
         alignItems: 'center',
-    }
+    },
+    buttonInputIcon: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: `#87ceeb`,
+        padding: 10,
+        borderRadius: 10,
+        marginRight: 5,
+        marginHorizontal: 20,
+    },
+    buttonInputWrapper: {
+        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        flexDirection: 'row',
+        //marginHorizontal: 10,
+    },
+    stateCardWrapper: {
+        backgroundColor: '#87ceeb',
+        width: 150,
+        borderRadius: 25,
+        paddingVertical: 8,
+        paddingLeft: 20,
+        marginTop: 10,
+        shadowColor: 'black',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,  
+    },
+    examDescritpionWrapper: {
+        //marginTop:5,
+        justifyContent: 'center',
+    },
+    questionWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    questionView: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    examDescription: {
+        color:'black',
+        fontWeight: '400',
+        fontSize: 16,
+        //marginTop:5,
+    },
 });
 
 export default ExamCorrectionScreen;

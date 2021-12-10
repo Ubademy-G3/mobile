@@ -35,6 +35,8 @@ import { GetWalletByIdEndpoint } from "../endpoints/GetWalletByIdEndpoint.js";
 import { CreateWalletEndpoint } from "../endpoints/CreateWalletEndpoint.js";
 import { GetAllSolutionsByExamIdEndpoint } from "../endpoints/GetAllSolutionsByExamIdEndpoint.js";
 import { GetAllAnswersByExamIdEndpoint } from "../endpoints/GetAllAnswersByExamIdEndpoint.js";
+import { UpdateSolutionEndpoint } from "../endpoints/UpdateSolutionEndpoint.js";
+import { UpdateAnswerEndpoint } from "../endpoints/UpdateAnswerEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -237,6 +239,14 @@ class ApiClient {
         });
     }
 
+    updateSolution(data, examId, solutionId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateSolutionEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     createNewExamAnswer(data, examId, solutionId, onResponse) {
         return this._requester.call({
             endpoint: new CreateNewExamAnswerEndpoint(examId, solutionId),
@@ -248,6 +258,14 @@ class ApiClient {
     getAllAnswersByExamId(data, examId, solutionId, onResponse) {
         return this._requester.call({
             endpoint: new GetAllAnswersByExamIdEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateAnswer(data, examId, solutionId, answerId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateAnswerEndpoint(examId, solutionId, answerId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

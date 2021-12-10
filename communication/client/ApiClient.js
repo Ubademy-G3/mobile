@@ -33,6 +33,7 @@ import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
 import { GetCourseMetricsEndpoint } from "../endpoints/GetCourseMetricsEndpoint.js";
 import { GetWalletByIdEndpoint } from "../endpoints/GetWalletByIdEndpoint.js";
 import { CreateWalletEndpoint } from "../endpoints/CreateWalletEndpoint.js";
+import { MakeDepositEndpoint } from "../endpoints/MakeDepositEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -318,6 +319,14 @@ class ApiClient {
     createWallet(data, id, onResponse) {
         return this._requester.call({
             endpoint: new CreateWalletEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    makeDeposit(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new MakeDepositEndpoint(id),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

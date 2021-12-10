@@ -76,7 +76,7 @@ const MenuEditProfileScreen = (props) => {
         console.log("[Edit Profile screen] data:", userData)
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Edit Profile screen] token:",tokenLS);
+        console.log("[Edit Profile screen] token:", tokenLS);
         await app.apiClient().editProfile({
             id: idLS,
             firstName: userData.firstName,

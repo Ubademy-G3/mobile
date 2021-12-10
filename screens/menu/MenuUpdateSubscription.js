@@ -13,6 +13,7 @@ const MenuChangeSubscription = (props) => {
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [selected, setSelected] = useState(null);
+    const [downgrade, setDowngrade] = useState(false);
 
     const handleApiResponseUpdate = (response) => {
         console.log("[Subscription screen] content: ", response.content())
@@ -33,7 +34,7 @@ const MenuChangeSubscription = (props) => {
                   { text: "OK", onPress: () => {} }
                 ]
             );
-            await app.apiClient().editProfile({ subscription: subscriptionSelected, token: tokenLS }, user_id, handleApiResponseUpdate);
+            await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
         } else {
             console.log("[Subscription screen] error", response.content().message);
             if (response.content().message.includes("insufficient funds")) {
@@ -46,16 +47,28 @@ const MenuChangeSubscription = (props) => {
         console.log("[Subscription screen] entro al confirm")
         let tokenLS = await app.getToken();
         let user_id = await app.getId();
-        let amount = selected == 'gold' ? "0.000001" : "0.000002";
-        await app.apiClient().makeDeposit({ amount: amount, token: tokenLS }, user_id, handleApiResponseDeposit)
+        if (!downgrade) {
+            if (subscription == 'free') {
+                let amount = selected == 'gold' ? "0.000001" : "0.000002";
+                await app.apiClient().makeDeposit({ amount: amount, token: tokenLS }, user_id, handleApiResponseDeposit)
+            }
+            if (subscription == 'gold') {
+                let amount = "0.000002";
+                await app.apiClient().makeDeposit({ amount: amount, token: tokenLS }, user_id, handleApiResponseDeposit)
+            }
+        }
         setModalVisible(!modalVisible);
         console.log("[Subscription screen] termino confirm")
     }
 
     const handleUpdateSubscription = (subscriptionSelected) => {
         setSelected(subscriptionSelected);
-        if (subscriptionSelected === 'gold' || subscriptionSelected === 'platinum') {
+        if ((subscriptionSelected === 'gold' && subscription === 'platinum') || subscriptionSelected === 'free') {
             setModalVisible(true);
+            setDowngrade(true);
+        } else if (subscriptionSelected === 'gold' || subscriptionSelected === 'platinum') {
+            setModalVisible(true);
+            setDowngrade(false);
         }
     }
 
@@ -99,26 +112,42 @@ const MenuChangeSubscription = (props) => {
                         }}
                     >
                         <View style={styles.dialog}>
-                            {selected == 'gold' && (
+                            {selected == 'gold' && !downgrade && (
                                 <Text style={styles.description}>You are transferring $5 to Ubademy Account</Text>
                             )}
-                            {selected == 'platinum' && (
+                            {selected == 'platinum' && !downgrade && (
                                 <Text style={styles.description}>You are transferring $8 to Ubademy Account</Text>
                             )}
-                            <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50}}>
-                                <Pressable
-                                    onPress={() => setModalVisible(!modalVisible)}
-                                    style={styles.cancelButton}
-                                >
-                                    <Text>Cancel</Text>
-                                </Pressable>
-                                <Pressable
-                                    onPress={() => handleConfirmSubscription()}
-                                    style={styles.confirmButton}
-                                >
-                                    <Text>Confirm</Text>
-                                </Pressable>
-                            </View>
+                            {downgrade ? (
+                                <>
+                                    <Text style={styles.description}>
+                                        {`You're choosing to downgrade your plan.\nDon't worry, your current subscription will be available until ${subscriptionExpDate.substring(0, 10)}`}
+                                    </Text>
+                                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
+                                        <Pressable
+                                            onPress={() => setModalVisible(false)}
+                                            style={styles.confirmButton}
+                                        >
+                                            <Text>OK</Text>
+                                        </Pressable>
+                                    </View>
+                                </>
+                            ) : (
+                                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
+                                    <Pressable
+                                        onPress={() => setModalVisible(!modalVisible)}
+                                        style={styles.cancelButton}
+                                    >
+                                        <Text>Cancel</Text>
+                                    </Pressable>
+                                    <Pressable
+                                        onPress={() => handleConfirmSubscription()}
+                                        style={styles.confirmButton}
+                                    >
+                                        <Text>Confirm</Text>
+                                    </Pressable>
+                                </View>
+                            )}
                         </View>
                     </Modal>
                 </View>
@@ -134,7 +163,7 @@ const MenuChangeSubscription = (props) => {
                         Subscription valid until {subscriptionExpDate.substring(0,10)}
                     </Text>
                 )}
-                {subscription == 'free' && (
+                {subscription !== 'free' && (
                     <View style={styles.buttonContainer}>
                         <Text style={styles.description}>
                             {`+100 courses available for\nFREE`}

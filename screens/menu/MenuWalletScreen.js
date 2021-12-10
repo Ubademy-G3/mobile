@@ -48,8 +48,6 @@ const MenuWalletScreen = (props) => {
             let idLS = await app.getId();
             if (response.content().walletId) {
                 await app.apiClient().getWalletById({ token: tokenLS }, idLS, handleResponseGetWallet);
-            } else {
-                console.log("FAIL")
             }
         } else {
             console.log("[Wallet screen] error", response.content().message);

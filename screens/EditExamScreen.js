@@ -11,11 +11,13 @@ MaterialIcons.loadFont();
 
 const EditExamScreen = (props) => {
 
-    const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
+    //const param_course_id = props.route.params ? props.route.params.course_id : 'defaultID';
+    
+    const param_exam_id = props.route.params ? props.route.params.exam_id : 'defaultID';
 
     const [loading, setLoading] = useState(false);
 
-    const [exams, setExams] = useState([]);
+    //const [exams, setExams] = useState([]);
     
     const [questions, setQuestions] = useState([]);
 
@@ -34,7 +36,7 @@ const EditExamScreen = (props) => {
         state: "",
     });
     
-    const [selected, setSelected] = useState(false);
+    //const [selected, setSelected] = useState(false);
 
     const handleApiResponseUpdateExam = (response) => {
         console.log("[Edit Exam screen] update exam: ", response.content())
@@ -44,14 +46,23 @@ const EditExamScreen = (props) => {
         }        
     }
 
-    const handleResponseGetAllExams = (response) => {
+    const handleResponseGetExam = (response) => {
+        console.log("[Edit Exam screen] get exam: ", response.content())
+        if (!response.hasError()) {
+            setSelectedExam(response.content());
+        } else {
+            console.log("[Edit Exam screen] error", response.content().message);
+        }        
+    }
+
+    /* const handleResponseGetAllExams = (response) => {
         console.log("[Edit Exam screen] get exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }        
-    }
+    } */
 
     const handleResponseGetAllQuestions = (response) => {
         console.log("[Edit Exam screen] get questions: ", response.content())
@@ -108,25 +119,26 @@ const EditExamScreen = (props) => {
         }
     }
 
-    const onRefresh = async () => {
+    /* const onRefresh = async () => {
         console.log("[Edit Exam screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Edit Exam screen] token:", tokenLS); 
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, handleResponseGetAllExams);
         setLoading(false);
-    };
+    }; */
 
     const selectExam = async () => {
         console.log("[Edit Exam screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Edit Exam screen] token:", tokenLS); 
-        await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, selectedExam.id, handleResponseGetAllQuestions);
+        await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetExam);
+        await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllQuestions);
         setLoading(false);
     };
 
-    const handleSubmitselectExam = (item) => {
+    /* const handleSubmitselectExam = (item) => {
         setSelectedExam({
             ...selectedExam,
             id: item.id,
@@ -139,7 +151,7 @@ const EditExamScreen = (props) => {
             state: item.state,
         });
         setSelected(true);
-    }
+    } */
 
     const handleSaveQuestion = async (key) => {
         const _questions = [...questions];
@@ -254,7 +266,7 @@ const EditExamScreen = (props) => {
     const handleSubmitSave = async() => {
         let tokenLS = await app.getToken();
         var total_score = 0
-        for (let question of inputs) {
+        for (let question of questions) {
             console.log("total scrore", total_score);
             total_score = total_score + +question.value;
         }
@@ -268,22 +280,19 @@ const EditExamScreen = (props) => {
         props.navigation.goBack();
     }
 
-    useEffect(() => {
+    /* useEffect(() => {
         console.log("[Edit Exam screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, []); */
 
     useEffect(() => {
-        console.log("[Edit Exam screen] entro a useEffect");
-        if (selected === true){
-            selectExam();
-        }
-    }, [selected]);
+        selectExam();
+    }, []);
 
     return (
         <View style={styles.container}>
             <ScrollView>
-                {selected === false && (
+                {/* {selected === false && (
                     <>
                     {exams.length === 0 && (
                         <Text style={styles.examsText}>Create exams in this course to edit it's exams here.</Text>
@@ -309,9 +318,25 @@ const EditExamScreen = (props) => {
                                 </View>
                             </TouchableOpacity>
                     ))}
+                    <TouchableOpacity
+                        onPress = {()=> {props.navigation.navigate('Create New Exam', {
+                            id: item.id,
+                            })}}
+                        style={styles.questionWrapper}
+                    >
+                        <View style={styles.addQuestionView}>
+                            <Text style={styles.buttonText}>Create New Exam</Text>
+                            <Feather
+                                name="plus"
+                                size={20}
+                                color={'white'}
+                                style={styles.buttonEditIconRight}
+                            />
+                        </View>
+                    </TouchableOpacity>
                     </>
-                )}
-                {selected === true && (
+                )} */}
+                {/* {selected === true && ( */}
                     <>
                     <View style={styles.container}>
                         <Text style={styles.examTitle}>{selectedExam.name}</Text>
@@ -512,9 +537,9 @@ const EditExamScreen = (props) => {
                         </View>
                     </View>
                     </>
-                )}
+                {/* )} */}
             </ScrollView>
-            {selected === true && (
+            {/* {selected === true && ( */}
                 <View style={styles.buttonWrapper}>
                     <TouchableOpacity
                         onPress={() => {handleSubmitSave()}}
@@ -523,7 +548,7 @@ const EditExamScreen = (props) => {
                         <Text style={styles.buttonText}>Save Exam</Text>
                     </TouchableOpacity>
                 </View>
-            )}
+            {/* )} */}
         </View>
       );
 };

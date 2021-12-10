@@ -177,7 +177,7 @@ const MenuScreen = (props) => {
                             <DrawerItem 
                                 icon={({color, size}) => (
                                     <MaterialCommunityIcons
-                                    name="file-edit-outline" 
+                                    name="file-document-edit-outline"
                                     color={color}
                                     size={size}
                                     />

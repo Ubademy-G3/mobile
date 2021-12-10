@@ -290,7 +290,7 @@ const EditCourseScreen = (props) => {
                                 />
                             </TouchableOpacity>
                         </View>
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             onPress={() => {props.navigation.navigate('Edit Exam', {
                                 id: item.id,
                                 })}}
@@ -305,7 +305,7 @@ const EditCourseScreen = (props) => {
                             style={styles.button}
                         >
                             <Text style={styles.buttonText}>Create New Exam</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         </>
                     )}
                     <TouchableOpacity
@@ -313,6 +313,16 @@ const EditCourseScreen = (props) => {
                         style={styles.button}
                     >
                         <Text style={styles.buttonText}>Grade Exams</Text>
+                    </TouchableOpacity>
+                </View>
+                <View style={styles.examsList}>
+                    <TouchableOpacity
+                        onPress={() => {props.navigation.navigate('List Exams', {
+                            course_id : item.id,
+                        })}}
+                        style={[styles.fadedButton]}
+                    >
+                        <Text style={styles.buttonFadedText}>Exams</Text>
                     </TouchableOpacity>
                 </View>
                 <Text>Collaborators:</Text>
@@ -435,6 +445,23 @@ const styles = new StyleSheet.create({
         fontSize: 14,
         color: "grey",
         alignItems: "center",
+    },
+    examsList: {
+        marginBottom: 5,
+        marginLeft: 10,
+    },
+    buttonFadedText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    fadedButton: {
+        marginTop: 10,
+        width: '100%',
+        //padding: 15,
+        borderRadius: 10,
+        //alignItems: 'center',
     },
 });
 

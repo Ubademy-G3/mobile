@@ -126,7 +126,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Course" component={EditCourseScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Screen" component={ExamScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="Messages Screen" component={MessagesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

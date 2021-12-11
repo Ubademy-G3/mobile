@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { app } from '../app/app';
 import { firebase } from '../firebase';
-import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
+import { GiftedChat, InputToolbar } from 'react-native-gifted-chat';
 
 const db = firebase.default.firestore();
 const chatsRef = db.collection('users');
@@ -15,7 +15,6 @@ const MessagesScreen = (props) => {
     const onRefresh = async() => {
         const myId = await app.getId();
         setId(myId);
-        const docid  = param_other_user_id > myId ? myId + "-" + param_other_user_id : param_other_user_id + "-" + myId;
         const messageRef = chatsRef.doc(myId)
             .collection('messages')
             .orderBy('createdAt',"desc")
@@ -51,7 +50,6 @@ const MessagesScreen = (props) => {
             createdAt: new Date()
         };
         setMessages(previousMessages => GiftedChat.append(previousMessages, mymsg));
-        const docid  = param_other_user_id > id ? id + "-" + param_other_user_id : param_other_user_id + "-" + id;
         
         chatsRef.doc(param_other_user_id)
          .collection('messages')
@@ -63,7 +61,7 @@ const MessagesScreen = (props) => {
     }
 
     return(
-        <View style={{flex:1,backgroundColor:"#f5f5f5"}}>
+        <View style={{ flex:1, backgroundColor:"#f5f5f5" }}>
            <GiftedChat
                 messages={messages}
                 onSend={text => onSend(text)}
@@ -71,7 +69,7 @@ const MessagesScreen = (props) => {
                     _id: id,
                 }}
                 
-                renderInputToolbar={(props)=>{
+                renderInputToolbar={(props) => {
                     return <InputToolbar {...props}
                     />
                 }}

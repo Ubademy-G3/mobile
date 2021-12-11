@@ -32,39 +32,30 @@ const ChatScreen = (props) => {
             snapshot.forEach((doc) => userData.push({ ...doc.data(), id: doc.id }));
             const usersIds = []
             userData.forEach((msg) => {
-                console.log("ACA")
-                console.log(msg);
                 if (msg.user._id !== id && !usersIds.includes(msg.user._id)) {
-                    console.log("pusheo1")
                     usersIds.push(msg.user._id);
                 } else if (msg.user._id === id && !usersIds.includes(msg.sentTo)) {
-                    console.log("pusheo2")
                     usersIds.push(msg.sentTo);
                 }
             });
-            console.log("PREVIO A BUSCAR INFO")
             usersIds.forEach(async (user) => {
                 await app.apiClient().getProfile({id: user, token: token}, user, handleApiResponseProfile);
             })
-            console.log("LOS USERSSSS")
-            console.log(users)
-            // setUsers(users);
         });
-        //const usersInfo = [];
-
     }
 
     useEffect(() => {
         getUsers();
     }, []);
 
-    const RenderCard = ({item}) => {
+    const RenderCard = ({ item }) => {
         return (
-            <TouchableOpacity onPress={() => props.navigation.navigate('Messages Screen', { id: item.id })}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id })}>
             <View style={styles.mycard}>
+                <Image source={{ uri: item.profilePicture }} style={styles.img} />
                 <View>
                     <Text style={styles.text}>
-                        {item.firstName}
+                        {`${item.firstName} ${item.lastName}`}
                     </Text>
                 </View>
             </View>
@@ -80,14 +71,6 @@ const ChatScreen = (props) => {
             />
         </View>
     )
-    /*return (
-        <View>
-            <TouchableOpacity 
-              onPress={() => props.navigation.navigate('Messages Screen', { id: "abc52922-eddf-403a-80b7-f61023953edd" })} //aca poner nombre del q chatea
-              style={styles.button}
-            />
-        </View>
-    )*/
 }
 
 const styles = StyleSheet.create({
@@ -100,10 +83,15 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         marginBottom: 8,
     },
-    img:{width:60,height:60,borderRadius:30,backgroundColor:"green"},
+    img: {
+        width: 60,
+        height: 60,
+        borderRadius: 30
+    },
     text:{
         fontSize:18,
         marginLeft:15,
+        marginTop: 15
     },
     mycard:{
         flexDirection:"row",

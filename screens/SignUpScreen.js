@@ -1,10 +1,12 @@
 import React, { Component, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator } from 'react-native';
+import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Platform , Alert, ActivityIndicator } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import { firebase } from '../firebase';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 Feather.loadFont();
 
@@ -41,10 +43,45 @@ const SignupScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const [expoPushToken, setExpoPushToken] = useState("");
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    }, []);    
+
     useEffect(() => {
         console.log("[Signup screen] params: ", props.route.params);
         console.log("[Signup screen] Entro a use effect")
     }, [errorData.showError]);
+
+    const registerForPushNotificationsAsync = async () => {
+        let token;
+        if (Constants.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+          token = (await Notifications.getExpoPushTokenAsync()).data;
+          console.log(token);
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+        return token;
+      }
 
     const handleApiResponseLogin = async (response) => {
         console.log("[Signup screen] entro a handle api response:", response.content());
@@ -73,7 +110,8 @@ const SignupScreen = (props) => {
             });
             // agrego user a firestore para el manejo de mensajes
             db.collection('users').doc(response.content().id).set({
-                id: response.content().id
+                id: response.content().id,
+                expoPushToken: expoPushToken
             });
         }
     }

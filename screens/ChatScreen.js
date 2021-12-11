@@ -66,7 +66,7 @@ const ChatScreen = (props) => {
 
     const RenderCard = ({ item }) => {
         return (
-            <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id })}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id, firstName: item.firstName, lastName: item.lastName })}>
                 <View style={styles.mycard}>
                     <Image source={{ uri: item.profilePicture }} style={styles.img} />
                     <View>

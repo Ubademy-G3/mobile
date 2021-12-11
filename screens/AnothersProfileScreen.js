@@ -124,7 +124,7 @@ const AnothersProfileScreen = (props) => {
                 </View>
             </ScrollView>
             <View style={styles.buttonWrapper}>
-                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id })}> 
+                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
                     <View style={styles.favoriteWrapper}>
                         <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
                     </View>

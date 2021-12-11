@@ -3,12 +3,16 @@ import { StyleSheet, View } from 'react-native';
 import { app } from '../app/app';
 import { firebase } from '../firebase';
 import { GiftedChat, InputToolbar } from 'react-native-gifted-chat';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 const db = firebase.default.firestore();
 const chatsRef = db.collection('users');
 
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
+    const param_other_user_first_name = props.route.params ? props.route.params.firstName : 'defaultID';
+    const param_other_user_last_name = props.route.params ? props.route.params.lastName : 'defaultID';
+    console.log(props.route.params)
     const [messages, setMessages] = useState([]);
     const [id, setId] = useState(null);
 
@@ -45,7 +49,7 @@ const MessagesScreen = (props) => {
         onRefresh();
     }, []);
 
-    const onSend = (messageArray) => {
+    const onSend = async (messageArray) => {
         const msg = messageArray[0];
         const mymsg = {
             ...msg,
@@ -62,6 +66,30 @@ const MessagesScreen = (props) => {
         chatsRef.doc(id)
          .collection('messages')
          .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
+
+        let expoPushToken = await chatsRef.doc(param_other_user_id).get();
+        console.log("expoPushToken:", expoPushToken.data().expoPushToken);
+        sendPushNotification(expoPushToken.data().expoPushToken, msg.text);
+    }
+
+    const sendPushNotification = async (expoPushToken, text) => {
+        const message = {
+          to: expoPushToken,
+          sound: 'default',
+          title: `${param_other_user_first_name} ${param_other_user_last_name}`,
+          body: text,
+          data: { someData: 'goes here' },
+        };
+      
+        await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(message),
+        });
     }
 
     return(

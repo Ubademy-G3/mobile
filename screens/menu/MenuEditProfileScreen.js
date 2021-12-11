@@ -20,6 +20,7 @@ const MenuEditProfileScreen = (props) => {
         profilePictureUrl: "",
         description: "",
         interests: [],
+        rol:"",
     });
 
     const [loading, setLoading] = useState(false);
@@ -61,7 +62,8 @@ const MenuEditProfileScreen = (props) => {
                 location: response.content().location,
                 profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
-                interests: response.content().interests
+                interests: response.content().interests,
+                rol: response.content().rol,
             });
         } else {
             console.log("[Edit Profile screen] error", response.content().message);
@@ -74,7 +76,7 @@ const MenuEditProfileScreen = (props) => {
         console.log("[Edit Profile screen] data:", userData)
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Edit Profile screen] token:",tokenLS);
+        console.log("[Edit Profile screen] token:", tokenLS);
         await app.apiClient().editProfile({
             id: idLS,
             firstName: userData.firstName,
@@ -157,9 +159,13 @@ const MenuEditProfileScreen = (props) => {
         style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         >
-            {/*<View>
-                    <Image source={image} style={styles.titlesImage} />
-            </View>*/}
+            <TouchableOpacity
+                onPress={() => {choosePhotoFromLibrary()}}
+                /*style={styles.button}*/
+                disabled={loading}
+            >
+                <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+            </TouchableOpacity>
             <View style={styles.inputContainer}>
                 <Text style={styles.inputText}>First Name</Text>
                 <TextInput
@@ -181,16 +187,6 @@ const MenuEditProfileScreen = (props) => {
                     value={userData.lastName}
                     style={styles.input}
                 />
-                <Text style={styles.inputText}>Location</Text>
-                <TextInput
-                    placeholder={userData.location}
-                    onChangeText={text => setData({
-                        ...userData,
-                        location: text,
-                    })}
-                    value={userData.location}
-                    style={styles.input}
-                />
                 <Text style={styles.inputText}>Description</Text>
                 <TextInput
                     placeholder={userData.description}
@@ -201,30 +197,44 @@ const MenuEditProfileScreen = (props) => {
                     value={userData.description}
                     style={styles.input}
                 />
-                <Text style={styles.inputText}>Interests</Text>
-                <MultiSelect
-                    hideTags
-                    items={categories}
-                    uniqueKey="id"
-                    onSelectedItemsChange={onSelectedItemsChange}
-                    selectedItems={selectedItems}
-                    selectText="Pick all your interests"
-                    searchInputPlaceholderText="Select your interests..."
-                    onChangeInput={(text) => console.log(text)}
-                    tagRemoveIconColor="#CCC"
-                    tagBorderColor="#CCC"
-                    tagTextColor="#CCC"
-                    selectedItemTextColor="#CCC"
-                    selectedItemIconColor="#CCC"
-                    itemTextColor="#000"
-                    displayKey="name"
-                    styleMainWrapper={styles.inputMultiSelect}
-                    searchInputStyle={{color: '#CCC'}}
-                    submitButtonColor="#48d22b"
-                    submitButtonText="Submit"
-                />
+                {userData.rol === "student" && (
+                    <>
+                    <Text style={styles.inputText}>Location</Text>
+                    <TextInput
+                        placeholder={userData.location}
+                        onChangeText={text => setData({
+                            ...userData,
+                            location: text,
+                        })}
+                        value={userData.location}
+                        style={styles.input}
+                    />
+                    <Text style={styles.inputText}>Interests</Text>
+                    <MultiSelect
+                        hideTags
+                        items={categories}
+                        uniqueKey="id"
+                        onSelectedItemsChange={onSelectedItemsChange}
+                        selectedItems={selectedItems}
+                        selectText="Pick all your interests"
+                        searchInputPlaceholderText="Select your interests..."
+                        onChangeInput={(text) => console.log(text)}
+                        tagRemoveIconColor="#CCC"
+                        tagBorderColor="#CCC"
+                        tagTextColor="#CCC"
+                        selectedItemTextColor="#CCC"
+                        selectedItemIconColor="#CCC"
+                        itemTextColor="#000"
+                        displayKey="name"
+                        styleMainWrapper={styles.inputMultiSelect}
+                        searchInputStyle={{color: '#CCC'}}
+                        submitButtonColor="#48d22b"
+                        submitButtonText="Submit"
+                    />
+                    </>
+                )}
             </View>
-            <View style={styles.buttonContainer}>
+{/*             <View style={styles.buttonContainer}>
                     <TouchableOpacity
                         onPress={() => {choosePhotoFromLibrary()}}
                         style={styles.button}
@@ -234,7 +244,7 @@ const MenuEditProfileScreen = (props) => {
                             <Text style={styles.buttonText}>Change Profile Photo</Text>
                         }
                     </TouchableOpacity>
-            </View>
+            </View> */}
             <View style={styles.buttonContainer}>
                 
                 <TouchableOpacity
@@ -263,6 +273,11 @@ const styles = StyleSheet.create({
         height: 75,
         borderRadius: 40,
     },*/
+    titlesImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
     inputContainer: {
         width:'80%',
     },

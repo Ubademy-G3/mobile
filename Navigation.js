@@ -28,9 +28,13 @@ import ListStudentScreen from './screens/ListStudentScreen';
 import CreateExamScreen from './screens/CreateExamScreen';
 import AnothersProfileScreen from './screens/AnothersProfileScreen';
 import EditCourseScreen from './screens/EditCourseScreen';
-import EditExamScreen from './screens/EditExamScreen';
 import ExamScreen from './screens/ExamScreen';
 import EditModulesScreen from './screens/EditModulesScreen';
+import CourseMetricsScreen from './screens/CourseMetricsScreeen';
+import MenuWalletScreen from './screens/menu/MenuWalletScreen';
+import ListExamsScreen from './screens/ListExamsScreen';
+import EditExamScreen from './screens/EditExamScreen';
+import ExamCorrectionScreen from './screens/ExamCorrectionScreen';
 
 
 Entypo.loadFont();
@@ -60,6 +64,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Created Courses" component={MenuCreatedCoursesScreen} />
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
           <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
+          <Drawer.Screen name="Wallet" component={MenuWalletScreen} />
     </Drawer.Navigator>
   );
 }
@@ -124,9 +129,12 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Create New Exam" component={CreateExamScreen} />
                   <Stack.Screen options={{headerShown: true, title: null}} name="Anothers Profile" component={AnothersProfileScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Course" component={EditCourseScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Screen" component={ExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Modules" component={EditModulesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Course Metrics" component={CourseMetricsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="List Exams" component={ListExamsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

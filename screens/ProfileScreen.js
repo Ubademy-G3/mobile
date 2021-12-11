@@ -131,6 +131,10 @@ const ProfileScreen = (props) => {
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
+                <View style={styles.locationWrapper}>
+                    <Text style={styles.locationTitle}>Location:</Text>
+                    <Text style={styles.location}>{userData.location}</Text>
+                </View>
                 <View style={styles.categoriesWrapper}>
                     <Text style={styles.categoriesText}>Your interests</Text>
                     <View style={styles.categoriesListWrapper}>
@@ -347,6 +351,21 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
         marginBottom: 5
+    },
+    locationWrapper:{
+        paddingHorizontal: 15,
+        flexDirection: "row",
+        // paddingVertical: 10,
+        paddingBottom: 10,
+        marginTop: 5,
+    },
+    location: {
+        fontSize: 16,
+    },
+    locationTitle: {
+        fontWeight: '500',
+        fontSize: 16,
+        marginRight: 5,
     },
 })
 

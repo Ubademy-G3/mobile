@@ -184,6 +184,9 @@ const EditCourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
+                <View style={styles.descriptionWrapper}>
+                    <Text style={styles.description}>{item.description}</Text>
+                </View>
                 {addCollaborator && (
                     <>
                     <View style={styles.searchWrapper}>
@@ -230,43 +233,64 @@ const EditCourseScreen = (props) => {
                     </View>
                     </>
                 )}
-                <Text>Collaborators:</Text>
-                <View style={styles.cardWrapper}>
-                    {collaboratorsData.map(item => (
-                        <ProfilesListComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
-                </View>
                 <View style={styles.buttonsWrapper}>
                     {rol === "instructor" && (
                         <>
-                        {!addCollaborator && (
+                        <View style={styles.buttonsContainer}>
+                            {!addCollaborator && (
+                                <TouchableOpacity
+                                    onPress={() => {setAddCollaborator(true)}}
+                                    style={styles.buttonIcon}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="account-plus-outline"
+                                        size={25}
+                                        color={'black'}
+                                    />
+                                    {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
+                                </TouchableOpacity>
+                            )}
+                            {!removeCollaborator && (
+                                <TouchableOpacity
+                                    onPress={() => {setRemoveCollaborator(true)}}
+                                    style={styles.buttonIcon}
+                                >
+                                    <MaterialCommunityIcons
+                                        name="account-remove-outline"
+                                        size={25}
+                                        color={'black'}
+                                    />
+                                    {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
+                                </TouchableOpacity>
+                            )}
                             <TouchableOpacity
-                                onPress={() => {setAddCollaborator(true)}}
-                                style={styles.button}
+                                onPress={() => {props.navigation.navigate('Edit Modules', {
+                                    id: item.id,
+                                    course_name: item.name
+                                    })}}
+                                style={styles.buttonIcon}
                             >
-                                <Text style={styles.buttonText}>Add a collaborator</Text>
+                                <MaterialCommunityIcons
+                                    name="pencil"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
                             </TouchableOpacity>
-                        )}
-                        {!removeCollaborator && (
                             <TouchableOpacity
-                                onPress={() => {setRemoveCollaborator(true)}}
-                                style={styles.button}
+                                onPress={() => {props.navigation.navigate('Course Metrics', {
+                                    id: item.id,
+                                    })}}
+                                style={styles.buttonIcon}
                             >
-                                <Text style={styles.buttonText}>Remove a collaborator</Text>
+                                <MaterialCommunityIcons
+                                    name="chart-bar"
+                                    size={25}
+                                    color={'black'}
+                                />
                             </TouchableOpacity>
-                        )}
-                        <TouchableOpacity
-                            onPress={() => {props.navigation.navigate('Edit Modules', {
-                                id: item.id,
-                                course_name: item.name
-                                })}}
-                            style={styles.button}
-                        >
-                            <Text style={styles.buttonText}>Edit Modules</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
+                        </View>
+                        {/* <TouchableOpacity
                             onPress={() => {props.navigation.navigate('Edit Exam', {
                                 id: item.id,
                                 })}}
@@ -281,7 +305,7 @@ const EditCourseScreen = (props) => {
                             style={styles.button}
                         >
                             <Text style={styles.buttonText}>Create New Exam</Text>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                         </>
                     )}
                     <TouchableOpacity
@@ -290,6 +314,24 @@ const EditCourseScreen = (props) => {
                     >
                         <Text style={styles.buttonText}>Grade Exams</Text>
                     </TouchableOpacity>
+                </View>
+                <View style={styles.examsList}>
+                    <TouchableOpacity
+                        onPress={() => {props.navigation.navigate('List Exams', {
+                            course_id : item.id,
+                        })}}
+                        style={[styles.fadedButton]}
+                    >
+                        <Text style={styles.buttonFadedText}>Exams</Text>
+                    </TouchableOpacity>
+                </View>
+                <Text>Collaborators:</Text>
+                <View style={styles.cardWrapper}>
+                    {collaboratorsData.map(item => (
+                        <ProfilesListComponent 
+                        item={item}
+                        navigation={props.navigation}/>
+                    ))}
                 </View>
             </ScrollView>
         </View>
@@ -302,6 +344,13 @@ const styles = new StyleSheet.create({
         //width:'90%',
         //paddingTop: 25,
         //paddingLeft: 15,
+    },
+    descriptionWrapper: {
+        paddingHorizontal: 15,
+        //paddingVertical: 10,
+    },
+    description: {
+        fontSize: 16,
     },
     titlesWrapper: {
         flexDirection: "row",
@@ -355,6 +404,19 @@ const styles = new StyleSheet.create({
         justifyContent: 'center',
         marginBottom: 10,
     },
+    buttonIcon: {
+        backgroundColor: `#87ceeb`,
+        width: "15%",
+        padding: 15,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 10,
+        marginLeft: 15,
+    },
+    buttonsContainer: {
+        flexDirection: 'row',
+    },
     buttonText: {
         color:'white',
         fontWeight: '700',
@@ -383,6 +445,23 @@ const styles = new StyleSheet.create({
         fontSize: 14,
         color: "grey",
         alignItems: "center",
+    },
+    examsList: {
+        marginBottom: 5,
+        marginLeft: 10,
+    },
+    buttonFadedText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        textDecorationLine: 'underline',
+    },
+    fadedButton: {
+        marginTop: 10,
+        width: '100%',
+        //padding: 15,
+        borderRadius: 10,
+        //alignItems: 'center',
     },
 });
 

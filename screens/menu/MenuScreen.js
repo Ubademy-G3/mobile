@@ -2,16 +2,16 @@ import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { Drawer } from 'react-native-paper';
-import Icons from 'react-native-vector-icons/MaterialCommunityIcons';
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Icons from 'react-native-vector-icons/Ionicons';
 import image from "../../assets/images/profilePic.jpg"
 import { useState, useEffect } from 'react';
-import {app} from '../../app/app';
+import { app } from '../../app/app';
 
+MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 Icons.loadFont();
-Icon.loadFont();
-Ionicons.loadFont();
 
 
 const MenuScreen = (props) => {
@@ -82,7 +82,7 @@ const MenuScreen = (props) => {
                     <Drawer.Section style={styles.drawerSection}>
                         <DrawerItem 
                             icon={({color, size}) => (
-                                <Icons 
+                                <MaterialCommunityIcons 
                                 name="account-outline" 
                                 color={color}
                                 size={size}
@@ -95,7 +95,7 @@ const MenuScreen = (props) => {
                             <>
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icons 
+                                    <MaterialCommunityIcons 
                                     name="heart-outline" 
                                     color={color}
                                     size={size}
@@ -106,7 +106,7 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icons 
+                                    <MaterialCommunityIcons 
                                     name="check" 
                                     color={color}
                                     size={size}
@@ -117,7 +117,7 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icon
+                                    <MaterialIcons
                                     name="event-note" 
                                     color={color}
                                     size={size}
@@ -128,7 +128,7 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icons
+                                    <MaterialCommunityIcons
                                     name="diamond-stone"
                                     color={color}
                                     size={size}
@@ -137,13 +137,24 @@ const MenuScreen = (props) => {
                                 label="Update Subscription"
                                 onPress={() => {props.navigation.navigate('Update Subscription')}}
                             />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons
+                                    name="wallet-outline"
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="Wallet"
+                                onPress={() => { props.navigation.navigate('Wallet') }}
+                            />
                             </>
                         )}
                         {userData.rol === "instructor" && (
                             <>
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icons 
+                                    <MaterialCommunityIcons 
                                     name="check" 
                                     color={color}
                                     size={size}
@@ -154,7 +165,7 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icon
+                                    <MaterialIcons
                                     name="event-note" 
                                     color={color}
                                     size={size}
@@ -165,8 +176,8 @@ const MenuScreen = (props) => {
                             />
                             <DrawerItem 
                                 icon={({color, size}) => (
-                                    <Icons
-                                    name="file-edit-outline" 
+                                    <MaterialCommunityIcons
+                                    name="file-document-edit-outline"
                                     color={color}
                                     size={size}
                                     />
@@ -178,7 +189,7 @@ const MenuScreen = (props) => {
                         )}
                         <DrawerItem 
                             icon={({color, size}) => (
-                                <Icon 
+                                <MaterialIcons 
                                 //name="text-box-search-outline" 
                                 name="work-outline"
                                 color={color}
@@ -190,7 +201,7 @@ const MenuScreen = (props) => {
                         />
                         <DrawerItem 
                             icon={({color, size}) => (
-                                <Icons
+                                <MaterialCommunityIcons
                                 //name="settings-outline"
                                 name="account-edit-outline"
                                 color={color}
@@ -206,7 +217,7 @@ const MenuScreen = (props) => {
             <Drawer.Section style={styles.bottomDrawerSection}>
                 <DrawerItem 
                     icon={({color, size}) => (
-                        <Icons 
+                        <MaterialCommunityIcons 
                         name="exit-to-app" 
                         color={color}
                         size={size}

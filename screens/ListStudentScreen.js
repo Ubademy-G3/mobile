@@ -2,11 +2,15 @@ import {app} from '../app/app';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import ProfilesListComponent from '../components/ProfilesListComponent';
+import MultiSelect from 'react-native-multiple-select';
 
+const categories = [""]
 
 const ListStudentScreen = (props) => {
 
   const param_id = props.route.params ? props.route.params.course_id: '';
+
+  const param_filter = props.route.params ? props.route.params.filter: '';
 
   const [loading, setLoading] = useState(false); 
 
@@ -49,13 +53,31 @@ const ListStudentScreen = (props) => {
 
   return (
     <View style={styles.cardWrapper}>
-      {/*<FlatList  
-        data={studentsData}
-        renderItem={renderStudentItem}
-        keyExtractor={(item) => item.id}
-        horizontal={false}
-        showsHorizontalScrollIndicator={false}
-      />*/}
+      {param_filter && (
+        <>
+          {/* <MultiSelect
+            hideTags
+            items={categories}
+            uniqueKey="id"
+            onSelectedItemsChange={onSelectedItemsChange}
+            selectedItems={selectedItems}
+            selectText="Search students with filter"
+            searchInputPlaceholderText="Select some filters..."
+            onChangeInput={(text) => console.log(text)}
+            tagRemoveIconColor="#CCC"
+            tagBorderColor="#CCC"
+            tagTextColor="#CCC"
+            selectedItemTextColor="#CCC"
+            selectedItemIconColor="#CCC"
+            itemTextColor="#000"
+            displayKey="name"
+            styleMainWrapper={styles.inputMultiSelect}
+            searchInputStyle={{color: '#CCC'}}
+            submitButtonColor="#48d22b"
+            submitButtonText="Submit"
+          /> */}
+        </>
+      )}
       {studentsData.map(item => (
         <ProfilesListComponent 
         item={item}

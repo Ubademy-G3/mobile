@@ -5,6 +5,8 @@ import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
+import * as ImagePicker from "expo-image-picker";
+import { firebase } from '../../firebase';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -20,7 +22,7 @@ const MenuCreateNewCourseScreen = (props) => {
         category: 0,
         subscription_type: "",
         location: "",
-        profile_picture: "",
+        profile_picture: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/icon.png?alt=media&token=7fd2278c-dd3d-443c-9a86-bacca98ef702",
         duration: "",
         language: "",
         level: "",
@@ -31,13 +33,52 @@ const MenuCreateNewCourseScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.All,
+          });
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadMediaOnFirebase(mediaUri);
+    }
+    
+    const uploadMediaOnFirebase = async (mediaUri) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            setData({
+                ...userData,
+                profilePictureUrl: newURL,
+            })
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
+
     const setCategorySelected = (name, idx) => {
         console.log("[Create Course screen] name: ", name);
         console.log("[Create Course screen] idx: ", idx);
         console.log("[Create Course screen] categories array: ", categories[idx]);
-        category_id = categories[idx].id;
+        let category_id = categories[idx].id;
         console.log("[Create Course screen] category id: ", category_id);
-        //set category
+        setData({
+            ...courseData,
+            category: category_id,
+        });
     }
 
     const handleApiResponseCreateCourse = (response) => {
@@ -85,7 +126,6 @@ const MenuCreateNewCourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Create Course screen] token:",tokenLS);
-        //await app.apiClient().
         await app.apiClient().createCourse({
             user_id: idLS,
             name: courseData.name,
@@ -106,7 +146,7 @@ const MenuCreateNewCourseScreen = (props) => {
             category: 0,
             subscription_type: "",
             location: "",
-            profile_picture: "",
+            profile_picture: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/icon.png?alt=media&token=7fd2278c-dd3d-443c-9a86-bacca98ef702",
             duration: "",
             language: "",
             level: "",
@@ -136,9 +176,13 @@ const MenuCreateNewCourseScreen = (props) => {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-                {/*<View>
-                        <Image source={image} style={styles.titlesImage} />
-                </View>*/}
+                <TouchableOpacity
+                    onPress={() => {choosePhotoFromLibrary()}}
+                    /*style={styles.button}*/
+                    disabled={loading}
+                >
+                    <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                </TouchableOpacity>
                 <View style={styles.inputContainer}>
                     <Text style={styles.inputText}>Course Name</Text>
                     <TextInput
@@ -164,7 +208,6 @@ const MenuCreateNewCourseScreen = (props) => {
                     <SelectDropdown
                         data={categories.map(function(item, idx) {return item.name;})}
                         onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
-                        value={courseData.subscription_type}
                         defaultButtonText={"Select a category"}
                         buttonStyle={styles.buttonDropdown}
                         buttonTextStyle={styles.textDropdown}
@@ -263,11 +306,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         //paddingTop: 5,
     },
-    /*logoImage: {
-        width: 75,
-        height: 75,
+    logoImage: {
+        width: 80,
+        height: 80,
         borderRadius: 40,
-    },*/
+    },
     inputContainer: {
         width:'80%',
     },

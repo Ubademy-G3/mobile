@@ -1,6 +1,6 @@
-import {ServerErrorResponse} from "../responses/generalResponses/ServerErrorResponse.js";
-import {GetProfileEndpoint} from "../endpoints/GetProfileEndpoint.js";
-import {LoginEndpoint} from "../endpoints/LoginEndpoint";
+import { ServerErrorResponse } from "../responses/generalResponses/ServerErrorResponse.js";
+import { GetProfileEndpoint } from "../endpoints/GetProfileEndpoint.js";
+import { LoginEndpoint } from "../endpoints/LoginEndpoint";
 import { SignUpEndpoint } from "../endpoints/SignUpEndpoint.js";
 import { ResetPasswordEndpoint } from "../endpoints/ResetPasswordEndpoint.js";
 import { EditProfileEndpoint } from '../endpoints/EditProfileEndpoint'
@@ -32,6 +32,14 @@ import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
 import { AddMediaEndpoint } from "../endpoints/AddMediaEndpoint";
 import { DeleteMediaEndpoint } from "../endpoints/DeleteMediaEndpoint";
+import { GetCourseMetricsEndpoint } from "../endpoints/GetCourseMetricsEndpoint.js";
+import { GetWalletByIdEndpoint } from "../endpoints/GetWalletByIdEndpoint.js";
+import { CreateWalletEndpoint } from "../endpoints/CreateWalletEndpoint.js";
+import { MakeDepositEndpoint } from "../endpoints/MakeDepositEndpoint.js";
+import { GetAllSolutionsByExamIdEndpoint } from "../endpoints/GetAllSolutionsByExamIdEndpoint.js";
+import { GetAllAnswersByExamIdEndpoint } from "../endpoints/GetAllAnswersByExamIdEndpoint.js";
+import { UpdateSolutionEndpoint } from "../endpoints/UpdateSolutionEndpoint.js";
+import { UpdateAnswerEndpoint } from "../endpoints/UpdateAnswerEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -137,6 +145,14 @@ class ApiClient {
             data: data
         });
     }
+
+    getCourseMetrics(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetCourseMetricsEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
     
     createExam(data, onResponse) {
         return this._requester.call({
@@ -218,9 +234,41 @@ class ApiClient {
         });
     }
 
+    getAllSolutionsByExamId(data, examId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllSolutionsByExamIdEndpoint(examId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateSolution(data, examId, solutionId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateSolutionEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     createNewExamAnswer(data, examId, solutionId, onResponse) {
         return this._requester.call({
             endpoint: new CreateNewExamAnswerEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getAllAnswersByExamId(data, examId, solutionId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllAnswersByExamIdEndpoint(examId, solutionId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateAnswer(data, examId, solutionId, answerId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateAnswerEndpoint(examId, solutionId, answerId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });
@@ -305,6 +353,13 @@ class ApiClient {
             data: data
         });
     }
+    getWalletById(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetWalletByIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
 
     deleteMediaFromCourse(data, courseId, mediaId, onResponse) {
         return this._requester.call({
@@ -313,7 +368,21 @@ class ApiClient {
             data: data
         });
     }
+    createWallet(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new CreateWalletEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
 
+    makeDeposit(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new MakeDepositEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
 }
 
 export default ApiClient;

@@ -99,7 +99,7 @@ const TabNavigator = () => {
           component={DrawerNavigator}
         />*/}
         <Tab.Screen
-          name="Chat"
+          name="Messages"
           component={ChatScreen}
           options={{
             tabBarIcon: ({color}) => (

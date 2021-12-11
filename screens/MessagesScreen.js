@@ -5,7 +5,7 @@ import { firebase } from '../firebase';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
 
 const db = firebase.default.firestore();
-const chatsRef = db.collection('chatrooms');
+const chatsRef = db.collection('users');
 
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
@@ -13,10 +13,10 @@ const MessagesScreen = (props) => {
     const [id, setId] = useState(0);
 
     const onRefresh = async() => {
-        let myId = await app.getId();
+        const myId = await app.getId();
         setId(myId);
         const docid  = param_other_user_id > myId ? myId + "-" + param_other_user_id : param_other_user_id + "-" + myId;
-        const messageRef = chatsRef.doc(docid)
+        const messageRef = chatsRef.doc(myId)
             .collection('messages')
             .orderBy('createdAt',"desc")
         messageRef.onSnapshot((querySnap)=>{
@@ -50,12 +50,16 @@ const MessagesScreen = (props) => {
             sentTo: param_other_user_id,
             createdAt: new Date()
         };
-        setMessages(previousMessages => GiftedChat.append(previousMessages,mymsg));
+        setMessages(previousMessages => GiftedChat.append(previousMessages, mymsg));
         const docid  = param_other_user_id > id ? id + "-" + param_other_user_id : param_other_user_id + "-" + id;
- 
-        chatsRef.doc(docid)
+        
+        chatsRef.doc(param_other_user_id)
          .collection('messages')
-         .add({ ...mymsg, createdAt:firebase.default.firestore.FieldValue.serverTimestamp() })
+         .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
+
+        chatsRef.doc(id)
+         .collection('messages')
+         .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
     }
 
     return(

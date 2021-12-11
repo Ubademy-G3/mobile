@@ -4,12 +4,13 @@ import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableO
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
-
+import { firebase } from '../firebase';
 
 Feather.loadFont();
 
 const rols = ["student", "instructor"];
 const subscriptions = ["free", "platinum", "gold"];
+const db = firebase.default.firestore();
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -69,6 +70,10 @@ const SignupScreen = (props) => {
                 params: { screen: 'Profile',
                     params: { id: response.content().id }
                 }
+            });
+            // agrego user a firestore para el manejo de mensajes
+            db.collection('users').doc(response.content().id).set({
+                id: response.content().id
             });
         }
     }

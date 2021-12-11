@@ -6,7 +6,7 @@ const ChatScreen = (props) => {
         <View>
             <Text>Chat Screen!!</Text>
             <TouchableOpacity 
-            onPress={() => props.navigation.navigate('Messages Screen', {id: "ac249a59-be3c-4660-9b0f-e7f660aaeac9"})}
+            onPress={() => props.navigation.navigate('Messages Screen', {id: "abc52922-eddf-403a-80b7-f61023953edd"})} //aca poner nombre del q chatea
             style={styles.button}
             />
         </View>

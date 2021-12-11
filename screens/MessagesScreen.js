@@ -60,6 +60,29 @@ const MessagesScreen = (props) => {
         chatsRef.doc(id)
          .collection('messages')
          .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
+
+        console.log("expoPushToken:", chatsRef.doc(param_other_user_id).get());
+        sendPushNotification(chatsRef.doc(param_other_user_id).get());
+    }
+
+    const sendPushNotification = async (expoPushToken) => {
+        const message = {
+          to: expoPushToken,
+          sound: 'default',
+          title: 'New message',
+          body: 'And here is the body!',
+          data: { someData: 'goes here' },
+        };
+      
+        await fetch('https://exp.host/--/api/v2/push/send', {
+          method: 'POST',
+          headers: {
+            Accept: 'application/json',
+            'Accept-encoding': 'gzip, deflate',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(message),
+        });
     }
 
     return(

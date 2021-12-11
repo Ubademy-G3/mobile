@@ -10,29 +10,33 @@ const chatsRef = db.collection('users');
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
     const [messages, setMessages] = useState([]);
-    const [id, setId] = useState(0);
+    const [id, setId] = useState(null);
 
     const onRefresh = async() => {
         const myId = await app.getId();
         setId(myId);
         const messageRef = chatsRef.doc(myId)
             .collection('messages')
-            .orderBy('createdAt',"desc")
+            .orderBy('createdAt', "desc")
         messageRef.onSnapshot((querySnap)=>{
-            const allmsg = querySnap.docs.map(docSanp => {
+            let allmsg = querySnap.docs.map(docSanp => {
                 const data = docSanp.data()
-                if (data.createdAt) {
+                if (data.createdAt && (data.sentBy == param_other_user_id || data.sentTo == param_other_user_id)) {
                     return {
                         ...docSanp.data(),
                         createdAt: docSanp.data().createdAt.toDate()
-                        }
+                    }
                 } else {
-                    return {
-                        ...docSanp.data(),
-                        createdAt: new Date()
+                    if (data.sentBy == param_other_user_id || data.sentTo == param_other_user_id) {
+                        return {
+                            ...docSanp.data(),
+                            createdAt: new Date()
+                        }
                     }
                 }
+                return null;
             })
+            allmsg = allmsg.filter((msg) => msg !== null);
             setMessages(allmsg);
         })
     }
@@ -62,18 +66,22 @@ const MessagesScreen = (props) => {
 
     return(
         <View style={{ flex:1, backgroundColor:"#f5f5f5" }}>
-           <GiftedChat
-                messages={messages}
-                onSend={text => onSend(text)}
-                user={{
-                    _id: id,
-                }}
-                
-                renderInputToolbar={(props) => {
-                    return <InputToolbar {...props}
+            {id && (
+                <>
+                    <GiftedChat
+                        messages={messages}
+                        onSend={text => onSend(text)}
+                        user={{
+                            _id: id,
+                        }}
+                        
+                        renderInputToolbar={(props) => {
+                            return <InputToolbar {...props}
+                            />
+                        }}
                     />
-                }}
-            />
+                </>
+            )}
         </View>
     );
 }

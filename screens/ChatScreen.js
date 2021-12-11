@@ -8,17 +8,15 @@ const db = firebase.default.firestore();
 const ChatScreen = (props) => {
     const [users, setUsers] = useState(null);
 
-    const handleApiResponseProfile = async (response) => {
+    const handleApiResponseProfile = (response) => {
         if (!response.hasError()) {
-            const usersTmp = [];
             const userData = {
                 id: response.content().id,
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 profilePicture: response.content().profilePictureUrl
             }
-            usersTmp.push(userData);
-            setUsers(usersTmp);
+            return userData;
         } else {
             console.log("[Chat screen] error", response.content().message);
         }
@@ -26,22 +24,40 @@ const ChatScreen = (props) => {
 
     const getUsers = async () => {
         const id = await app.getId();
-        const token = await app.getToken();
-        await db.collection('users').doc(id).collection('messages').onSnapshot((snapshot) => {
+        db.collection('users').doc(id).collection('messages').onSnapshot((snapshot) => {
             const userData = [];
             snapshot.forEach((doc) => userData.push({ ...doc.data(), id: doc.id }));
             const usersIds = []
             userData.forEach((msg) => {
-                if (msg.user._id !== id && !usersIds.includes(msg.user._id)) {
+                if (msg.user && msg.user._id !== id && !usersIds.includes(msg.user._id)) {
                     usersIds.push(msg.user._id);
-                } else if (msg.user._id === id && !usersIds.includes(msg.sentTo)) {
+                } else if (msg.user && msg.user._id === id && !usersIds.includes(msg.sentTo)) {
                     usersIds.push(msg.sentTo);
                 }
             });
-            usersIds.forEach(async (user) => {
-                await app.apiClient().getProfile({id: user, token: token}, user, handleApiResponseProfile);
-            })
-        });
+            getProfiles(usersIds);
+        })
+    }
+
+    const getProfiles = async (ids) => {
+        const token = await app.getToken();
+        const u = [];
+        for (let id of ids) {
+            let add = true;
+            if (users) {
+                users.forEach(user => {
+                    if (user.id === id) {
+                        add = false
+                    }
+                });
+            }
+
+            if (add) {
+                const a = await app.apiClient().getProfile({ id: id, token: token }, id, handleApiResponseProfile);
+                u.push(a);
+            }
+        }
+        setUsers(u)
     }
 
     useEffect(() => {
@@ -51,25 +67,30 @@ const ChatScreen = (props) => {
     const RenderCard = ({ item }) => {
         return (
             <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id })}>
-            <View style={styles.mycard}>
-                <Image source={{ uri: item.profilePicture }} style={styles.img} />
-                <View>
-                    <Text style={styles.text}>
-                        {`${item.firstName} ${item.lastName}`}
-                    </Text>
+                <View style={styles.mycard}>
+                    <Image source={{ uri: item.profilePicture }} style={styles.img} />
+                    <View>
+                        <Text style={styles.text}>
+                            {`${item.firstName} ${item.lastName}`}
+                        </Text>
+                    </View>
                 </View>
-            </View>
             </TouchableOpacity>
         )
     }
+    
     return (
-        <View style={{ flex:1 }}>
-            <FlatList 
-              data={users}
-              renderItem={({ item }) => { return <RenderCard item={item} /> }}
-              keyExtractor={(item) => item.id}
-            />
-        </View>
+        <>
+        {users && (
+            <View style={{ flex:1 }}>
+                <FlatList 
+                    data={users}
+                    renderItem={({ item }) => { return <RenderCard item={item} /> }}
+                    keyExtractor={(item) => item.id}
+                />
+            </View>
+        )}
+        </>
     )
 }
 

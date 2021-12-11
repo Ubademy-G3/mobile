@@ -3,12 +3,15 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { app } from '../app/app';
 import { firebase } from '../firebase';
 import { GiftedChat, Bubble, InputToolbar } from 'react-native-gifted-chat';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 const db = firebase.default.firestore();
 const chatsRef = db.collection('users');
 
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
+    const param_other_user_first_name = props.route.params ? props.route.params.firstName : 'defaultID';
+    const param_other_user_last_name = props.route.params ? props.route.params.lastName : 'defaultID';
     const [messages, setMessages] = useState([]);
     const [id, setId] = useState(0);
 
@@ -42,7 +45,7 @@ const MessagesScreen = (props) => {
         onRefresh();
     }, []);
 
-    const onSend = (messageArray) => {
+    const onSend = async (messageArray) => {
         const msg = messageArray[0];
         const mymsg = {
             ...msg,
@@ -61,16 +64,17 @@ const MessagesScreen = (props) => {
          .collection('messages')
          .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
 
-        console.log("expoPushToken:", chatsRef.doc(param_other_user_id).get());
-        sendPushNotification(chatsRef.doc(param_other_user_id).get());
+        let expoPushToken = await chatsRef.doc(param_other_user_id).get();
+        console.log("expoPushToken:", expoPushToken.data().expoPushToken);
+        sendPushNotification(expoPushToken.data().expoPushToken, msg.text);
     }
 
-    const sendPushNotification = async (expoPushToken) => {
+    const sendPushNotification = async (expoPushToken, text) => {
         const message = {
           to: expoPushToken,
           sound: 'default',
-          title: 'New message',
-          body: 'And here is the body!',
+          title: `${param_other_user_first_name} ${param_other_user_last_name}`,
+          body: text,
           data: { someData: 'goes here' },
         };
       

@@ -60,7 +60,7 @@ const ChatScreen = (props) => {
 
     const RenderCard = ({item}) => {
         return (
-            <TouchableOpacity onPress={() => props.navigation.navigate('Messages Screen', { id: item.id })}>
+            <TouchableOpacity onPress={() => props.navigation.navigate('Messages Screen', { id: item.id, firstName: item.firstName, lastName: item.lastName })}>
             <View style={styles.mycard}>
                 <View>
                     <Text style={styles.text}>
@@ -78,6 +78,12 @@ const ChatScreen = (props) => {
               renderItem={({ item }) => { return <RenderCard item={item} /> }}
               keyExtractor={(item) => item.id}
             />
+            {/* <View>
+                <TouchableOpacity 
+                onPress={() => props.navigation.navigate('Messages Screen', { id: "b0d8859d-45ec-47f5-95f8-8dc59ba6cc65" })}
+                style={styles.button}
+                />
+            </View> */}
         </View>
     )
     /*return (

@@ -30,6 +30,8 @@ import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
 import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
 import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
+import { AddMediaEndpoint } from "../endpoints/AddMediaEndpoint";
+import { DeleteMediaEndpoint } from "../endpoints/DeleteMediaEndpoint";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -291,6 +293,22 @@ class ApiClient {
     deleteModule(data, courseId, moduleId, onResponse) {
         return this._requester.call({
             endpoint: new DeleteModuleEndpoint(courseId, moduleId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    addMediaToCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new AddMediaEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    deleteMediaFromCourse(data, courseId, mediaId, onResponse) {
+        return this._requester.call({
+            endpoint: new DeleteMediaEndpoint(courseId, mediaId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

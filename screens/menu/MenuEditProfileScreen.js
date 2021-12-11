@@ -106,7 +106,7 @@ const MenuEditProfileScreen = (props) => {
 
     const choosePhotoFromLibrary = async () => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
           });
         console.log("CARGO UNA IMAGEN:", pickerResult);
         const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;

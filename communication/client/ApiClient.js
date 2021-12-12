@@ -30,6 +30,8 @@ import { DeleteModuleEndpoint } from "../endpoints/DeleteModuleEndpoint.js";
 import { UpdateExamEndpoint } from "../endpoints/UpdateExamEndpoint.js";
 import { GetExamByIdEndpoint } from "../endpoints/GetExamByIdEndpoint.js";
 import { GetUserByEmailEndpoint } from "../endpoints/GetUserByEmailEndpoint.js";
+import { AddMediaEndpoint } from "../endpoints/AddMediaEndpoint";
+import { DeleteMediaEndpoint } from "../endpoints/DeleteMediaEndpoint";
 import { GetCourseMetricsEndpoint } from "../endpoints/GetCourseMetricsEndpoint.js";
 import { GetWalletByIdEndpoint } from "../endpoints/GetWalletByIdEndpoint.js";
 import { CreateWalletEndpoint } from "../endpoints/CreateWalletEndpoint.js";
@@ -344,6 +346,13 @@ class ApiClient {
         });
     }
 
+    addMediaToCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new AddMediaEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
     getWalletById(data, id, onResponse) {
         return this._requester.call({
             endpoint: new GetWalletByIdEndpoint(id),
@@ -352,6 +361,13 @@ class ApiClient {
         });
     }
 
+    deleteMediaFromCourse(data, courseId, mediaId, onResponse) {
+        return this._requester.call({
+            endpoint: new DeleteMediaEndpoint(courseId, mediaId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
     createWallet(data, id, onResponse) {
         return this._requester.call({
             endpoint: new CreateWalletEndpoint(id),

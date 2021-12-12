@@ -4,6 +4,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import { Video, AVPlaybackStatus } from 'expo-av';
+import * as ImagePicker from "expo-image-picker";
+import { DeleteMediaEndpoint } from '../communication/endpoints/DeleteMediaEndpoint';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -21,13 +23,14 @@ const EditModulesScreen = (props) => {
     
     const [status, setStatus] = React.useState({});
 
-    const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
+    //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
     const handleApiResponseCreateModule = () => {
         console.log("[Edit Modules screen] create module: ", response.content())
         if (!response.hasError()) {
             setModules(modules => [...modules, {
                 saved_module: false,
+                new_module: true,
                 id: response.content().id,
                 title: response.content().title,
                 content: response.content().content,
@@ -54,37 +57,39 @@ const EditModulesScreen = (props) => {
         }   
     }
 
-
-    const handleSaveQuestion = (key) => {
+    const handleSaveModule = async (key) => {
         //pegar al back y updeatear
-        /*const _modules = [...modules];
+        let tokenLS = await app.getToken();
+        const _modules = [...modules];
         _modules[key].saved_module = false,
         await app.apiClient().updateModule(
             {
                 token: tokenLS,
                 title: _modules[key].title,
                 media_id: _modules[key].media_id,
-                content": _modules[key].content,
+                content: _modules[key].content,
             }, param_course_id, _modules[key].id, handleApiResponseUpdateModule); 
-        setModules(_modules)*/
+        setModules(_modules)
     }
 
-    const addModule = () => {
-        //pega al back y crea
-        /* await app.apiClient().createNewModule(
+    const addModule = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().createNewModule(
             {
                 token: tokenLS,
                 title: "",
                 media_id: [],
-                content": "",
-            }, param_course_id, handleApiResponseCreateModule); */
-        setModules(modules => [...modules, {
-            saved_module: false,
-            new_module: true,
-            title: "",
-            content: "",
-            media_id: [],
-        }]);
+                content: "",
+            }, param_course_id, handleApiResponseCreateModule);
+
+        //pega al back y crea
+        /*setModules(modules => [...modules, {
+        saved_module: false,
+        new_module: true,
+        title: "",
+        content: "",
+        media_id: [],
+        }]);*/
     }
 
     const editModule = (key) => {
@@ -108,7 +113,7 @@ const EditModulesScreen = (props) => {
     const deleteModule = async(key) => {
         let tokenLS = await app.getToken();
         //pegar al back y borrar
-        //await app.apiClient().deleteModule({token: tokenLS}, param_course_id, modules[key].id, handleApiResponseDeleteModule);
+        await app.apiClient().deleteModule({token: tokenLS}, param_course_id, modules[key].id, handleApiResponseDeleteModule);
         const _modules = modules.filter((input,index) => index != key);
         setModules(_modules);
     }
@@ -121,6 +126,53 @@ const EditModulesScreen = (props) => {
         onRefresh();
     }, []);
 
+    const deleteMedia = async (key) => {
+        let tokenLS = await app.getToken();
+        await app.apiClient.deleteMediaFromCourse({token: tokenLS}, param_course_id, )
+    }
+
+    const chooseVideoFromLibrary = async (key) => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        });
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadMediaOnFirebase(mediaUri, key);
+    }
+    
+    const uploadMediaOnFirebase = async (mediaUri, key) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename); 
+        
+        Alert.alert(
+            'Please wait',
+            'Your image is uploading'
+        );
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            const _modules = [...modules];
+            const newList = _modules[key].media_id;
+            newList.push(newURL);
+            _modules[key].media_id = newList;
+            setModules(_modules);
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -131,10 +183,10 @@ const EditModulesScreen = (props) => {
                         <View style={styles.courseCardWrapper}>
                             <TouchableOpacity
                                 onPress = {()=> {editModule(key)}}
-                                style={styles.questionWrapper}
+                                style={styles.moduleWrapper}
                             >
-                                <View style={styles.questionView}>
-                                    <Text style={styles.examQuestion}>{item.title}</Text>
+                                <View style={styles.moduleView}>
+                                    <Text style={styles.examModule}>{item.title}</Text>
                                 </View>
                                 <MaterialIcons
                                     name="edit"
@@ -158,14 +210,14 @@ const EditModulesScreen = (props) => {
                                     <TextInput 
                                         placeholder={"Enter Description"}
                                         multiline = {true}
-                                        value={item.question} 
+                                        value={item.module} 
                                         onChangeText={(text) => handleInputDescription(text,key)}
                                         style={styles.input}
                                     />
                                 </View>
                                 <View style={styles.buttonsRightWrapper}>
                                     <TouchableOpacity
-                                        onPress = {() => handleSaveQuestion(key)}
+                                        onPress = {() => handleSaveModule(key)}
                                         style={styles.buttonSaveIconRight}
                                     >
                                         <MaterialCommunityIcons
@@ -175,11 +227,11 @@ const EditModulesScreen = (props) => {
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                            onPress = {()=> {}}
+                                            onPress = {()=> {chooseVideoFromLibrary(key)}}
                                             style={[styles.buttonSaveIconRight]}
                                         >
                                             <MaterialCommunityIcons
-                                                name="image-plus"
+                                                name="video-plus-outline"
                                                 size={20}
                                                 color={'black'}
                                             />
@@ -196,25 +248,23 @@ const EditModulesScreen = (props) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            {mediaUrl.map(item => (
+                            {mediaUrl.map((media_item,media_key) => (
                                 <View style={styles.containerVideo}>
                                     <Video
                                         ref={video}
                                         style={styles.video}
-                                        source={{uri: item}}
+                                        source={{uri: media_item}}
                                         resizeMode="contain"
                                         isLooping
                                         useNativeControls={true}
                                         shouldPlay={true}
                                         onPlaybackStatusUpdate={status => setStatus(() => status)}
                                     />
-                                    <View style={styles.buttons}>
-                                        <Button
-                                        title={status.isPlaying ? 'Pause' : 'Play'}
-                                        onPress={() =>
-                                            status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()
-                                        }
-                                        />
+                                <View style={styles.buttons}>
+                                    <Button
+                                    title={"Delete"}
+                                    onPress={deleteMedia(key, media_key)}
+                                    />
                                     </View>
                                 </View>
                             ))}
@@ -226,9 +276,9 @@ const EditModulesScreen = (props) => {
                     <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
                         <TouchableOpacity
                             onPress = {()=> {addModule()}}
-                            style={styles.questionWrapper}
+                            style={styles.moduleWrapper}
                         >
-                            <View style={styles.addQuestionView}>
+                            <View style={styles.addModuleView}>
                                 <Text style={styles.buttonText}>Add Unit</Text>
                                 <Feather
                                     name="plus"
@@ -264,11 +314,11 @@ const styles = new StyleSheet.create({
         //paddingTop: 25,
         //paddingLeft: 15,
     },
-    questionView: {
+    moduleView: {
         flexDirection: 'row',
         justifyContent: 'center',
     },
-    addQuestionView: {
+    addModuleView: {
         flexDirection: 'row',
     },
     fadedButton: {
@@ -305,7 +355,7 @@ const styles = new StyleSheet.create({
         fontSize: 16,
         //marginTop:5,
     },
-    examQuestion: {
+    examModule: {
         color:'black',
         fontWeight: '400',
         fontSize: 16,
@@ -368,7 +418,7 @@ const styles = new StyleSheet.create({
     buttonEditIconRight: {
         marginLeft: 10,
     },
-    questionWrapper: {
+    moduleWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
     },

@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {getSetting} from "../Settings";
-import Feather from 'react-native-vector-icons/Feather'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import categoriesData from '../assets/data/categoriesData'
-import forYouData from '../assets/data/forYouData'
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import StarRating from 'react-native-star-rating';
 import subscriptionTypeData from '../assets/data/subscriptionTypeCourses';
+import courseImage from '../assets/images/generic_course.png';
 import { app } from '../app/app';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const HomeScreen = (props) => {
-
-  const [categories, setCategories] = useState([]);
-
+  const [courses, setCourses] = useState(null);
+  const [categories, setCategories] = useState(null);
+  const [ratings, setRatings] = useState(null);
   const [searchText, setSearchText] = useState("");
-
   const [loading, setLoading] = useState(false);
 
   const handleGetAllCategories = (response) => {
-      console.log("[Home screen] content: ", response.content())
+      // console.log("[Home screen] categories content: ", response.content())
       if (!response.hasError()) {
           setCategories(response.content());
           console.log("[Home screen] categories: ", categories);
@@ -30,12 +28,41 @@ const HomeScreen = (props) => {
       }
   }
 
+  const handleGetRating = (response) => {
+    // console.log("[Home screen] rating content: ", response.content())
+    if (!response.hasError()) {
+        return response.content();
+    } else {
+        console.log("[Home screen] error", response.content().message);
+    }
+  }
+
+  const handleGetAllCourses = async (response) => {
+    //console.log("[Home screen] courses content: ", response.content())
+    if (!response.hasError()) {
+        const tokenLS = await app.getToken();
+        let courses = response.content().courses;
+        courses = await Promise.all(
+          courses.map(async (course) => {
+            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
+            course.rating = rating;
+            return course;
+          })
+        );
+        setCourses(courses);
+        console.log("[Home screen] categories: ", courses);
+    } else {
+        console.log("[Home screen] error", response.content().message);
+    }
+}
+
   const onRefresh = async () => {
-      console.log("[Home screen] entro a onRefresh"); 
+      console.log("[Home screen] entro a onRefresh");
       setLoading(true);
       let tokenLS = await app.getToken();
-      console.log("[Home screen] token:", tokenLS);       
-      await app.apiClient().getAllCategories({token: tokenLS}, handleGetAllCategories);
+      console.log("[Home screen] token:", tokenLS);   
+      app.apiClient().getAllCategories({ token: tokenLS }, handleGetAllCategories);
+      app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
       setLoading(false);
   };
 
@@ -44,55 +71,42 @@ const HomeScreen = (props) => {
       onRefresh();
   }, []);
 
-  const renderCategoryItem = ({ item }) => {
+  const renderVerticalCourseItem = ({ item }) => {
     return (
       <TouchableOpacity
-      key={item.id}
-      onPress={() => {
-        props.navigation.navigate('Search Courses', {
-          searchKey: item.id,
-          keyType: "category"
-        });}
-      }>
-        <View
-          style={[
-            styles.categoryItemWrapper,
-            {
-              backgroundColor: item.selected ? '#87ceeb' : 'white',
-              marginLeft: item.id == 0 ? 20 : 0,
-            },
-          ]}>
-          {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
-          <Text style={styles.categoryItemTitle}>{item.name}</Text>            
+        key={item.id}
+        onPress={() => {
+          props.navigation.navigate('Course Screen', {
+            item: item,
+          });
+        }}
+      >
+        <View style={styles.verticalCourseItemWrapper}>
+          <Image
+            source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
+            style={styles.image}
+          />
+          <View style={{width: '70%', marginLeft: 10}}>
+            <Text style={styles.courseTitle}>{item.name}</Text>
+            <Text numberOfLines={2}>{item.description}</Text>
+            <View style={{ display:'flex', flexDirection: 'row' }}>
+              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
+              <StarRating
+                disabled={true}
+                maxStars={5}
+                rating={item.rating.rating/5}
+                containerStyle={{ width: '40%', marginLeft: 5 }}
+                starStyle={{ color: 'gold' }}
+                starSize={20}
+                fullStarColor='gold'
+              />
+              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
+            </View>
+          </View>
         </View>
       </TouchableOpacity>
     );
-  };
-
-  const renderSubscriptionItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-      key={item.id}
-      onPress={() => {
-        props.navigation.navigate('Search Courses', {
-          searchKey: item.name,
-          keyType: "subscription"
-        });}
-      }>
-        <View
-          style={[
-            styles.categoryItemWrapper,
-            {
-              backgroundColor: item.selected ? '#87ceeb' : 'white',
-              marginLeft: item.id == 0 ? 20 : 0,
-            },
-          ]}>
-          {<Image source={item.image} style={styles.categoryItemImage}/>}
-          <Text style={styles.categoryItemTitle}>{item.name}</Text>            
-        </View>
-      </TouchableOpacity>
-    );
-    };    
+  }
   return (
       <View style={styles.container}>
         <ScrollView
@@ -131,38 +145,19 @@ const HomeScreen = (props) => {
                     <Text style={styles.buttonText}>Search</Text>
                 </TouchableOpacity>
           </View>
-          
 
-          {/* Categories */}
-          <View style={styles.categoriesWrapper}>
-              <Text style={styles.categoriesText}>Categories</Text>
-              <View style={styles.categoriesListWrapper}>
-                  <FlatList  
-                    data={categories}
-                    renderItem={renderCategoryItem}
-                    keyExtractor={(item) => item.id}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                  />
-              </View>
-          </View>
-
-          {/* Subscription */}
-          <View style={styles.categoriesWrapper}>
-              <Text style={styles.categoriesText}>Subscriptions</Text>
-              <View style={styles.categoriesListWrapper}>
-                  <FlatList  
-                    data={subscriptionTypeData}
-                    renderItem={renderSubscriptionItem}
-                    keyExtractor={(item) => item.id}
-                    horizontal={true}
-                    showsHorizontalScrollIndicator={false}
-                  />
-              </View>
-          </View>
+          {courses && (
+            <View>
+              <Text style={styles.title}>All courses</Text>
+              <FlatList 
+                data={courses}
+                renderItem={renderVerticalCourseItem}
+                keyExtractor={(item) => item.id}
+              />
+            </View>
+          )}
         </ScrollView>        
       </View>
-      
   );
 }
 
@@ -194,12 +189,55 @@ const styles = StyleSheet.create({
   search: {
     marginLeft: 10,
     alignItems: "center",
-},
+  },
   searchText: {
     fontSize: 14,
     color: "grey",
     alignItems: "center",
-},
+  },
+  image: {
+    width: 75,
+    height: 75,
+    marginLeft: 20
+  },
+  verticalCourseItemWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    marginTop: 10,
+    paddingBottom: 20,
+    paddingTop: 15,
+    marginRight: 10,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  title: {
+    fontSize: 20,
+    color: 'black',
+    flex: 1, 
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    marginLeft: 10,
+    marginTop: 20
+  },
+  courseTitle: {
+    fontSize: 14,
+    color: 'black',
+    flex: 1, 
+    flexWrap: 'wrap',
+    flexDirection: 'row',
+    fontWeight: 'bold'
+  },
+
+
+
+
   categoriesWrapper: {
     marginTop: 20,
   },

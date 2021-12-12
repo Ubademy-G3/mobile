@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import StarRating from 'react-native-star-rating';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
 import subscriptionTypeData from '../assets/data/subscriptionTypeCourses';
 import courseImage from '../assets/images/generic_course.png';
 import { app } from '../app/app';
@@ -17,12 +18,13 @@ const HomeScreen = (props) => {
   const [ratings, setRatings] = useState(null);
   const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
+  const [indexCarousel, setIndexCarousel] = React.useState(0)
 
   const handleGetAllCategories = (response) => {
       // console.log("[Home screen] categories content: ", response.content())
       if (!response.hasError()) {
           setCategories(response.content());
-          console.log("[Home screen] categories: ", categories);
+          //console.log("[Home screen] categories: ", categories);
       } else {
           console.log("[Home screen] error", response.content().message);
       }
@@ -50,7 +52,7 @@ const HomeScreen = (props) => {
           })
         );
         setCourses(courses);
-        console.log("[Home screen] categories: ", courses);
+        //console.log("[Home screen] categories: ", courses);
     } else {
         console.log("[Home screen] error", response.content().message);
     }
@@ -61,7 +63,7 @@ const HomeScreen = (props) => {
       setLoading(true);
       let tokenLS = await app.getToken();
       console.log("[Home screen] token:", tokenLS);   
-      app.apiClient().getAllCategories({ token: tokenLS }, handleGetAllCategories);
+      //app.apiClient().getAllCategories({ token: tokenLS }, handleGetAllCategories);
       app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
       setLoading(false);
   };
@@ -71,7 +73,12 @@ const HomeScreen = (props) => {
       onRefresh();
   }, []);
 
-  const renderVerticalCourseItem = ({ item }) => {
+  const getBestRatedCourses = () => {
+    const bestRated = courses.filter((course) => course.rating.rating >= 4);
+    return bestRated.slice(0, 10);
+  }
+
+  const renderVerticalCourseItem = ({ item, index }) => {
     return (
       <TouchableOpacity
         key={item.id}
@@ -86,7 +93,7 @@ const HomeScreen = (props) => {
             source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
             style={styles.image}
           />
-          <View style={{width: '70%', marginLeft: 10}}>
+          <View style={{ width: '70%', marginLeft: 10 }}>
             <Text style={styles.courseTitle}>{item.name}</Text>
             <Text numberOfLines={2}>{item.description}</Text>
             <View style={{ display:'flex', flexDirection: 'row' }}>
@@ -94,7 +101,7 @@ const HomeScreen = (props) => {
               <StarRating
                 disabled={true}
                 maxStars={5}
-                rating={item.rating.rating/5}
+                rating={item.rating.rating}
                 containerStyle={{ width: '40%', marginLeft: 5 }}
                 starStyle={{ color: 'gold' }}
                 starSize={20}
@@ -102,6 +109,45 @@ const HomeScreen = (props) => {
               />
               <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
             </View>
+            <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+
+  const renderHorizontalCourseItem = ({ item }) => {
+    return (
+      <TouchableOpacity
+        key={item.id}
+        onPress={() => {
+          props.navigation.navigate('Course Screen', {
+            item: item,
+          });
+        }}
+      >
+        <View style={styles.horizontalCourseItemWrapper}>
+          <Image
+            source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
+            style={styles.image}
+          />
+          <View style={{ width: '90%', marginLeft: 10 }}>
+            <Text style={styles.courseTitle}>{item.name}</Text>
+            <Text numberOfLines={2}>{item.description}</Text>
+            <View style={{ display:'flex', flexDirection: 'row' }}>
+              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
+              <StarRating
+                disabled={true}
+                maxStars={5}
+                rating={item.rating.rating}
+                containerStyle={{ width: '40%', marginLeft: 5 }}
+                //starStyle={{ color: 'gold' }}
+                starSize={20}
+                fullStarColor='gold'
+              />
+              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
+            </View>
+            <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
           </View>
         </View>
       </TouchableOpacity>
@@ -119,6 +165,13 @@ const HomeScreen = (props) => {
                       source={require("../assets/images/logo_toc.png")}
                       style={styles.logoImage}
                   />
+                  <View style={{ position: 'absolute', top: 10, right: 30 }}>
+                    <TouchableOpacity
+                      onPress={() => {}}
+                    >
+                      <Feather name="filter" color={"#444"} size={18} />
+                    </TouchableOpacity>
+                  </View>
               </View>
           </SafeAreaView>                   
 
@@ -147,14 +200,42 @@ const HomeScreen = (props) => {
           </View>
 
           {courses && (
-            <View>
-              <Text style={styles.title}>All courses</Text>
-              <FlatList 
-                data={courses}
-                renderItem={renderVerticalCourseItem}
-                keyExtractor={(item) => item.id}
-              />
-            </View>
+            <>
+              <View>
+                <Text style={styles.title}>Best rated</Text>
+                <Carousel
+                  data={getBestRatedCourses()}
+                  renderItem={renderHorizontalCourseItem}
+                  sliderWidth={530}
+                  itemWidth={500}
+                  onSnapToItem={(index) => setIndexCarousel(index)}
+                  useScrollView={true}
+                />
+                <Pagination
+                  dotsLength={getBestRatedCourses().length}
+                  activeDotIndex={indexCarousel}
+                  //carouselRef={isCarousel}
+                  dotStyle={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    marginHorizontal: 0,
+                    backgroundColor: 'rgba(0, 0, 0, 0.92)'
+                  }}
+                  inactiveDotOpacity={0.4}
+                  inactiveDotScale={0.6}
+                  tappableDots={true}
+                />
+              </View>
+              <View>
+                <Text style={styles.title}>All courses</Text>
+                <FlatList 
+                  data={courses}
+                  renderItem={renderVerticalCourseItem}
+                  keyExtractor={(item) => item.id}
+                />
+              </View>
+            </>
           )}
         </ScrollView>        
       </View>
@@ -234,7 +315,24 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     fontWeight: 'bold'
   },
-
+  horizontalCourseItemWrapper: {
+    flexDirection: 'column',
+    justifyContent: 'center',
+    marginTop: 10,
+    paddingBottom: 20,
+    paddingTop: 15,
+    marginRight: 10,
+    borderRadius: 20,
+    backgroundColor: 'white',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    elevation: 2,
+    width: '73%'
+  },
 
 
 

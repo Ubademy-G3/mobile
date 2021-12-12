@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { firebase } from '../firebase';
 import { app } from '../app/app';
+import image from "../assets/images/profilePic.jpg"
 
 const db = firebase.default.firestore();
 
@@ -68,7 +69,7 @@ const ChatScreen = (props) => {
         return (
             <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id, firstName: item.firstName, lastName: item.lastName })}>
                 <View style={styles.mycard}>
-                    <Image source={{ uri: item.profilePicture }} style={styles.img} />
+                    <Image source={item.profilePicture ? { uri: item.profilePicture } : image} style={styles.img} />
                     <View>
                         <Text style={styles.text}>
                             {`${item.firstName} ${item.lastName}`}

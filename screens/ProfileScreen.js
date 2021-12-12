@@ -15,15 +15,7 @@ const ProfileScreen = (props) => {
     
     const [courses, setCourses] = useState([]);  
     
-    const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
-        location: "",
-        profilePictureUrl: "",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        coursesHistory: [],
-        interests: [],
-    });
+    const [userData, setData] = useState(null);
 
     const [categories, setCategories] = useState([]);
 
@@ -101,64 +93,65 @@ const ProfileScreen = (props) => {
     const renderCategoryItem = ({ item }) => {
         return (
             <View
-            key={item.id}
-            style={[
-            styles.categoryItemWrapper,
-            {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 0 ? 20 : 0,
-            },
-            ]}>
-              {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+              key={item.id}
+              style={[
+                styles.categoryItemWrapper,
+                {
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 0 ? 20 : 0,
+                },
+              ]}>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
     };
 
     return (
-        <View style={styles.container}>             
-            <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
+        <View style={styles.container}>
+            {userData && (
+                <ScrollView>
+                    <View style={styles.titlesWrapper}>
+                        <View>
+                            <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                        </View>
+                        <View style={styles.titleWrapper}>
+                            <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
+                        </View>
+                        
                     </View>
                     
-                </View>
-                
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
-                <View style={styles.locationWrapper}>
-                    <Text style={styles.locationTitle}>Location:</Text>
-                    <Text style={styles.location}>{userData.location}</Text>
-                </View>
-                <View style={styles.categoriesWrapper}>
-                    <Text style={styles.categoriesText}>Your interests</Text>
-                    <View style={styles.categoriesListWrapper}>
-                        <FlatList  
-                            data={categories}
-                            renderItem={renderCategoryItem}
-                            keyExtractor={(item) => item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
+                    <View style={styles.descriptionWrapper}>
+                        <Text style={styles.description}>{userData.description}</Text>
                     </View>
-                </View>
-                <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Your courses</Text>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
-                    )}
-                    {courses.map(item => (
-                        <CourseComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
-                </View>
-            </ScrollView>
+                    <View style={styles.locationWrapper}>
+                        <Text style={styles.locationTitle}>Location:</Text>
+                        <Text style={styles.location}>{userData.location}</Text>
+                    </View>
+                    <View style={styles.categoriesWrapper}>
+                        <Text style={styles.categoriesText}>Your interests</Text>
+                        <View style={styles.categoriesListWrapper}>
+                            <FlatList  
+                                data={categories}
+                                renderItem={renderCategoryItem}
+                                keyExtractor={(item) => item.id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </View>
+                    </View>
+                    <View style={styles.coursesCardWrapper}>
+                        <Text style={styles.coursesTitle}>Your courses</Text>
+                        {courses.length === 0 && (
+                            <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
+                        )}
+                        {courses.map(item => (
+                            <CourseComponent 
+                            item={item}
+                            navigation={props.navigation}/>
+                        ))}
+                    </View>
+                </ScrollView>
+            )}
         </View>
     )
 }

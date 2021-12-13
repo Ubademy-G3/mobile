@@ -40,6 +40,8 @@ import { GetAllSolutionsByExamIdEndpoint } from "../endpoints/GetAllSolutionsByE
 import { GetAllAnswersByExamIdEndpoint } from "../endpoints/GetAllAnswersByExamIdEndpoint.js";
 import { UpdateSolutionEndpoint } from "../endpoints/UpdateSolutionEndpoint.js";
 import { UpdateAnswerEndpoint } from "../endpoints/UpdateAnswerEndpoint.js";
+import { GetModuleByIdEndpoint } from "../endpoints/GetModuleByIdEndpoint.js";
+import { GetMediaByModuleEndpoint } from "../endpoints/GetMediaByModuleEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -330,6 +332,22 @@ class ApiClient {
         });
     }
 
+    getModuleById(data, courseId, moduleId, onResponse){
+        return this._requester.call({
+            endpoint: new GetModuleByIdEndpoint(courseId, moduleId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getMediaByModule(data, courseId, moduleId, onResponse){
+        return this._requester.call({
+            endpoint: new GetMediaByModuleEndpoint(courseId, moduleId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     updateModule(data, courseId, moduleId, onResponse) {
         return this._requester.call({
             endpoint: new UpdateModuleEndpoint(courseId, moduleId),
@@ -346,7 +364,7 @@ class ApiClient {
         });
     }
 
-    addMediaToCourse(data, courseId, onResponse) {
+    addMedia(data, courseId, onResponse) {
         return this._requester.call({
             endpoint: new AddMediaEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),

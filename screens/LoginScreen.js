@@ -4,7 +4,7 @@ import {app} from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
 
-const LoginScreen = (props) => {
+const LoginScreen = (props) => {                   
     const [data, setData] = useState({
         email: '',
         password: ''

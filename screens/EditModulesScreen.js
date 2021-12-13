@@ -1,47 +1,133 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
+import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import * as ImagePicker from "expo-image-picker";
-import { DeleteMediaEndpoint } from '../communication/endpoints/DeleteMediaEndpoint';
+import { set } from 'react-native-reanimated';
+import { firebase } from '../firebase';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 
 const EditModulesScreen = (props) => {
     const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
 
     const param_course_name = props.route.params ? props.route.params.course_name : 'defaultName';
+    
+    const video = React.useRef(null);
 
+    const [status, setStatus] = React.useState({});
+    
     const [loading, setLoading] = useState(false);
 
-    const [modules, setModules] = useState([]);
+    const [modules, setModules] = useState([]); 
 
-    const video = React.useRef(null);
+    const [modulesIds, setModulesIds] = useState([]);
+
+    const [updatingModules, setUpdatingModules] = useState(false);
     
-    const [status, setStatus] = React.useState({});
+    /*{
+        saved_module: false,
+        new_module: true,
+        title: string,
+        media_id: [],
+        media_url: [],
+        content: "",
+        id: ""
+        }*/
 
     //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
-    const handleApiResponseCreateModule = () => {
+    const handleApiResponseCreateModule = (response) => {
         console.log("[Edit Modules screen] create module: ", response.content())
         if (!response.hasError()) {
             setModules(modules => [...modules, {
+                id: response.content().id,
                 saved_module: false,
                 new_module: true,
-                id: response.content().id,
                 title: response.content().title,
                 content: response.content().content,
                 media_id: response.content().media_id,
+                media_url: []
             }]);
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
 
-    const handleApiResponseUpdateModule = () => {
+    const handleDeleteMedia = (response) => {
+        console.log("[Edit Modules screen] delete media by id: ", response.content())
+        if (!response.hasError()) {
+            setModulesIds(modulesIds);
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const handleGetMedia = async (response) => {
+        console.log("[Edit Modules screen] get media by module: ", response.content())
+        if (!response.hasError()) {
+            let centinela = 0;            
+            for(let module of modules){                
+                if(module.id === response.content().module_id){
+                    const newmodule = [...modules];
+                    newmodule[centinela].media_url = response.content().course_media;
+                    setModules(newmodule);
+                }
+                centinela = centinela + 1;
+            }            
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const handleCreateMedia = (response) => {
+        console.log("[Edit Modules screen] create media by module: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }    
+
+    const handleGetModule = async (response) => {
+        console.log("[Edit Modules screen] set module: ", response.content())
+        if (!response.hasError()) {           
+            setModules(modules => [...modules, {
+                id: response.content().id,      
+                saved_module: true,
+                new_module: false,
+                title: response.content().title,
+                media_id: response.content().media_id,
+                media_url: [],
+                content: response.content().content
+            }            
+            ]);
+            setUpdatingModules(true);                 
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const funcionauxiliar = async () => {
+        let tokenLS = await app.getToken();
+        for(let module of modules){
+            if (module.media_url.length === 0){                 
+                await app.apiClient().getMediaByModule({token: tokenLS}, param_course_id, module.id, handleGetMedia);                
+                
+            }
+        }
+    }
+
+    useEffect(() => {
+        funcionauxiliar(); 
+        setUpdatingModules(false);              
+    }, [updatingModules]);
+
+    const handleApiResponseUpdateModule = (response) => {
         console.log("[Edit Modules screen] update module: ", response.content())
         if (!response.hasError()) {
         } else {
@@ -49,12 +135,21 @@ const EditModulesScreen = (props) => {
         }   
     }
 
-    const handleApiResponseDeleteModule = () => {
+    const handleApiResponseDeleteModule = (response) => {
         console.log("[Edit Modules screen] delete module: ", response.content())
         if (!response.hasError()) {
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
+    }
+
+    const handleGetCourseData = (response) => {
+        console.log("[Edit Modules Screen] content: ", response.content())
+        if (!response.hasError()) {
+               setModulesIds(response.content().modules);
+        } else {
+            console.log("[Edit Modules Screen] error", response.content().message);
+        }
     }
 
     const handleSaveModule = async (key) => {
@@ -80,16 +175,7 @@ const EditModulesScreen = (props) => {
                 title: "",
                 media_id: [],
                 content: "",
-            }, param_course_id, handleApiResponseCreateModule);
-
-        //pega al back y crea
-        /*setModules(modules => [...modules, {
-        saved_module: false,
-        new_module: true,
-        title: "",
-        content: "",
-        media_id: [],
-        }]);*/
+            }, param_course_id, handleApiResponseCreateModule);        
     }
 
     const editModule = (key) => {
@@ -116,19 +202,43 @@ const EditModulesScreen = (props) => {
         await app.apiClient().deleteModule({token: tokenLS}, param_course_id, modules[key].id, handleApiResponseDeleteModule);
         const _modules = modules.filter((input,index) => index != key);
         setModules(_modules);
-    }
+    } 
 
     const onRefresh = async () => {
+        let tokenLS = await app.getToken();
+        console.log("[Edit Modules] token:", tokenLS);
+        await app.apiClient().getCourseById({token: tokenLS}, param_course_id, handleGetCourseData)
     };
+
+    const getAllModules = async () => {
+        let tokenLS = await app.getToken();
+        for (let module_id of modulesIds){
+            await app.apiClient().getModuleById({token: tokenLS}, param_course_id, module_id, handleGetModule);          
+        }
+    }
+
+    useEffect(() => {
+        console.log("[Edit Modules screen] useEffect modulesIds");
+        console.log("[Edit Modules] modules:", modulesIds);
+        getAllModules();
+    }, [modulesIds]);    
   
     useEffect(() => {
         console.log("[Edit Modules screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, []);    
 
-    const deleteMedia = async (key) => {
+    const deleteMedia = async (id, module_key) => {
         let tokenLS = await app.getToken();
-        await app.apiClient.deleteMediaFromCourse({token: tokenLS}, param_course_id, )
+        await app.apiClient().deleteMediaFromCourse({token: tokenLS}, param_course_id, id, handleDeleteMedia)
+        const newmodule = [...modules];
+        newmodule[module_key].media_url = [];
+        setModules(newmodule);
+        setUpdatingModules(true);
+        Alert.alert(
+            'Video deleted',
+            'Your video was deleted succesfully'
+        );
     }
 
     const chooseVideoFromLibrary = async (key) => {
@@ -149,7 +259,7 @@ const EditModulesScreen = (props) => {
         
         Alert.alert(
             'Please wait',
-            'Your image is uploading'
+            'Your video is uploading'
         );
 
         try{
@@ -159,14 +269,15 @@ const EditModulesScreen = (props) => {
             await task.put(blob);
             const newURL = await task.getDownloadURL();          
             console.log("NUEVO URL:", newURL);
-            const _modules = [...modules];
-            const newList = _modules[key].media_id;
-            newList.push(newURL);
-            _modules[key].media_id = newList;
-            setModules(_modules);
+            let tokenLS = await app.getToken();
+            await app.apiClient().addMedia({token: tokenLS, url: newURL, module_id: modules[key].id},param_course_id, handleCreateMedia)//crear media
+            const newmodule = [...modules];
+            newmodule[key].media_url = [];
+            setModules(newmodule);
+            setUpdatingModules(true);
             Alert.alert(
                 'Image Uploaded',
-                'Your image has been uploaded'
+                'Your video has been uploaded'
             );
         } catch(err) {
             console.log("Error en el firebase storage:", err);
@@ -248,22 +359,21 @@ const EditModulesScreen = (props) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            {mediaUrl.map((media_item,media_key) => (
+                            {item.media_url.map((media_item,media_key) => (
                                 <View style={styles.containerVideo}>
                                     <Video
                                         ref={video}
                                         style={styles.video}
-                                        source={{uri: media_item}}
+                                        source={{uri: media_item.url}}
                                         resizeMode="contain"
-                                        isLooping
                                         useNativeControls={true}
-                                        shouldPlay={true}
+                                        shouldPlay={false}
                                         onPlaybackStatusUpdate={status => setStatus(() => status)}
                                     />
                                 <View style={styles.buttons}>
                                     <Button
                                     title={"Delete"}
-                                    onPress={deleteMedia(key, media_key)}
+                                    onPress={() => {deleteMedia(media_item.id, key)}}
                                     />
                                     </View>
                                 </View>
@@ -597,3 +707,7 @@ const styles = new StyleSheet.create({
 });
 
 export default EditModulesScreen;
+
+
+
+

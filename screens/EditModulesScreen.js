@@ -1,47 +1,142 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
+import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import * as ImagePicker from "expo-image-picker";
-import { DeleteMediaEndpoint } from '../communication/endpoints/DeleteMediaEndpoint';
+import { set } from 'react-native-reanimated';
+import { firebase } from '../firebase';
+import { SubscribeToCourseEndpoint } from '../communication/endpoints/SubscribeToCourseEndpoint';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 
 const EditModulesScreen = (props) => {
     const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
+    
+    const video = React.useRef(null);
 
-    const param_course_name = props.route.params ? props.route.params.course_name : 'defaultName';
-
+    const [status, setStatus] = React.useState({});
+    
     const [loading, setLoading] = useState(false);
 
-    const [modules, setModules] = useState([]);
+    const [modules, setModules] = useState([]); 
 
-    const video = React.useRef(null);
+    const [modulesIds, setModulesIds] = useState([]);
+
+    const [updatingModules, setUpdatingModules] = useState(false);
+
+    const [course, setCourse] = useState({});
     
-    const [status, setStatus] = React.useState({});
+    /*{
+        saved_module: false,
+        new_module: true,
+        title: string,
+        media_id: [],
+        media_url: [],
+        content: "",
+        id: ""
+        }*/
 
     //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
-    const handleApiResponseCreateModule = () => {
+    const handleApiResponseCreateModule = (response) => {
         console.log("[Edit Modules screen] create module: ", response.content())
         if (!response.hasError()) {
             setModules(modules => [...modules, {
+                id: response.content().id,
                 saved_module: false,
                 new_module: true,
-                id: response.content().id,
                 title: response.content().title,
                 content: response.content().content,
                 media_id: response.content().media_id,
+                media_url: []
             }]);
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
 
-    const handleApiResponseUpdateModule = () => {
+    const handleDeleteMedia = (response) => {
+        console.log("[Edit Modules screen] delete media by id: ", response.content())
+        if (!response.hasError()) {
+            setModulesIds(modulesIds);
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const handleGetMedia = async (response) => {
+        console.log("[Edit Modules screen] get media by module: ", response.content())
+        if (!response.hasError()) {
+            let centinela = 0;            
+            for(let module of modules){                
+                if(module.id === response.content().module_id){
+                    const newmodule = [...modules];
+                    newmodule[centinela].media_url = response.content().course_media;
+                    setModules(newmodule);
+                }
+                centinela = centinela + 1;
+            }            
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const handleCreateMedia = (response) => {
+        console.log("[Edit Modules screen] create media by module: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }    
+
+    const handleGetModule = async (response) => {
+        console.log("[Edit Modules screen] set module: ", response.content())
+        if (!response.hasError()) {           
+            setModules(modules => [...modules, {
+                id: response.content().id,      
+                saved_module: true,
+                new_module: false,
+                title: response.content().title,
+                media_id: response.content().media_id,
+                media_url: [],
+                content: response.content().content
+            }            
+            ]);
+            setUpdatingModules(true);                 
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const funcionauxiliar = async () => {
+        let tokenLS = await app.getToken();
+        for(let module of modules){
+            if (module.media_url.length === 0){                 
+                await app.apiClient().getMediaByModule({token: tokenLS}, param_course_id, module.id, handleGetMedia);                
+                
+            }
+        }
+    }
+
+    useEffect(() => {
+        funcionauxiliar(); 
+        setUpdatingModules(false);              
+    }, [updatingModules]);
+
+    const handleUpdateCourse = (response) => {
+        console.log("[Edit Modules screen] update course: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
+    const handleApiResponseUpdateModule = (response) => {
         console.log("[Edit Modules screen] update module: ", response.content())
         if (!response.hasError()) {
         } else {
@@ -49,12 +144,22 @@ const EditModulesScreen = (props) => {
         }   
     }
 
-    const handleApiResponseDeleteModule = () => {
+    const handleApiResponseDeleteModule = (response) => {
         console.log("[Edit Modules screen] delete module: ", response.content())
         if (!response.hasError()) {
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
+    }
+
+    const handleGetCourseData = (response) => {
+        console.log("[Edit Modules Screen] content: ", response.content())
+        if (!response.hasError()) {
+               setModulesIds(response.content().modules);
+               setCourse(response.content());
+        } else {
+            console.log("[Edit Modules Screen] error", response.content().message);
+        }
     }
 
     const handleSaveModule = async (key) => {
@@ -80,16 +185,7 @@ const EditModulesScreen = (props) => {
                 title: "",
                 media_id: [],
                 content: "",
-            }, param_course_id, handleApiResponseCreateModule);
-
-        //pega al back y crea
-        /*setModules(modules => [...modules, {
-        saved_module: false,
-        new_module: true,
-        title: "",
-        content: "",
-        media_id: [],
-        }]);*/
+            }, param_course_id, handleApiResponseCreateModule);        
     }
 
     const editModule = (key) => {
@@ -116,19 +212,53 @@ const EditModulesScreen = (props) => {
         await app.apiClient().deleteModule({token: tokenLS}, param_course_id, modules[key].id, handleApiResponseDeleteModule);
         const _modules = modules.filter((input,index) => index != key);
         setModules(_modules);
+    } 
+
+    const handleSubmitEditCourse = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().updateCourse(
+            {
+                token: tokenLS,
+                name: course.name,
+                description: course.description,
+            }, param_course_id, handleUpdateCourse);
     }
 
     const onRefresh = async () => {
+        let tokenLS = await app.getToken();
+        console.log("[Edit Modules] token:", tokenLS);
+        await app.apiClient().getCourseById({token: tokenLS}, param_course_id, handleGetCourseData);
     };
+
+    const getAllModules = async () => {
+        let tokenLS = await app.getToken();
+        for (let module_id of modulesIds){
+            await app.apiClient().getModuleById({token: tokenLS}, param_course_id, module_id, handleGetModule);          
+        }
+    }
+
+    useEffect(() => {
+        console.log("[Edit Modules screen] useEffect modulesIds");
+        console.log("[Edit Modules] modules:", modulesIds);
+        getAllModules();
+    }, [modulesIds]);    
   
     useEffect(() => {
         console.log("[Edit Modules screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, []);    
 
-    const deleteMedia = async (key) => {
+    const deleteMedia = async (id, module_key) => {
         let tokenLS = await app.getToken();
-        await app.apiClient.deleteMediaFromCourse({token: tokenLS}, param_course_id, )
+        await app.apiClient().deleteMediaFromCourse({token: tokenLS}, param_course_id, id, handleDeleteMedia)
+        const newmodule = [...modules];
+        newmodule[module_key].media_url = [];
+        setModules(newmodule);
+        setUpdatingModules(true);
+        Alert.alert(
+            'Video deleted',
+            'Your video was deleted succesfully'
+        );
     }
 
     const chooseVideoFromLibrary = async (key) => {
@@ -149,7 +279,7 @@ const EditModulesScreen = (props) => {
         
         Alert.alert(
             'Please wait',
-            'Your image is uploading'
+            'Your video is uploading'
         );
 
         try{
@@ -159,11 +289,48 @@ const EditModulesScreen = (props) => {
             await task.put(blob);
             const newURL = await task.getDownloadURL();          
             console.log("NUEVO URL:", newURL);
-            const _modules = [...modules];
-            const newList = _modules[key].media_id;
-            newList.push(newURL);
-            _modules[key].media_id = newList;
-            setModules(_modules);
+            let tokenLS = await app.getToken();
+            await app.apiClient().addMedia({token: tokenLS, url: newURL, module_id: modules[key].id},param_course_id, handleCreateMedia)//crear media
+            const newmodule = [...modules];
+            newmodule[key].media_url = [];
+            setModules(newmodule);
+            setUpdatingModules(true);
+            Alert.alert(
+                'Image Uploaded',
+                'Your video has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
+
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          });
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadPhotoOnFirebase(mediaUri);
+    }
+    
+    const uploadPhotoOnFirebase = async (mediaUri) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            setCourse({
+                ...course,
+                profile_picture: newURL,
+            })
             Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded'
@@ -176,7 +343,47 @@ const EditModulesScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <Text style={styles.titlesTitle}>{param_course_name}</Text>
+                <View style={styles.courseContainer}>
+                    <TouchableOpacity
+                        onPress={() => {choosePhotoFromLibrary()}}
+                        disabled={loading}
+                    >
+                        <Image source={{uri: course.profile_picture}} style={styles.titlesImage} />
+                    </TouchableOpacity>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputText}>Course Name</Text>
+                        <TextInput
+                            placeholder={course.name}
+                            onChangeText={text => setCourse({
+                                ...course,
+                                name: text,
+                            })}
+                            value={course.name}
+                            multiline={true}
+                            style={styles.inputCourse}
+                        />
+                        <Text style={styles.inputText}>Description</Text>
+                        <TextInput
+                            placeholder={course.description}
+                            onChangeText={text => setCourse({
+                                ...course,
+                                description: text,
+                            })}
+                            value={course.description}
+                            style={styles.inputCourse}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitEditCourse()}}
+                        style={styles.button}
+                        disabled={loading}
+                    >
+                        {
+                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                        }
+                    </TouchableOpacity>
+                </View>    
+                <Text style={styles.titlesTitle}>Edit units:</Text>
                 {modules.map((item, key) => (
                     <>
                     {item.saved_module === true && (
@@ -248,22 +455,21 @@ const EditModulesScreen = (props) => {
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                            {mediaUrl.map((media_item,media_key) => (
+                            {item.media_url.map((media_item,media_key) => (
                                 <View style={styles.containerVideo}>
                                     <Video
                                         ref={video}
                                         style={styles.video}
-                                        source={{uri: media_item}}
+                                        source={{uri: media_item.url}}
                                         resizeMode="contain"
-                                        isLooping
                                         useNativeControls={true}
-                                        shouldPlay={true}
+                                        shouldPlay={false}
                                         onPlaybackStatusUpdate={status => setStatus(() => status)}
                                     />
                                 <View style={styles.buttons}>
                                     <Button
                                     title={"Delete"}
-                                    onPress={deleteMedia(key, media_key)}
+                                    onPress={() => {deleteMedia(media_item.id, key)}}
                                     />
                                     </View>
                                 </View>
@@ -429,9 +635,10 @@ const styles = new StyleSheet.create({
         flexDirection: 'row',
     },
     button: {
+        marginTop: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: `#87ceeb`,
+        backgroundColor: `#87ceeb`,
         width: '45%',
         padding: 15,
         borderRadius: 30,
@@ -594,6 +801,45 @@ const styles = new StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    titlesImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    /* inputContainer: {
+        width:'80%',
+    }, */
+    inputCourse: {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    inputMultiSelect : {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        //paddingVertical: 5,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    inputText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        //paddingVertical: 5,
+        paddingTop:10,
+    },
+    courseContainer: {
+        //paddingLeft: 15,
+        paddingBottom:15,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
 });
 
 export default EditModulesScreen;
+
+
+
+

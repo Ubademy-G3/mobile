@@ -155,109 +155,113 @@ const MenuEditProfileScreen = (props) => {
     };
 
     return (
-        <KeyboardAvoidingView
-        style={styles.container}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        <ScrollView
+        //contentContainerStyle={styles.container}
         >
-            <TouchableOpacity
-                onPress={() => {choosePhotoFromLibrary()}}
-                /*style={styles.button}*/
-                disabled={loading}
+            <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-                <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
-            </TouchableOpacity>
-            <View style={styles.inputContainer}>
-                <Text style={styles.inputText}>First Name</Text>
-                <TextInput
-                    placeholder={userData.firstName}
-                    onChangeText={text => setData({
-                        ...userData,
-                        firstName: text,
-                    })}
-                    value={userData.firstName}
-                    style={styles.input}
-                />
-                <Text style={styles.inputText}>Last Name</Text>
-                <TextInput
-                    placeholder={userData.lastName}
-                    onChangeText={text => setData({
-                        ...userData,
-                        lastName: text,
-                    })}
-                    value={userData.lastName}
-                    style={styles.input}
-                />
-                <Text style={styles.inputText}>Description</Text>
-                <TextInput
-                    placeholder={userData.description}
-                    onChangeText={text => setData({
-                        ...userData,
-                        description: text,
-                    })}
-                    value={userData.description}
-                    style={styles.input}
-                />
-                {userData.rol === "student" && (
-                    <>
-                    <Text style={styles.inputText}>Location</Text>
-                    <TextInput
-                        placeholder={userData.location}
-                        onChangeText={text => setData({
-                            ...userData,
-                            location: text,
-                        })}
-                        value={userData.location}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Interests</Text>
-                    <MultiSelect
-                        hideTags
-                        items={categories}
-                        uniqueKey="id"
-                        onSelectedItemsChange={onSelectedItemsChange}
-                        selectedItems={selectedItems}
-                        selectText="Pick all your interests"
-                        searchInputPlaceholderText="Select your interests..."
-                        onChangeInput={(text) => console.log(text)}
-                        tagRemoveIconColor="#CCC"
-                        tagBorderColor="#CCC"
-                        tagTextColor="#CCC"
-                        selectedItemTextColor="#CCC"
-                        selectedItemIconColor="#CCC"
-                        itemTextColor="#000"
-                        displayKey="name"
-                        styleMainWrapper={styles.inputMultiSelect}
-                        searchInputStyle={{color: '#CCC'}}
-                        submitButtonColor="#48d22b"
-                        submitButtonText="Submit"
-                    />
-                    </>
-                )}
-            </View>
-{/*             <View style={styles.buttonContainer}>
                     <TouchableOpacity
                         onPress={() => {choosePhotoFromLibrary()}}
-                        style={styles.button}
+                        /*style={styles.button}*/
                         disabled={loading}
                     >
-                        {
-                            <Text style={styles.buttonText}>Change Profile Photo</Text>
-                        }
+                        <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
                     </TouchableOpacity>
-            </View> */}
-            <View style={styles.buttonContainer}>
-                
-                <TouchableOpacity
-                    onPress={() => {handleSubmitEditProfile()}}
-                    style={styles.button}
-                    disabled={loading}
-                >
-                    {
-                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
-                    }
-                </TouchableOpacity>
-            </View>
-        </KeyboardAvoidingView>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputText}>First Name</Text>
+                        <TextInput
+                            placeholder={userData.firstName}
+                            onChangeText={text => setData({
+                                ...userData,
+                                firstName: text,
+                            })}
+                            value={userData.firstName}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Last Name</Text>
+                        <TextInput
+                            placeholder={userData.lastName}
+                            onChangeText={text => setData({
+                                ...userData,
+                                lastName: text,
+                            })}
+                            value={userData.lastName}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Description</Text>
+                        <TextInput
+                            placeholder={userData.description}
+                            onChangeText={text => setData({
+                                ...userData,
+                                description: text,
+                            })}
+                            value={userData.description}
+                            style={styles.input}
+                        />
+                        {userData.rol === "student" && (
+                            <>
+                            <Text style={styles.inputText}>Location</Text>
+                            <TextInput
+                                placeholder={userData.location}
+                                onChangeText={text => setData({
+                                    ...userData,
+                                    location: text,
+                                })}
+                                value={userData.location}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Interests</Text>
+                            <MultiSelect
+                                hideTags
+                                items={categories}
+                                uniqueKey="id"
+                                onSelectedItemsChange={onSelectedItemsChange}
+                                selectedItems={selectedItems}
+                                selectText="Pick all your interests"
+                                searchInputPlaceholderText="Select your interests..."
+                                onChangeInput={(text) => console.log(text)}
+                                tagRemoveIconColor="#CCC"
+                                tagBorderColor="#CCC"
+                                tagTextColor="#CCC"
+                                selectedItemTextColor="#CCC"
+                                selectedItemIconColor="#CCC"
+                                itemTextColor="#000"
+                                displayKey="name"
+                                styleMainWrapper={styles.inputMultiSelect}
+                                searchInputStyle={{color: '#CCC'}}
+                                submitButtonColor="#48d22b"
+                                submitButtonText="Submit"
+                            />
+                            </>
+                        )}
+                    </View>
+        {/*             <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => {choosePhotoFromLibrary()}}
+                                style={styles.button}
+                                disabled={loading}
+                            >
+                                {
+                                    <Text style={styles.buttonText}>Change Profile Photo</Text>
+                                }
+                            </TouchableOpacity>
+                    </View> */}
+                    <View style={styles.buttonContainer}>
+                        
+                        <TouchableOpacity
+                            onPress={() => {handleSubmitEditProfile()}}
+                            style={styles.button}
+                            disabled={loading}
+                        >
+                            {
+                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                            }
+                        </TouchableOpacity>
+                    </View>
+            </KeyboardAvoidingView>
+        </ScrollView>
     )
 }
 
@@ -266,7 +270,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        //paddingTop: 5,
+        paddingTop: 25,
     },
     /*logoImage: {
         width: 75,
@@ -306,7 +310,7 @@ const styles = StyleSheet.create({
         width: '60%',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 5,
+        marginTop: 25,
     },
     button: {
         backgroundColor: `#87ceeb`,

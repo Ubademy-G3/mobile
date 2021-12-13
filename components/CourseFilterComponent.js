@@ -44,10 +44,8 @@ const CourseFilterComponent = (props) => {
           category: categories,
           subscription_type: subscriptions,
         };
-        console.log(query);
         props.updateCourses(query);
         props.setVisible(false);
-        //p.updateCourses(query);
     };
 
     const addCategory = (category) => {
@@ -77,7 +75,7 @@ const CourseFilterComponent = (props) => {
                 value={item.isChecked}
                 onValueChange={() => { addCategory(item); }}
               />
-              <Text style={{color: 'black'}}>{item.name}</Text>            
+              <Text>{item.name}</Text>
             </View>
         );
     };
@@ -89,7 +87,7 @@ const CourseFilterComponent = (props) => {
                 value={item.selected}
                 onValueChange={() => { addSubscription(item); }}
               />
-              <Text style={{color: 'black'}}>{item.name}</Text>            
+              <Text>{item.name}</Text>            
             </View>
         );
     };
@@ -105,13 +103,14 @@ const CourseFilterComponent = (props) => {
                 }}
             >
                 <View style={styles.dialog}>
-                    <Text>Categories</Text>
+                    <Feather name="x" size={20} style={styles.cancelButton} onPress={() => { props.setVisible(false) }}/>
+                    <Text style={styles.title}>Categories</Text>
                     <FlatList
                         data={categories}
                         renderItem={renderCategoryItem}
                         keyExtractor={(item) => item.id.toString()}
                     />
-                    <Text>Subscription type</Text>
+                    <Text style={styles.title}>Subscription type</Text>
                     <FlatList
                         data={subscriptions}
                         renderItem={renderSubscriptionItem}
@@ -121,7 +120,7 @@ const CourseFilterComponent = (props) => {
                         onPress={() => { setFilter() }}
                         style={styles.button}
                     >
-                        <Text>Filter</Text>
+                        <Text style={styles.description}>Filter</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -135,15 +134,10 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     },
-    info: {
-        width: '100%',
-        marginLeft: 80
-    },
     description: {
         fontSize: 16,
         textAlign: "center",
         color:'black',
-        fontWeight: '700',
         paddingBottom: 5,
     },
     buttonContainer: {
@@ -165,24 +159,16 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         alignItems: 'center',
     },
-    buttonText: {
-        color:'white',
-        fontWeight: '700',
-        fontSize: 16,
-    },
-    image: {
-        width: 100,
-        height: 100
-    },
     title: {
         color: 'black',
-        fontSize: 35,
-        textAlign: 'center',
-        marginRight: 70
+        fontSize: 20,
+        textAlign: 'left',
+        marginLeft: 20,
+        marginBottom: 10
     },
     dialog: {  
-        justifyContent: 'center',  
-        alignItems: 'center',   
+        justifyContent: 'flex-start',  
+        alignItems: 'flex-start',   
         backgroundColor : "white",
         height: '80%' ,  
         width: '100%',  
@@ -192,21 +178,14 @@ const styles = StyleSheet.create({
         marginTop: 50
     },
     cancelButton: {
-        backgroundColor: '#FBFBFB',
-        color: 'white',
-        padding: 15,
-        borderRadius: 10,
-        marginTop: 60,
-        marginRight: 50
-    },
-    confirmButton: {
-        backgroundColor: '#39C0ED',
-        padding: 15,
-        borderRadius: 10,
-        marginTop: 60,
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        marginRight: 5
     },
     listItem: {
-        flexDirection: 'row'
+        flexDirection: 'row',
+        marginLeft: 20
     }
 })
 

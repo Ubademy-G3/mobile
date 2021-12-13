@@ -74,8 +74,7 @@ const HomeScreen = (props) => {
       console.log("[Home screen] entro a onRefresh");
       setLoading(true);
       let tokenLS = await app.getToken();
-      console.log("[Home screen] token:", tokenLS);   
-      //app.apiClient().getAllCategories({ token: tokenLS }, handleGetAllCategories);
+      console.log("[Home screen] token:", tokenLS);
       app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
       setLoading(false);
   };
@@ -116,9 +115,10 @@ const HomeScreen = (props) => {
       const subs = query.subscription_type.filter((s) => s.selected);
       q.subscription_type = subs.map((s) => s.name);
     }
-    console.log(q);
+
     let tokenLS = await app.getToken();
     await app.apiClient().searchCourse({ token: tokenLS }, q, handleSearchCourses);
+    setFiltered(true);
     setLoading(false);
   }
 
@@ -222,6 +222,11 @@ const HomeScreen = (props) => {
                       <Feather name="filter" color={"#444"} size={18} />
                     </TouchableOpacity>
                   </View>
+                  {filtered && (
+                    <View style={{ position: 'absolute', top: 10, left: 10 }}>
+                      <Feather name="arrow-left" color={"#444"} size={25} onPress={() => { filterCoursesByText("") }}/>
+                    </View>
+                  )}
               </View>
           </SafeAreaView>
 

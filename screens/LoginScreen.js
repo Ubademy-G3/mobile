@@ -1,6 +1,6 @@
-import React, {Component, useEffect, useState, useCallback} from 'react';
+import React, { Component, useEffect, useState, useCallback, useRef } from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
-import {app} from '../app/app';
+import { app } from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
 
@@ -23,10 +23,9 @@ const LoginScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
-    
     const [login, setLogin] = useState(false);
-
     const [signupGoogle, setsignupGoogle] = useState(false);
+    const mounted = useRef(false);
 
     const handleApiResponseLogin = async (response) => {
         console.log("[Login screen] entro a handle api response login")
@@ -119,14 +118,6 @@ const LoginScreen = (props) => {
         }
     }
 
-    /*const handleSubmitLogin = async (loginData) => {
-        console.log("[Login screen] entro a submit login")
-        setLoading(true);
-        await app.apiClient().login(loginData, handleApiResponseLogin);
-        setLoading(false);
-        console.log("[Login screen] termino submit login")
-    }*/
-
     const handleSubmitSignUp = () => {
         console.log("[Login screen] entro a submit sign up")
         props.navigation.navigate('Signup', {email: data.email, password: data.password, google: signupGoogle})
@@ -140,7 +131,7 @@ const LoginScreen = (props) => {
     }
 
     const callback = useCallback(async () => {
-        if (signupGoogle === true){
+        if (signupGoogle === true && mounted.current) {
             const response = await handleGoogleLogin();
             console.log("response google:", response);
             console.log("response google id:", response.user.id);
@@ -155,47 +146,54 @@ const LoginScreen = (props) => {
       }, [signupGoogle])
 
     const callbackLogin = useCallback(async () => {
-        if (login === true) {
+        if (login === true && mounted.current) {
             console.log("[Login screen] entro a submit login");
             setLoading(true);
             await app.apiClient().login(data, handleApiResponseLogin);
-            setLoading(false);
-            console.log("[Login screen] termino submit login");
-            setLogin(false);
+            if (mounted.current){
+                setLoading(false);
+                console.log("[Login screen] termino submit login");
+                setLogin(false);
+            }
         }
     }, [login])
     
     useEffect(() => {
+        mounted.current = true;
         callback()
+        return () => {
+            mounted.current = false;
+        }
     }, [callback])
 
     useEffect(() => {
-        if (signupGoogle === true){
-            //handleSubmitLogin(data);
+        if (signupGoogle === true) {
             setLogin(true);
         }
     }, [data])
 
     
     useEffect(() => {
-        callbackLogin()
+        mounted.current = true;
+        callbackLogin();
+        return () => {
+            mounted.current = false;
+        }
     }, [callbackLogin])
 
     return (
         <View style={styles.container}>
-            {/*<View style={styles.headerContainer}>*/}
-                    <SafeAreaView>
-                        <View style={styles.headerWrapper}>
-                            <Image
-                            source={require("../assets/images/logo.png")}
-                            style={styles.logoImage}
-                            />
-                        </View>
-                    </SafeAreaView>
-            {/*</View>*/}
+            <SafeAreaView>
+                <View style={styles.headerWrapper}>
+                    <Image
+                    source={require("../assets/images/logo.png")}
+                    style={styles.logoImage}
+                    />
+                </View>
+            </SafeAreaView>
             <KeyboardAvoidingView
-            style={styles.containerText}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+              style={styles.containerText}
+              behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
                 <View style={styles.inputContainer}>
                     <TextInput

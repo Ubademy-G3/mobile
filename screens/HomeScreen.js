@@ -1,34 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import StarRating from 'react-native-star-rating';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
-import subscriptionTypeData from '../assets/data/subscriptionTypeCourses';
 import courseImage from '../assets/images/generic_course.png';
 import { app } from '../app/app';
+import CoursesFilterComponent from '../components/CourseFilterComponent';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const HomeScreen = (props) => {
   const [courses, setCourses] = useState(null);
-  const [categories, setCategories] = useState(null);
-  const [ratings, setRatings] = useState(null);
-  const [searchText, setSearchText] = useState("");
+  //const [categories, setCategories] = useState(null);
+  //const [ratings, setRatings] = useState(null);
+  //const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [indexCarousel, setIndexCarousel] = React.useState(0)
-
-  const handleGetAllCategories = (response) => {
-      // console.log("[Home screen] categories content: ", response.content())
-      if (!response.hasError()) {
-          setCategories(response.content());
-          //console.log("[Home screen] categories: ", categories);
-      } else {
-          console.log("[Home screen] error", response.content().message);
-      }
-  }
+  const [modalVisible, setModalVisible] = useState(false);
+  const [indexCarousel, setIndexCarousel] = React.useState(0);
+  const [filtered, setFiltered] = useState(false);
+  //const [query, setQuery] = useState(null);
 
   const handleGetRating = (response) => {
     // console.log("[Home screen] rating content: ", response.content())
@@ -56,7 +49,26 @@ const HomeScreen = (props) => {
     } else {
         console.log("[Home screen] error", response.content().message);
     }
-}
+  }
+
+  const handleSearchCourses = async (response) => {
+    //console.log("[Search by subscription screen] content: ", response.content())
+    if (!response.hasError()) {
+        const tokenLS = await app.getToken();
+        let courses = response.content().courses;
+        courses = await Promise.all(
+          courses.map(async (course) => {
+            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
+            course.rating = rating;
+            return course;
+          })
+        );
+        setCourses(courses);
+        //console.log("[Search by subscription screen] response: ", courses);
+    } else {
+        console.log("[Search by subscription screen] error", response.content().message);
+    }
+  }
 
   const onRefresh = async () => {
       console.log("[Home screen] entro a onRefresh");
@@ -78,7 +90,39 @@ const HomeScreen = (props) => {
     return bestRated.slice(0, 10);
   }
 
-  const renderVerticalCourseItem = ({ item, index }) => {
+  const filterCoursesByText = async (text) => {
+    setLoading(true);
+    let tokenLS = await app.getToken();
+    const query = {
+      text: text
+    }
+    await app.apiClient().searchCourse({ token: tokenLS }, query, handleSearchCourses);
+    if (text !== "") {
+      setFiltered(true);
+    } else {
+      setFiltered(false);
+    }
+    setLoading(false);
+  }
+
+  const filterCourses = async (query) => {
+    setLoading(true);
+    let q = {};
+    if (query.category) {
+      const cat = query.category.filter((p) => p.isChecked);
+      q.category = cat.map((c) => c.id);
+    }
+    if (query.subscription_type) {
+      const subs = query.subscription_type.filter((s) => s.selected);
+      q.subscription_type = subs.map((s) => s.name);
+    }
+    console.log(q);
+    let tokenLS = await app.getToken();
+    await app.apiClient().searchCourse({ token: tokenLS }, q, handleSearchCourses);
+    setLoading(false);
+  }
+
+  const renderVerticalCourseItem = ({ item }) => {
     return (
       <TouchableOpacity
         key={item.id}
@@ -103,7 +147,7 @@ const HomeScreen = (props) => {
                 maxStars={5}
                 rating={item.rating.rating}
                 containerStyle={{ width: '40%', marginLeft: 5 }}
-                starStyle={{ color: 'gold' }}
+                //starStyle={{ color: 'gold' }}
                 starSize={20}
                 fullStarColor='gold'
               />
@@ -158,6 +202,12 @@ const HomeScreen = (props) => {
         <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}>
+
+          {/* Filter */}
+          {modalVisible && (
+            <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
+          )}
+          
           {/* Logo */}
           <SafeAreaView>
               <View style={styles.headerWrapper}>
@@ -167,68 +217,60 @@ const HomeScreen = (props) => {
                   />
                   <View style={{ position: 'absolute', top: 10, right: 30 }}>
                     <TouchableOpacity
-                      onPress={() => {}}
+                      onPress={() => { setModalVisible(true) }}
                     >
                       <Feather name="filter" color={"#444"} size={18} />
                     </TouchableOpacity>
                   </View>
               </View>
-          </SafeAreaView>                   
+          </SafeAreaView>
 
           {/* Search */}
           <View style={styles.searchWrapper}>
               <Feather name="search" size={16}/>
               <View style={styles.search}>
                   <TextInput 
-                  placeholder="Search course"
-                  onChangeText={text => {setSearchText(text)}}
-                  //value={}
-                  style={styles.searchText}
+                    placeholder="Search course"
+                    onSubmitEditing={(e) => { filterCoursesByText(e.nativeEvent.text) }}
+                    style={styles.searchText}
                   />
-              </View>              
-          </View>
-          <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={() => {props.navigation.navigate('Search Courses', {
-                        searchKey: searchText,
-                        keyType:"text"
-                      });}}
-                    style={styles.button}
-                >
-                    <Text style={styles.buttonText}>Search</Text>
-                </TouchableOpacity>
+              </View>
           </View>
 
           {courses && (
             <>
+              {!filtered && (
+                <View>
+                  <Text style={styles.title}>Best rated</Text>
+                  <Carousel
+                    data={getBestRatedCourses()}
+                    renderItem={renderHorizontalCourseItem}
+                    sliderWidth={530}
+                    itemWidth={500}
+                    onSnapToItem={(index) => setIndexCarousel(index)}
+                    useScrollView={true}
+                  />
+                  <Pagination
+                    dotsLength={getBestRatedCourses().length}
+                    activeDotIndex={indexCarousel}
+                    //carouselRef={isCarousel}
+                    dotStyle={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      marginHorizontal: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.92)'
+                    }}
+                    inactiveDotOpacity={0.4}
+                    inactiveDotScale={0.6}
+                    tappableDots={true}
+                  />
+                </View>
+              )}
               <View>
-                <Text style={styles.title}>Best rated</Text>
-                <Carousel
-                  data={getBestRatedCourses()}
-                  renderItem={renderHorizontalCourseItem}
-                  sliderWidth={530}
-                  itemWidth={500}
-                  onSnapToItem={(index) => setIndexCarousel(index)}
-                  useScrollView={true}
-                />
-                <Pagination
-                  dotsLength={getBestRatedCourses().length}
-                  activeDotIndex={indexCarousel}
-                  //carouselRef={isCarousel}
-                  dotStyle={{
-                    width: 10,
-                    height: 10,
-                    borderRadius: 5,
-                    marginHorizontal: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.92)'
-                  }}
-                  inactiveDotOpacity={0.4}
-                  inactiveDotScale={0.6}
-                  tappableDots={true}
-                />
-              </View>
-              <View>
-                <Text style={styles.title}>All courses</Text>
+                {!filtered && (
+                  <Text style={styles.title}>All courses</Text>
+                )}
                 <FlatList 
                   data={courses}
                   renderItem={renderVerticalCourseItem}

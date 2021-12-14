@@ -1,25 +1,35 @@
-import {Endpoint} from "./Endpoint.js";
-//import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
+import { Endpoint } from "./Endpoint.js";
+
+function serializeQuery(params, prefix) {
+    const query = Object.keys(params).map((key) => {
+      const value  = params[key];
+
+      if (params.constructor === Array)
+        key = `${prefix}[]`;
+      else if (params.constructor === Object)
+        key = (prefix ? `${prefix}[${key}]` : key);
+  
+      if (typeof value === 'object')
+        return serializeQuery(value, key);
+      else
+        return `${key}=${encodeURIComponent(value)}`;
+    });
+  
+    return [].concat.apply([], query).join('&');
+  }
 
 export class SearchCoursesEndpoint extends Endpoint {
-    constructor(searchKey, keyType) {
-        super(searchKey, keyType);
-        console.log("entro al constructor:", searchKey, keyType);
-        this._searchkey = searchKey;
-        this._keytype = keyType;
-        console.log("salgo del constructor:", this._searchkey, this._keytype);
+    constructor(query) {
+        super(query);
+        this._query = query;
     }
     url() {
-        switch(this._keytype){
-            case "text":                
-                this._searchkey = this._searchkey.replace(/ /g, "%20");
-                console.log("url para busqueda con texto", this._searchkey);
-                return `/courses?text=${this._searchkey}`;
-            case "category":
-                return `/courses?category=${this._searchkey}`;
-            case "subscription":
-                return `/courses?subscription_type=${this._searchkey}`;
-        }        
+        let url = "/courses";
+        const params = serializeQuery(this._query);
+        if (params.length > 0) {
+            url = url.concat(`?${params}`);
+        }
+        return url;
     }
 
     /*ownResponses() {

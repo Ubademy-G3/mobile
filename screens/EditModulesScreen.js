@@ -31,16 +31,6 @@ const EditModulesScreen = (props) => {
 
     const [course, setCourse] = useState({});
     
-    /*{
-        saved_module: false,
-        new_module: true,
-        title: string,
-        media_id: [],
-        media_url: [],
-        content: "",
-        id: ""
-        }*/
-
     //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
     const handleApiResponseCreateModule = (response) => {

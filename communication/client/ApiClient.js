@@ -109,9 +109,9 @@ class ApiClient {
         });
     }
 
-    searchCourse(data, searchKey, keyType, onResponse) {
+    searchCourse(data, query, onResponse) {
         return this._requester.call({
-            endpoint: new SearchCoursesEndpoint(searchKey, keyType),
+            endpoint: new SearchCoursesEndpoint(query),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

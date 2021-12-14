@@ -40,19 +40,28 @@ const SignupScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
+    const doLogin = async () => {
+        if (!errorData.showError) {
+            console.log("[Signup screen] entro a submit login");
+            await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
+            console.log("[Signup screen] termino submit login");
+        }
+    }
+
     useEffect(() => {
         console.log("[Signup screen] params: ", props.route.params);
-        console.log("[Signup screen] Entro a use effect")
-    }, [errorData.showError]);
+        console.log("[Signup screen] Entro a use effect");
+        doLogin()
+    }, [errorData]);
 
     const handleApiResponseLogin = async (response) => {
         console.log("[Signup screen] entro a handle api response:", response.content());
         if (response.hasError()) {
-            setError({
+            /* setError({
                 ...errorData,
                 messageError: response.content().message,
                 showError: true,
-            });
+            }); */
             console.log("[Signup screen] error")
             Alert.alert(
                 "Login error:",
@@ -101,12 +110,6 @@ const SignupScreen = (props) => {
         console.log("[Signup screen] data:", SignUpData)
         await app.apiClient().signup(SignUpData, handleApiResponseSignUp);
         console.log("[Signup screen] show error: ", errorData.showError);
-       
-        if (!errorData.showError) {
-            console.log("[Signup screen] entro a submit login");
-            await app.apiClient().login({email: SignUpData.email, password: SignUpData.password}, handleApiResponseLogin);
-            console.log("[Signup screen] termino submit login");
-        }
         setLoading(false);
         console.log("[Signup screen] termino submit signup")
     }

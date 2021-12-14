@@ -10,8 +10,8 @@ const chatsRef = db.collection('users');
 
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
-    const param_other_user_first_name = props.route.params ? props.route.params.firstName : 'defaultID';
-    const param_other_user_last_name = props.route.params ? props.route.params.lastName : 'defaultID';
+    /* const param_other_user_first_name = props.route.params ? props.route.params.firstName : 'defaultID';
+    const param_other_user_last_name = props.route.params ? props.route.params.lastName : 'defaultID'; */
     console.log(props.route.params)
     const [messages, setMessages] = useState([]);
     const [id, setId] = useState(null);
@@ -32,9 +32,9 @@ const MessagesScreen = (props) => {
         const myId = await app.getId();
         setId(myId);
         let tokenLS = await app.getToken();
-        await app.apiClient().getProfile({ id: param_other_user_id, token: tokenLS }, param_other_user_id, handleApiResponseProfile);
+        await app.apiClient().getProfile({ id: myId, token: tokenLS }, myId, handleApiResponseProfile);
         console.log("MY ID:", myId);
-        console.log("OTHERS ID:", param_other_user_id, param_other_user_first_name);
+        //console.log("OTHERS ID:", param_other_user_id, param_other_user_first_name);
         const messageRef = chatsRef.doc(myId)
             .collection('messages')
             .orderBy('createdAt', "desc")

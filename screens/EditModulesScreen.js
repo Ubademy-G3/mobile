@@ -8,6 +8,7 @@ import { Video, AVPlaybackStatus } from 'expo-av';
 import * as ImagePicker from "expo-image-picker";
 import { set } from 'react-native-reanimated';
 import { firebase } from '../firebase';
+import { SubscribeToCourseEndpoint } from '../communication/endpoints/SubscribeToCourseEndpoint';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -15,8 +16,6 @@ MaterialIcons.loadFont();
 
 const EditModulesScreen = (props) => {
     const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
-
-    const param_course_name = props.route.params ? props.route.params.course_name : 'defaultName';
     
     const video = React.useRef(null);
 
@@ -29,6 +28,8 @@ const EditModulesScreen = (props) => {
     const [modulesIds, setModulesIds] = useState([]);
 
     const [updatingModules, setUpdatingModules] = useState(false);
+
+    const [course, setCourse] = useState({});
     
     //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
 
@@ -117,6 +118,14 @@ const EditModulesScreen = (props) => {
         setUpdatingModules(false);              
     }, [updatingModules]);
 
+    const handleUpdateCourse = (response) => {
+        console.log("[Edit Modules screen] update course: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Edit Modules screen] error", response.content().message);
+        }   
+    }
+
     const handleApiResponseUpdateModule = (response) => {
         console.log("[Edit Modules screen] update module: ", response.content())
         if (!response.hasError()) {
@@ -137,6 +146,7 @@ const EditModulesScreen = (props) => {
         console.log("[Edit Modules Screen] content: ", response.content())
         if (!response.hasError()) {
                setModulesIds(response.content().modules);
+               setCourse(response.content());
         } else {
             console.log("[Edit Modules Screen] error", response.content().message);
         }
@@ -194,10 +204,20 @@ const EditModulesScreen = (props) => {
         setModules(_modules);
     } 
 
+    const handleSubmitEditCourse = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().updateCourse(
+            {
+                token: tokenLS,
+                name: course.name,
+                description: course.description,
+            }, param_course_id, handleUpdateCourse);
+    }
+
     const onRefresh = async () => {
         let tokenLS = await app.getToken();
         console.log("[Edit Modules] token:", tokenLS);
-        await app.apiClient().getCourseById({token: tokenLS}, param_course_id, handleGetCourseData)
+        await app.apiClient().getCourseById({token: tokenLS}, param_course_id, handleGetCourseData);
     };
 
     const getAllModules = async () => {
@@ -274,10 +294,86 @@ const EditModulesScreen = (props) => {
         }
     }
 
+    const choosePhotoFromLibrary = async () => {
+        const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+          });
+        console.log("CARGO UNA IMAGEN:", pickerResult);
+        const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
+        console.log("Media URi:", mediaUri);  
+        uploadPhotoOnFirebase(mediaUri);
+    }
+    
+    const uploadPhotoOnFirebase = async (mediaUri) => {
+        const uploadUri = mediaUri;
+        console.log("uploadUri:", uploadUri);
+        let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
+        console.log("filename:", filename);  
+
+        try{
+            const response = await fetch(uploadUri);
+            const blob = await response.blob();
+            const task = firebase.default.storage().ref(filename);
+            await task.put(blob);
+            const newURL = await task.getDownloadURL();          
+            console.log("NUEVO URL:", newURL);
+            setCourse({
+                ...course,
+                profile_picture: newURL,
+            })
+            Alert.alert(
+                'Image Uploaded',
+                'Your image has been uploaded'
+            );
+        } catch(err) {
+            console.log("Error en el firebase storage:", err);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
-                <Text style={styles.titlesTitle}>{param_course_name}</Text>
+                <View style={styles.courseContainer}>
+                    <TouchableOpacity
+                        onPress={() => {choosePhotoFromLibrary()}}
+                        disabled={loading}
+                    >
+                        <Image source={{uri: course.profile_picture}} style={styles.titlesImage} />
+                    </TouchableOpacity>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputText}>Course Name</Text>
+                        <TextInput
+                            placeholder={course.name}
+                            onChangeText={text => setCourse({
+                                ...course,
+                                name: text,
+                            })}
+                            value={course.name}
+                            multiline={true}
+                            style={styles.inputCourse}
+                        />
+                        <Text style={styles.inputText}>Description</Text>
+                        <TextInput
+                            placeholder={course.description}
+                            onChangeText={text => setCourse({
+                                ...course,
+                                description: text,
+                            })}
+                            value={course.description}
+                            style={styles.inputCourse}
+                        />
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitEditCourse()}}
+                        style={styles.button}
+                        disabled={loading}
+                    >
+                        {
+                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                        }
+                    </TouchableOpacity>
+                </View>    
+                <Text style={styles.titlesTitle}>Edit units:</Text>
                 {modules.map((item, key) => (
                     <>
                     {item.saved_module === true && (
@@ -529,9 +625,10 @@ const styles = new StyleSheet.create({
         flexDirection: 'row',
     },
     button: {
+        marginTop: 15,
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: `#87ceeb`,
+        backgroundColor: `#87ceeb`,
         width: '45%',
         padding: 15,
         borderRadius: 30,
@@ -691,6 +788,41 @@ const styles = new StyleSheet.create({
     },
     buttons: {
         flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    titlesImage: {
+        width: 100,
+        height: 100,
+        borderRadius: 50,
+    },
+    /* inputContainer: {
+        width:'80%',
+    }, */
+    inputCourse: {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    inputMultiSelect : {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        //paddingVertical: 5,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    inputText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+        //paddingVertical: 5,
+        paddingTop:10,
+    },
+    courseContainer: {
+        //paddingLeft: 15,
+        paddingBottom:15,
         justifyContent: 'center',
         alignItems: 'center',
     },

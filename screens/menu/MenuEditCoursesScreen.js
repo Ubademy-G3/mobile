@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
 import CourseComponent from "../../components/CourseComponent"
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -59,11 +60,18 @@ const MenuEditCoursesScreen = (props) => {
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         setCourses([]);
         console.log("[Menu Edit Courses screen] entro a useEffect");
         onRefresh();
-    }, [props.navigate]);
+    }, [props.navigate]); */
+    useFocusEffect(
+        useCallback(() => {
+            setCourses([]);
+            onRefresh();
+            //return () => unsubscribe();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>

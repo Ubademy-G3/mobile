@@ -33,6 +33,8 @@ const CourseScreen = (props) => {
 
     const [updatingModules, setUpdatingModules] = useState(false);
 
+    const [rol, setRol] = useState("");
+
     const video = React.useRef(null);
 
     const [status, setStatus] = React.useState({});
@@ -177,6 +179,7 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
+                    setRol(course.user_type);
                 }
                 if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
@@ -363,6 +366,7 @@ const CourseScreen = (props) => {
                 </>
                 )}
             </ScrollView>
+            {((rol != "instructor") && (rol != "collaborator")) && (
             <View style={styles.buttonsWrapper}>
                 {subscribed === false && (
                 <>
@@ -403,6 +407,7 @@ const CourseScreen = (props) => {
                 </>
                 )}
             </View>
+            )}
         </View>
       );
 };

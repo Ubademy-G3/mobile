@@ -15,10 +15,26 @@ const MessagesScreen = (props) => {
     console.log(props.route.params)
     const [messages, setMessages] = useState([]);
     const [id, setId] = useState(null);
+    const [name, setName] = useState({
+        firstName: "",
+        lastName: "",
+    });
+
+    const handleApiResponseProfile = (response) => {
+        if (!response.hasError()) {
+            setName({firstName: response.content().firstName, lastName: response.content().lastName})
+        } else {
+            console.log("[ListStudent Screen] error", response.content().message);
+        }
+    }
 
     const onRefresh = async() => {
         const myId = await app.getId();
         setId(myId);
+        let tokenLS = await app.getToken();
+        await app.apiClient().getProfile({ id: param_other_user_id, token: tokenLS }, param_other_user_id, handleApiResponseProfile);
+        console.log("MY ID:", myId);
+        console.log("OTHERS ID:", param_other_user_id, param_other_user_first_name);
         const messageRef = chatsRef.doc(myId)
             .collection('messages')
             .orderBy('createdAt', "desc")
@@ -76,7 +92,7 @@ const MessagesScreen = (props) => {
         const message = {
           to: expoPushToken,
           sound: 'default',
-          title: `${param_other_user_first_name} ${param_other_user_last_name}`,
+          title: `${name.firstName} ${name.lastName}`,
           body: text,
           data: { someData: 'goes here' },
         };

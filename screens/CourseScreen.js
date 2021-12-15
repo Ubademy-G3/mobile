@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
+import { firebase } from '../firebase';
+import { Video, AVPlaybackStatus } from 'expo-av';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 
 const CourseScreen = (props) => {
     const { item } = props.route.params;
@@ -24,6 +28,74 @@ const CourseScreen = (props) => {
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
 
     const [exams, setExams] = useState([]);
+
+    const [modules, setModules] = useState([]); 
+
+    const [updatingModules, setUpdatingModules] = useState(false);
+
+    const [rol, setRol] = useState("");
+
+    const video = React.useRef(null);
+
+    const [status, setStatus] = React.useState({});
+
+    const handleGetMedia = async (response) => {
+        console.log("[Course screen] get media by module: ", response.content())
+        if (!response.hasError()) {
+            let centinela = 0;            
+            for(let module of modules){                
+                if(module.id === response.content().module_id){
+                    const newmodule = [...modules];
+                    newmodule[centinela].media_url = response.content().course_media;
+                    setModules(newmodule);
+                }
+                centinela = centinela + 1;
+            }
+            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA",modules);            
+        } else {
+            console.log("[ Course screen] error", response.content().message);
+        }   
+    }
+
+    const handleGetModule = async (response) => {
+        console.log("[Course screen] set module: ", response.content())
+        if (!response.hasError()) {           
+            setModules(modules => [...modules, {
+                id: response.content().id,      
+                saved_module: true,
+                new_module: false,
+                title: response.content().title,
+                media_id: response.content().media_id,
+                media_url: [],
+                content: response.content().content
+            }            
+            ]);         
+            setUpdatingModules(true);                
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }   
+    }
+
+    const funcionauxiliar = async () => {
+        let tokenLS = await app.getToken();          
+        for(let module of modules){           
+            if (module.media_url.length === 0){
+                await app.apiClient().getMediaByModule({token: tokenLS}, item.id, module.id, handleGetMedia);             
+            }
+        }
+    }
+
+    const getAllModules = async () => {
+        let tokenLS = await app.getToken();
+        for (let module_id of item.modules){                   
+            await app.apiClient().getModuleById({token: tokenLS}, item.id, module_id, handleGetModule);          
+        }               
+    }
+
+    useEffect(() => {
+        funcionauxiliar(); 
+        setUpdatingModules(false);              
+    }, [updatingModules]);
 
     const removeElement = (arr, value) => { 
         return arr.filter(function(ele){ 
@@ -62,7 +134,6 @@ const CourseScreen = (props) => {
         console.log("[Course screen] unfavorite content: ", response.content())
         if (!response.hasError()) {
             setFavorited(false);
-            //setFavoriteCoursesList(response.content().favoriteCourses);
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -72,7 +143,6 @@ const CourseScreen = (props) => {
         console.log("[Course screen] favorited content: ", response.content())
         if (!response.hasError()) {
             setFavorited(true);
-            //setFavoriteCoursesList(response.content().favoriteCourses);
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -109,6 +179,7 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
+                    setRol(course.user_type);
                 }
                 if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
@@ -186,6 +257,11 @@ const CourseScreen = (props) => {
     };
   
     useEffect(() => {
+        console.log("[Course screen] entro a useEffect GET ALL MODULES");
+        getAllModules(); 
+    }, []);
+
+    useEffect(() => {
         console.log("[Course screen] entro a useEffect");
         onRefresh();
     }, []);
@@ -242,6 +318,31 @@ const CourseScreen = (props) => {
                 )}
                 {subscribed === true && (
                 <>
+                {modules.map((item, key) => (
+                    <>                   
+                        <View style={styles.courseCardWrapper}>                            
+                            <View style={styles.moduleView}>
+                                <Text style={styles.examModule}>{item.title}</Text>
+                            </View>
+                            <View style={styles.moduleView}>
+                                <Text style={styles.examModule}>{item.content}</Text>
+                            </View>                            
+                        </View>
+                        {item.media_url.map((media_item,media_key) => (
+                            <View style={styles.containerVideo}>
+                                <Video
+                                    ref={video}
+                                    style={styles.video}
+                                    source={{uri: media_item.url}}
+                                    resizeMode="contain"
+                                    useNativeControls={true}
+                                    shouldPlay={false}
+                                    onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                />
+                            </View>
+                        ))} 
+                    </>                   
+                ))}
                     {exams.length === 0 && (
                         <Text style={styles.examsText}>This course doesn't have exams</Text>
                     )}
@@ -265,6 +366,7 @@ const CourseScreen = (props) => {
                 </>
                 )}
             </ScrollView>
+            {((rol != "instructor") && (rol != "collaborator")) && (
             <View style={styles.buttonsWrapper}>
                 {subscribed === false && (
                 <>
@@ -305,25 +407,8 @@ const CourseScreen = (props) => {
                 </>
                 )}
             </View>
+            )}
         </View>
-        /*<View style={styles.container}>
-          <SafeAreaView>
-            <View style={styles.headerWrapper}>
-              <TouchableOpacity onPress={() => props.navigation.goBack()}>
-                <View style={styles.headerLeft}>
-                  <Feather name="chevron-left" size={12} color={colors.textDark} />
-                </View>
-              </TouchableOpacity>
-              <View style={styles.headerRight}>
-                <MaterialCommunityIcons
-                  name="star"
-                  size={12}
-                  color={colors.white}
-                />
-              </View>
-            </View>
-          </SafeAreaView>
-        </View> */
       );
 };
 
@@ -342,6 +427,16 @@ const styles = new StyleSheet.create({
         //paddingLeft: 10,
         //justifyContent: 'center',
         //alignItems: 'center',
+    },
+    containerVideo: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#ecf0f1',
+    },
+    video: {
+        alignSelf: 'center',
+        width: 320,
+        height: 200,
     },
     titlesImage: {
         width: 80,

@@ -9,7 +9,7 @@ import Feather from 'react-native-vector-icons/Feather'
 Feather.loadFont();
 
 const rols = ["student", "instructor"];
-const subscriptions = ["free", "platinum", "gold"];
+// const subscriptions = ["free", "platinum", "gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -27,7 +27,7 @@ const SignupScreen = (props) => {
         rol:'',
         interests: [],
         description: "",
-        subscription: '',//deberia darle opciones a elegir
+        subscription: "free",//deberia darle opciones a elegir
         profilePictureUrl: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/c23449d1-43e3-4cc5-9681-25d563ee5ab9.jpg?alt=media&token=8ec949cd-5ad1-4bbf-a1a5-c3d7c612e440",
         favoriteCourses: []
 
@@ -191,6 +191,7 @@ const SignupScreen = (props) => {
                     />
                     </>
                 )}
+                {/*
                 <SelectDropdown
                     data={subscriptions}
                     onSelect={(selectedItem, index) => setData({
@@ -206,7 +207,8 @@ const SignupScreen = (props) => {
                           <Feather name="chevron-down" color={"#444"} size={18} />
                         );
                     }}
-                />
+                />*/
+                }
             </View>
             <View style={styles.buttonContainer}>
                 <TouchableOpacity

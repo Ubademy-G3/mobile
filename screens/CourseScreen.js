@@ -348,7 +348,7 @@ const CourseScreen = (props) => {
                     )}
                     {exams.map(item_exam => (
                         <>
-                        {item_exam.state === "active" && (
+                        {(item_exam.state === "active" || item_exam.state === "inactive") && (
                             <View style={styles.examsList}>
                                 <TouchableOpacity
                                     onPress={() => {props.navigation.navigate('Exam Screen', {

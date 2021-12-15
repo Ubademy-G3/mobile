@@ -17,7 +17,7 @@ const CreateExamScreen = (props) => {
 
     const [nameSaved, setNameSaved] = useState(false);
 
-    const [questionSaved, setQuestionSaved] = useState(false);
+    const [questionSaved, setQuestionSaved] = useState(true);
     
     const [questionMC, setQuestionMC] = useState("");
 
@@ -29,7 +29,7 @@ const CreateExamScreen = (props) => {
     
     const valueNumbers = [{ id: "points", min: 1, max: 100 }];*/
 
-    const [inputs, setInputs] = useState([{
+    const [inputs, setInputs] = useState([/*{
         id: "", 
         question: "",
         question_saved: false,
@@ -39,8 +39,8 @@ const CreateExamScreen = (props) => {
         question_type: "",
         options: [],
         correct: 0,
-        value: 1,
-    }]);
+        value: 1, 
+    }*/]);
 
     const [exam, setExam] = useState({
         id: "",
@@ -51,7 +51,8 @@ const CreateExamScreen = (props) => {
         has_multiple_choice: false,
         has_written: false,
         has_media: false,
-        max_attempts: 1
+        max_attempts: 1,
+        approval_score: 0,
     });
 
     //const [showButtons, setShowButtons] = useState(true);
@@ -60,18 +61,30 @@ const CreateExamScreen = (props) => {
         console.log("[Create Exam screen] update: ", response.content())
         if (!response.hasError()) {
             setExam(response.content());
-            console.log("[Create Exam screen] courses: ", exam);
+            console.log("[Create Exam screen] update exam: ", exam);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
     const handleApiResponseCreateExam = (response) => {
-        console.log("[Create Exam screen] content: ", response.content())
+        console.log("[Create Exam screen] exam: ", response.content())
         if (!response.hasError()) {
-            setExam(response.content());
+            setExam({
+                id: response.content().id,
+                name: response.content().name,
+                course_id: response.content().course_id,
+                state: response.content().state,
+                max_score: 0,
+                has_multiple_choice: false,
+                has_written: false,
+                has_media: false,
+                max_attempts: response.content().max_attempts,
+                approval_score: 0,
+            });
             setNameSaved(true);
-            console.log("[Create Exam screen] courses: ", exam);
+            console.log("[Create Exam screen] create exam: ", exam);
+            console.log("[Create Exam screen] INPUTS: ", inputs);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
@@ -80,7 +93,7 @@ const CreateExamScreen = (props) => {
     const handleApiResponseUpdateQuestion = (response) => {
         console.log("[Create Exam screen] update: ", response.content())
         if (!response.hasError()) {
-            console.log("[Create Exam screen] courses: ", exam);
+            console.log("[Create Exam screen] update question: ", exam);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
@@ -99,14 +112,14 @@ const CreateExamScreen = (props) => {
         if (!response.hasError()) {
             setInputs(inputs => [...inputs, {
                 id: response.content().id,
-                saved_question: false,
+                question_saved: false,
                 correct: response.content().correct,
                 exam_id: response.content().exam_id,
                 id: response.content().id,
                 options: response.content().options,
                 question: response.content().question,
                 question_type: response.content().question_type,
-                value: response.content().value
+                value: response.content().value,
             }]);
             console.log("[Create Exam screen] response sucessfull");
         } else {
@@ -194,6 +207,7 @@ const CreateExamScreen = (props) => {
                 course_id: param_course_id,
                 creator_id: idLS,
             }, handleApiResponseCreateExam);
+        
     }
 
     const handleSaveQuestion = async (key) => {
@@ -221,6 +235,8 @@ const CreateExamScreen = (props) => {
             value: inputs[key].value,
         }, 
         exam.id, inputs[key].id, handleApiResponseUpdateQuestion);
+        var total_score = exam.max_score + +_inputs[key].value;
+        setExam({...exam, max_score: total_score});
         setInputs(_inputs);
         setQuestionSaved(true);
     }
@@ -244,6 +260,10 @@ const CreateExamScreen = (props) => {
         console.log("change value: ",value);
         setInputs(_inputs);
     }
+    
+    const handleSubmitApprovalScore = (value) => {
+        setExam({...exam, approval_score: value});
+    }
 
     const setCorrect = (key, idx) => {
         const _inputs = [...inputs];
@@ -253,18 +273,19 @@ const CreateExamScreen = (props) => {
 
     const saveExam = async () => {
         let tokenLS = await app.getToken();
-        var total_score = 0
+        /* var total_score = 0
         for (let question of inputs) {
             console.log("total scrore", total_score);
             total_score = total_score + +question.value;
         }
-        console.log("total scrore final", total_score);
+        console.log("total scrore final", total_score); */
         await app.apiClient().updateExam(
             {
                 token: tokenLS,
                 name: exam.name,
-                max_score: total_score,
-                max_attempts: exam.max_attempts
+                max_score: exam.max_score,
+                max_attempts: exam.max_attempts,
+                approval_score: exam.approval_score,
 
             }, exam.id, handleResponseUpdateExam)
         /*Alert.alert(
@@ -275,6 +296,10 @@ const CreateExamScreen = (props) => {
         );*/
         props.navigation.goBack();
     }
+
+    /* useEffect(() => {
+        setInputs([]);
+    }, []); */
 
     return (
         <View style={styles.container}>
@@ -300,6 +325,14 @@ const CreateExamScreen = (props) => {
                 )}
                 { nameSaved && (
                     <>
+                    <Text style={[styles.textAnswer, {color:'#87ceeb', marginTop: 5},]}>Maximum points: {exam.max_score}</Text>
+                    <Text style={styles.textAnswer}>Points needed to approve:</Text>
+                    <TextInput 
+                        placeholder={"Points needed to approve"}
+                        value={exam.approval_score} 
+                        onChangeText={(text) => handleSubmitApprovalScore(text.replace(/[^0-9]/g, ''))}
+                        style={[styles.input,{marginBottom:10}]}
+                    />
                     {inputs.map((input, key)=>(
                         <>
                             { !input.question_saved && (
@@ -357,11 +390,11 @@ const CreateExamScreen = (props) => {
                                     </View> */}
                                     <Text style={styles.textAnswer}>Points:</Text>
                                     <TextInput 
-                                            placeholder={"Points assigned to this question"}
-                                            value={input.value} 
-                                            onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
-                                            style={[styles.input,{marginBottom:10}]}
-                                        />
+                                        placeholder={"Points assigned to this question"}
+                                        value={input.value} 
+                                        onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
+                                        style={[styles.input,{marginBottom:10}]}
+                                    />
                                     <Text style={styles.textAnswer}>Answer</Text>
                                     <View style={styles.buttonInputWrapper}>
                                         <TouchableOpacity
@@ -723,6 +756,34 @@ const styles = StyleSheet.create({
     },
     buttonEditIconRight: {
         marginLeft: 10,
+    },
+    stateCardWrapper: {
+        backgroundColor: '#87ceeb',
+        width: 200,
+        borderRadius: 25,
+        paddingVertical: 8,
+        //paddingLeft: 20,
+        marginBottom: 5,
+        marginTop: 10,
+        shadowColor: 'black',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,  
+    },
+    examDescritpionWrapper: {
+        //marginTop:5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    examDescription: {
+        color:'black',
+        fontWeight: '400',
+        fontSize: 16,
+        //marginTop:5,
     },
 })
 

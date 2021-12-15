@@ -115,17 +115,15 @@ const ExamCorrectionScreen = (props) => {
     };
 
     const handleSubmitChangeState = async () => {
-        //updeatear solution y actualizar el aprobal state
         let tokenLS = await app.getToken();
-        let idLS = await app.getId();
         if(solution.approval_state){
-            await app.apiClient().updateSolution({token: tokenLS, approval_state: false, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            await app.apiClient().updateSolution({token: tokenLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
             setSolution({
                 ...solution,
                 approval_state: false,
             });
         } else {
-            await app.apiClient().updateSolution({token: tokenLS, approval_state: true, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            await app.apiClient().updateSolution({token: tokenLS, approval_state: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
             setSolution({
                 ...solution,
                 approval_state: true,
@@ -136,8 +134,7 @@ const ExamCorrectionScreen = (props) => {
     const handleSubmitSave = async () => {
         //updeatear solution y poner graded: true
         let tokenLS = await app.getToken();
-        let idLS = await app.getId();
-        await app.apiClient().updateSolution({token: tokenLS, graded: true, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+        await app.apiClient().updateSolution({token: tokenLS, graded: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
         setSolution({...solution, graded: true});
     }
 
@@ -216,9 +213,11 @@ const ExamCorrectionScreen = (props) => {
                     </View>
                     {answers.map((item, idx) => (
                             <View>
+                                <Text style={styles.questionTitle}>Question:</Text>
                                 <Text style={styles.questionText}>{item.question}</Text>
                                 {item.question_type === "written" && (
                                     <>
+                                        <Text style={styles.questionTitle}>Answer:</Text>
                                         <Text style={styles.questionText}>{item.answer}</Text>
                                         <View style={styles.buttonInputWrapper}>
                                             <TouchableOpacity
@@ -250,6 +249,7 @@ const ExamCorrectionScreen = (props) => {
                                 )}
                                 {item.question_type === "multiple_choice" && (
                                     <>
+                                        <Text style={styles.questionTitle}>Answer:</Text>
                                         <Text style={styles.questionText}>{getAnswerMC(idx)}</Text>
                                         <View style={styles.buttonInputWrapper}>
                                             <TouchableOpacity
@@ -333,6 +333,12 @@ const styles = new StyleSheet.create({
         marginTop: 15,
         fontWeight: '300',
         fontSize: 16,
+        paddingBottom: 5,
+    },
+    questionTitle: {
+        marginTop: 15,
+        fontWeight: '700',
+        fontSize: 18,
         paddingBottom: 5,
     },
     inputContainer: {

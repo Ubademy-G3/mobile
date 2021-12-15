@@ -1,7 +1,8 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert, FlatList } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, FlatList } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
 
@@ -19,10 +20,22 @@ const ProfileScreen = (props) => {
 
     const [categories, setCategories] = useState([]);
 
+    const [favCourses, setFavCourses] = useState([]);
+
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
         if (!response.hasError()) {
                setCourses(courses => [...courses, response.content()]);
+        } else {
+            console.log("[Profile Screen] error", response.content().message);
+        }
+    }
+
+    const handleFavoriteCourseResponse = (response) => {
+        console.log("[Profile Screen] content: ", response.content())
+        if (!response.hasError()) {
+            console.log(response.content())
+            setFavCourses(courses => [...courses, response.content()]);
         } else {
             console.log("[Profile Screen] error", response.content().message);
         }
@@ -60,12 +73,18 @@ const ProfileScreen = (props) => {
                 profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests,
+                favoriteCourses: response.content().favoriteCourses
             });
             let tokenLS = await app.getToken();
-            for(let id of response.content().interests){
+            for (let id of response.content().interests) {
                 console.log("[Profile screen] interests id:", id);
                 await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
             }
+            await Promise.all(
+                response.content().favoriteCourses.map(async (courseId) => {
+                    return await app.apiClient().getCourseById({ token: tokenLS }, courseId, handleFavoriteCourseResponse);
+                })
+            )
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -75,18 +94,14 @@ const ProfileScreen = (props) => {
         console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        //console.log("[Profile screen] token:",tokenLS);
-        await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, undefined, handleGetCoursesByUser);
+        await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, undefined, undefined, handleGetCoursesByUser);
         setLoading(false);
     };
 
     useEffect(() => {
         setCourses([]);
         setCategories([]);
-        //console.log("[Profile screen] entro a useEffect"); 
-        //console.log("[Profile screen] param id:", param_id);
-        //console.log("[Profile screen] params: ", props.route.params)
         onRefresh();
     }, [param_id, props]);
 
@@ -145,6 +160,14 @@ const ProfileScreen = (props) => {
                             <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
                         )}
                         {courses.map(item => (
+                            <CourseComponent 
+                            item={item}
+                            navigation={props.navigation}/>
+                        ))}
+                    </View>
+                    <View style={styles.coursesCardWrapper}>
+                        <Text style={styles.coursesTitle}>Favorite courses</Text>
+                        {favCourses.map(item => (
                             <CourseComponent 
                             item={item}
                             navigation={props.navigation}/>

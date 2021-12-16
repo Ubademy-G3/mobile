@@ -5,6 +5,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import QuestionComponent from '../components/QuestionComponent';
 import SelectDropdown from 'react-native-select-dropdown'
+import { GetAllSolutionsByExamIdEndpoint } from '../communication/endpoints/GetAllSolutionsByExamIdEndpoint';
 
 const ExamScreen = (props) => {
 
@@ -21,6 +22,8 @@ const ExamScreen = (props) => {
     const [solutionId, setSolutionId] = useState(0);
 
     const [blocked, setBlocked] = useState(false);
+
+    const [solution, setSolution] = useState({});
 
     //const [selectedMC, setSelectedMC] = useState(0);
 
@@ -82,6 +85,24 @@ const ExamScreen = (props) => {
         }        
     }
 
+    const handleResponseGetAllSolutions = async (response) => {
+        console.log("[List Exams screen] get solutions: ", response.content())
+        if (!response.hasError()) {
+            for (let solution of response.content().exam_solutions) {
+                setSolution({
+                    id: solution.id,
+                    corrector_id: solution.corrector_id,
+                    graded: solution.graded,
+                    score: solution.score,
+                    approval_state: solution.approval_state,
+                    max_score: solution.max_score,
+                });
+            }
+        } else {
+            console.log("[List Exams screen] error", response.content().message);
+        }        
+    }
+
     const handleSubmitSave = async () => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -103,6 +124,11 @@ const ExamScreen = (props) => {
         console.log("Set answer", _answer);
     }
 
+    const getSolution = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllSolutionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllSolutions);
+    }
+
     const onRefresh = async () => {
         console.log("[Exam screen] entro a onRefresh"); 
         setLoading(true);
@@ -120,6 +146,13 @@ const ExamScreen = (props) => {
         console.log("[Exam screen] questions", questions);
     }, []);
 
+    useEffect(() => {
+        if (blocked){
+            getSolution();
+        }
+        onRefresh();
+    }, [blocked]);
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -127,7 +160,22 @@ const ExamScreen = (props) => {
                     <Text style={styles.examsText}>This exam has no questions</Text>
                 )}
                 {blocked && (
-                    <Text style={styles.examsText}>You reached the maximum amount of attempts for this exam</Text>
+                    <>
+                    {solution.graded && (
+                        <>
+                        <Text style={styles.examsText}>Total score: {solution.score}/{solution.max_score}</Text>
+                        {solution.approval_state && (
+                            <Text style={styles.examsText}>Approved</Text>
+                        )}
+                        {!solution.approval_state && (
+                            <Text style={styles.examsText}>Failed</Text>
+                        )}
+                        </>
+                    )}
+                    {!solution.graded && (
+                        <Text style={styles.examsText}>You reached the maximum amount of attempts for this exam</Text>
+                    )}
+                    </>
                 )}
                 {!blocked && (
                     <>

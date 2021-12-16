@@ -60,7 +60,7 @@ const SignupScreen = (props) => {
     useEffect(() => {
         console.log("[Signup screen] params: ", props.route.params);
         console.log("[Signup screen] Entro a use effect");
-        doLogin()
+        //doLogin()
     }, [errorData]);
 
     const registerForPushNotificationsAsync = async () => {

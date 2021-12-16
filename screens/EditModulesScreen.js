@@ -211,6 +211,7 @@ const EditModulesScreen = (props) => {
                 token: tokenLS,
                 name: course.name,
                 description: course.description,
+                profile_picture: course.profile_picture,
             }, param_course_id, handleUpdateCourse);
     }
 

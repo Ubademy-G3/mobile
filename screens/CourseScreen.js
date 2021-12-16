@@ -14,29 +14,17 @@ MaterialIcons.loadFont();
 
 const CourseScreen = (props) => {
     const { item } = props.route.params;
-
     const [loading, setLoading] = useState(false);
-
     const [subscribed, setSubscribed] = useState(false);
-    
     const [favorited, setFavorited] = useState(false);
-
     const [rating, setRating] = useState(0);
-
     const [instructors, setInstructors] = useState([]);
-
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
-
     const [exams, setExams] = useState([]);
-
     const [modules, setModules] = useState([]); 
-
     const [updatingModules, setUpdatingModules] = useState(false);
-
     const [rol, setRol] = useState("");
-
     const video = React.useRef(null);
-
     const [status, setStatus] = React.useState({});
 
     const handleGetMedia = async (response) => {
@@ -50,8 +38,7 @@ const CourseScreen = (props) => {
                     setModules(newmodule);
                 }
                 centinela = centinela + 1;
-            }
-            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA",modules);            
+            }          
         } else {
             console.log("[ Course screen] error", response.content().message);
         }   
@@ -104,7 +91,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetAllExams = (response) => {
-        console.log("[Course screen] get exams: ", response.content())
+        //console.log("[Course screen] get exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
@@ -113,7 +100,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseSubscribeToCourse = (response) => {
-        console.log("[Course screen] subscribe content: ", response.content())
+        //console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
         } else {
@@ -122,7 +109,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseUnsubscribeToCourse = (response) => {
-        console.log("[Course screen] unsubscribe content: ", response.content())
+        //console.log("[Course screen] unsubscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(false);
         } else {
@@ -131,7 +118,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseUnfavorite = (response) => {
-        console.log("[Course screen] unfavorite content: ", response.content())
+        //console.log("[Course screen] unfavorite content: ", response.content())
         if (!response.hasError()) {
             setFavorited(false);
         } else {
@@ -140,7 +127,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseFavorited = (response) => {
-        console.log("[Course screen] favorited content: ", response.content())
+        //console.log("[Course screen] favorited content: ", response.content())
         if (!response.hasError()) {
             setFavorited(true);
         } else {
@@ -149,7 +136,7 @@ const CourseScreen = (props) => {
     }
 
     const handleApiResponseProfile = (response) => {
-        console.log("[Course screen] content: ", response.content());
+        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {  
             setInstructors(instructors => [...instructors, response.content()]);
         } else {
@@ -158,7 +145,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        console.log("[Course screen] content: ", response.content());
+        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             for (let courseId of response.content().favoriteCourses){
@@ -172,7 +159,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetAllUsersInCourses = async (response) => {
-        console.log("[Course screen] content: ", response.content())
+        //console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
             let idLS = await app.getId();
             let tokenLS = await app.getToken();
@@ -224,7 +211,7 @@ const CourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         let newList = removeElement(favoriteCoursesList, item.id);
-        console.log("[Course screen] new list:", newList);
+        //console.log("[Course screen] new list:", newList);
         await app.apiClient().editProfile({token: tokenLS, favoriteCourses: newList }, idLS, handleResponseUnfavorite);
         setFavoriteCoursesList(newList);
         setLoading(false);
@@ -285,7 +272,13 @@ const CourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
-                {subscribed === false && (
+                <View
+                    style={{
+                        borderBottomColor: 'grey',
+                        borderBottomWidth: 0.5,
+                    }}
+                />
+                {!subscribed && (
                 <>
                     <View style={styles.descriptionWrapper}>
                         <Text style={styles.description}>{item.description}</Text>
@@ -308,6 +301,7 @@ const CourseScreen = (props) => {
                                 props.navigation.navigate('Student List', {
                                 course_id: item.id,
                                 filter: false,
+                                view_as: rol
                             });}}
                             style={[styles.fadedButton]}
                         >
@@ -316,97 +310,150 @@ const CourseScreen = (props) => {
                     </View>
                 </>
                 )}
-                {subscribed === true && (
-                <>
-                {modules.map((item, key) => (
-                    <>                   
-                        <View style={styles.courseCardWrapper}>                            
-                            <View style={styles.moduleView}>
-                                <Text style={styles.examModule}>{item.title}</Text>
-                            </View>
-                            <View style={styles.moduleView}>
-                                <Text style={styles.examModule}>{item.content}</Text>
-                            </View>                            
-                        </View>
-                        {item.media_url.map((media_item,media_key) => (
-                            <View style={styles.containerVideo}>
-                                <Video
-                                    ref={video}
-                                    style={styles.video}
-                                    source={{uri: media_item.url}}
-                                    resizeMode="contain"
-                                    useNativeControls={true}
-                                    shouldPlay={false}
-                                    onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                />
-                            </View>
-                        ))} 
-                    </>                   
-                ))}
-                    {exams.length === 0 && (
-                        <Text style={styles.examsText}>This course doesn't have exams</Text>
-                    )}
-                    {exams.map(item_exam => (
-                        <>
-                        {item_exam.state === "active" && (
-                            <View style={styles.examsList}>
-                                <TouchableOpacity
-                                    onPress={() => {props.navigation.navigate('Exam Screen', {
-                                        id: item_exam.id,
-                                        course_id : item.id,
-                                    })}}
-                                    style={[styles.fadedButton]}
-                                >
-                                    <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
-                                </TouchableOpacity>
-                            </View>
+                {subscribed && rol === 'student' && (
+                    <>
+                        {modules.map((item, key) => (
+                            <>                   
+                                <View style={styles.courseCardWrapper}>                            
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.title}</Text>
+                                    </View>
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.content}</Text>
+                                    </View>                            
+                                </View>
+                                {item.media_url.map((media_item,media_key) => (
+                                    <View style={styles.containerVideo}>
+                                        <Video
+                                            ref={video}
+                                            style={styles.video}
+                                            source={{uri: media_item.url}}
+                                            resizeMode="contain"
+                                            useNativeControls={true}
+                                            shouldPlay={false}
+                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                        />
+                                    </View>
+                                ))} 
+                            </>                   
+                        ))}
+                        {exams.length === 0 && (
+                            <Text style={styles.examsText}>This course doesn't have exams</Text>
                         )}
-                        </>
-                    ))}
-                </>
+                        {exams.map(item_exam => (
+                            <>
+                                {(item_exam.state === "active" || item_exam.state === "inactive") && (
+                                    <View style={styles.examsList}>
+                                        <TouchableOpacity
+                                            onPress={() => {props.navigation.navigate('Exam Screen', {
+                                                id: item_exam.id,
+                                                course_id : item.id,
+                                            })}}
+                                            style={[styles.fadedButton]}
+                                        >
+                                            <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                )}
+                            </>
+                        ))}
+                    </>
+                )}
+                {subscribed && (rol === 'instructor' || rol === 'collaborator') && (
+                    <>
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    props.navigation.navigate('Student List', {
+                                    course_id: item.id,
+                                    view_as: 'instructor'
+                                });}}
+                                style={[styles.buttonWithImage]}
+                            >
+                                <Image source={require("../assets/images/studentsButton.png")} style={styles.buttonImage} />
+                                <Text style={{color: 'grey', textAlign: 'center'}}>Students</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    props.navigation.navigate('List Exams', {
+                                    course_id: item.id,
+                                    view_as: 'instructor'
+                                });}}
+                                style={[styles.buttonWithImage]}
+                            >
+                                <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
+                                <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
+                            </TouchableOpacity>
+                        </View>
+                        {modules.map((item, key) => (
+                            <>
+                                <View style={styles.courseCardWrapper}>    
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.title}</Text>
+                                    </View>
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.content}</Text>
+                                    </View>                            
+                                </View>
+                                {item.media_url.map((media_item,media_key) => (
+                                    <View style={styles.containerVideo}>
+                                        <Video
+                                            ref={video}
+                                            style={styles.video}
+                                            source={{uri: media_item.url}}
+                                            resizeMode="contain"
+                                            useNativeControls={true}
+                                            shouldPlay={false}
+                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                        />
+                                    </View>
+                                ))} 
+                            </>                   
+                        ))}
+                    </>
                 )}
             </ScrollView>
-            {((rol != "instructor") && (rol != "collaborator")) && (
-            <View style={styles.buttonsWrapper}>
-                {subscribed === false && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
+            {rol === 'student' && (
+                <View style={styles.buttonsWrapper}>
+                    {subscribed === false && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
+                            <View style={styles.subscribeWrapper}>
+                                <Feather name="plus" size={18} color="black" />
+                                <Text style={styles.subscribeText}>Subscribe</Text>
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                    {subscribed === true && (
+                    <>
+                    <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
                         <View style={styles.subscribeWrapper}>
-                            <Feather name="plus" size={18} color="black" />
-                            <Text style={styles.subscribeText}>Subscribe</Text>
+                            <Feather name="x" size={18} color="black" />
+                            <Text style={styles.unsubscribeText}>Unsubscribe</Text>
                         </View>
                     </TouchableOpacity>            
-                </>
-                )}
-                {subscribed === true && (
-                <>
-                <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
-                    <View style={styles.subscribeWrapper}>
-                        <Feather name="x" size={18} color="black" />
-                        <Text style={styles.unsubscribeText}>Unsubscribe</Text>
-                    </View>
-                </TouchableOpacity>            
-                </>
-                )}
-                {favorited === false && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitFavorited()}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="heart-outline" size={18} color="black" />
-                        </View>
-                    </TouchableOpacity>            
-                </>
-                )}
-                {favorited === true && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="heart" size={18} color="black" />
-                        </View>
-                    </TouchableOpacity>            
-                </>
-                )}
-            </View>
+                    </>
+                    )}
+                    {!favorited && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitFavorited()}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="heart-outline" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                    {!favorited && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="heart" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                </View>
             )}
         </View>
       );
@@ -452,6 +499,7 @@ const styles = new StyleSheet.create({
         flex: 1, 
         flexWrap: 'wrap',
         fontSize: 24,
+        width: '90%'
     },
     titlesRating: {
         paddingVertical: 5,
@@ -561,6 +609,14 @@ const styles = new StyleSheet.create({
         marginBottom: 5,
         marginLeft: 10,
     },
+    buttonImage: {
+        width: 100,
+        height: 100
+    },
+    buttonWithImage: {
+        marginTop: 10,
+        borderRadius: 10,
+    }
 });
 
 export default CourseScreen;

@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import { useFocusEffect } from '@react-navigation/native';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -106,12 +107,15 @@ const ListExamsScreen = (props) => {
         setLoading(false);
     };
 
-    useEffect(() => {
-        console.log("[List Exams screen] entro a useEffect");
-        onRefresh();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            setSolutions([]);
+            onRefresh();
+        }, [])
+    );
 
     useEffect(() => {
+        //setSolutions([]);
         console.log("[List Exams screen] entro a useEffect");
         getData();
     }, [solutions]);

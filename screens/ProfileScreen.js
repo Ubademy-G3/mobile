@@ -11,6 +11,8 @@ Feather.loadFont();
 
 const ProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
+
+    console.log("PROFILE ID: ",param_id);
     
     const [loading, setLoading] = useState(false);
     

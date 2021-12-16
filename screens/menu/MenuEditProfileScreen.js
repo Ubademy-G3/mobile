@@ -237,7 +237,7 @@ const MenuEditProfileScreen = (props) => {
                             </>
                         )}
                     </View>
-        {/*             <View style={styles.buttonContainer}>
+                    {/* <View style={styles.buttonContainer}>
                             <TouchableOpacity
                                 onPress={() => {choosePhotoFromLibrary()}}
                                 style={styles.button}

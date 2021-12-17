@@ -7,6 +7,7 @@ import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
 import { firebase } from '../firebase';
 import { Video, AVPlaybackStatus } from 'expo-av';
+import { ActivityIndicator } from 'react-native-paper';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -256,7 +257,12 @@ const CourseScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.titlesWrapper}>
+                {loading && (
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                )}
+                {!loading && (
+                    <>
+                    <View style={styles.titlesWrapper}>
                     <View>
                         <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
@@ -412,8 +418,10 @@ const CourseScreen = (props) => {
                         ))}
                     </>
                 )}
+                </>
+                )}
             </ScrollView>
-            {rol === 'student' && (
+            {!loading && rol === 'student' && (
                 <View style={styles.buttonsWrapper}>
                     {subscribed === false && (
                     <>

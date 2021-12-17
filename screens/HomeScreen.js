@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ActivityIndicator, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -14,17 +14,12 @@ Feather.loadFont();
 
 const HomeScreen = (props) => {
   const [courses, setCourses] = useState(null);
-  //const [categories, setCategories] = useState(null);
-  //const [ratings, setRatings] = useState(null);
-  //const [searchText, setSearchText] = useState("");
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [indexCarousel, setIndexCarousel] = React.useState(0);
   const [filtered, setFiltered] = useState(false);
-  //const [query, setQuery] = useState(null);
 
   const handleGetRating = (response) => {
-    // console.log("[Home screen] rating content: ", response.content())
     if (!response.hasError()) {
         return response.content();
     } else {
@@ -33,7 +28,6 @@ const HomeScreen = (props) => {
   }
 
   const handleGetAllCourses = async (response) => {
-    //console.log("[Home screen] courses content: ", response.content())
     if (!response.hasError()) {
         const tokenLS = await app.getToken();
         let courses = response.content().courses;
@@ -45,14 +39,12 @@ const HomeScreen = (props) => {
           })
         );
         setCourses(courses);
-        //console.log("[Home screen] categories: ", courses);
     } else {
         console.log("[Home screen] error", response.content().message);
     }
   }
 
   const handleSearchCourses = async (response) => {
-    //console.log("[Search by subscription screen] content: ", response.content())
     if (!response.hasError()) {
         const tokenLS = await app.getToken();
         let courses = response.content().courses;
@@ -64,7 +56,6 @@ const HomeScreen = (props) => {
           })
         );
         setCourses(courses);
-        //console.log("[Search by subscription screen] response: ", courses);
     } else {
         console.log("[Search by subscription screen] error", response.content().message);
     }
@@ -199,92 +190,96 @@ const HomeScreen = (props) => {
   }
   return (
       <View style={styles.container}>
-        <ScrollView
+        {loading && (
+          <ActivityIndicator color="lightblue" style={{marginTop: "50%"}} />
+        )}
+        {!loading && (
+          <ScrollView
           contentInsetAdjustmentBehavior="automatic"
           showsVerticalScrollIndicator={false}>
-
-          {/* Filter */}
-          {modalVisible && (
-            <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
-          )}
-          
-          {/* Logo */}
-          <SafeAreaView>
-              <View style={styles.headerWrapper}>
-                  <Image
-                      source={require("../assets/images/logo_toc.png")}
-                      style={styles.logoImage}
-                  />
-                  <View style={{ position: 'absolute', top: 10, right: 30 }}>
-                    <TouchableOpacity
-                      onPress={() => { setModalVisible(true) }}
-                    >
-                      <Feather name="filter" color={"#444"} size={18} />
-                    </TouchableOpacity>
-                  </View>
-                  {filtered && (
-                    <View style={{ position: 'absolute', top: 10, left: 10 }}>
-                      <Feather name="arrow-left" color={"#444"} size={25} onPress={() => { filterCoursesByText("") }}/>
+            {/* Filter */}
+            {modalVisible && (
+              <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
+            )}
+            
+            {/* Logo */}
+            <SafeAreaView>
+                <View style={styles.headerWrapper}>
+                    <Image
+                        source={require("../assets/images/logo_toc.png")}
+                        style={styles.logoImage}
+                    />
+                    <View style={{ position: 'absolute', top: 10, right: 30 }}>
+                      <TouchableOpacity
+                        onPress={() => { setModalVisible(true) }}
+                      >
+                        <Feather name="filter" color={"#444"} size={18} />
+                      </TouchableOpacity>
                     </View>
-                  )}
-              </View>
-          </SafeAreaView>
+                    {filtered && (
+                      <View style={{ position: 'absolute', top: 10, left: 10 }}>
+                        <Feather name="arrow-left" color={"#444"} size={25} onPress={() => { filterCoursesByText("") }}/>
+                      </View>
+                    )}
+                </View>
+            </SafeAreaView>
 
-          {/* Search */}
-          <View style={styles.searchWrapper}>
-              <Feather name="search" size={16}/>
-              <View style={styles.search}>
-                  <TextInput 
-                    placeholder="Search course"
-                    onSubmitEditing={(e) => { filterCoursesByText(e.nativeEvent.text) }}
-                    style={styles.searchText}
-                  />
-              </View>
-          </View>
+            {/* Search */}
+            <View style={styles.searchWrapper}>
+                <Feather name="search" size={16}/>
+                <View style={styles.search}>
+                    <TextInput 
+                      placeholder="Search course"
+                      onSubmitEditing={(e) => { filterCoursesByText(e.nativeEvent.text) }}
+                      style={styles.searchText}
+                    />
+                </View>
+            </View>
 
-          {courses && (
-            <>
-              {!filtered && (
+            {courses && (
+              <>
+                {!filtered && (
+                  <View>
+                    <Text style={styles.title}>Best rated</Text>
+                    <Carousel
+                      data={getBestRatedCourses()}
+                      renderItem={renderHorizontalCourseItem}
+                      sliderWidth={530}
+                      itemWidth={500}
+                      onSnapToItem={(index) => setIndexCarousel(index)}
+                      useScrollView={true}
+                    />
+                    <Pagination
+                      dotsLength={getBestRatedCourses().length}
+                      activeDotIndex={indexCarousel}
+                      //carouselRef={isCarousel}
+                      dotStyle={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 5,
+                        marginHorizontal: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.92)'
+                      }}
+                      inactiveDotOpacity={0.4}
+                      inactiveDotScale={0.6}
+                      tappableDots={true}
+                    />
+                  </View>
+                )}
                 <View>
-                  <Text style={styles.title}>Best rated</Text>
-                  <Carousel
-                    data={getBestRatedCourses()}
-                    renderItem={renderHorizontalCourseItem}
-                    sliderWidth={530}
-                    itemWidth={500}
-                    onSnapToItem={(index) => setIndexCarousel(index)}
-                    useScrollView={true}
-                  />
-                  <Pagination
-                    dotsLength={getBestRatedCourses().length}
-                    activeDotIndex={indexCarousel}
-                    //carouselRef={isCarousel}
-                    dotStyle={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 5,
-                      marginHorizontal: 0,
-                      backgroundColor: 'rgba(0, 0, 0, 0.92)'
-                    }}
-                    inactiveDotOpacity={0.4}
-                    inactiveDotScale={0.6}
-                    tappableDots={true}
+                  {!filtered && (
+                    <Text style={styles.title}>All courses</Text>
+                  )}
+                  <FlatList 
+                    data={courses}
+                    renderItem={renderVerticalCourseItem}
+                    keyExtractor={(item) => item.id}
                   />
                 </View>
-              )}
-              <View>
-                {!filtered && (
-                  <Text style={styles.title}>All courses</Text>
-                )}
-                <FlatList 
-                  data={courses}
-                  renderItem={renderVerticalCourseItem}
-                  keyExtractor={(item) => item.id}
-                />
-              </View>
-            </>
-          )}
-        </ScrollView>        
+              </>
+            )}
+          </ScrollView>
+        )}      
       </View>
   );
 }

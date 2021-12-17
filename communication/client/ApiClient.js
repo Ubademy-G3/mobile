@@ -43,6 +43,7 @@ import { UpdateAnswerEndpoint } from "../endpoints/UpdateAnswerEndpoint.js";
 import { GetModuleByIdEndpoint } from "../endpoints/GetModuleByIdEndpoint.js";
 import { GetMediaByModuleEndpoint } from "../endpoints/GetMediaByModuleEndpoint.js";
 import { UpdateCourseEndpoint } from "../endpoints/UpdateCourseEndpoint.js";
+import { GetSolvedExamsByUserEndpoint } from "../endpoints/GetSolvedExamsByUserEndpoint";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -409,6 +410,14 @@ class ApiClient {
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });
+    }
+
+    getSolvedExams(data, id, params, onResponse) {
+        return this._requester.call({
+            endpoint: new GetSolvedExamsByUserEndpoint(id, params),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
     }
 }
 

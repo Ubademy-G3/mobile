@@ -310,6 +310,8 @@ const styles = StyleSheet.create({
   },
   coursesCardWrapper: {
     paddingHorizontal: 15,
+    //justifyContent: 'center',
+    //alignItems: 'center',
   },
   logoImage: {
     //width: 155,

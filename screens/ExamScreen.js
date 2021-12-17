@@ -86,7 +86,7 @@ const ExamScreen = (props) => {
     }
 
     const handleResponseGetAllSolutions = async (response) => {
-        console.log("[List Exams screen] get solutions: ", response.content())
+        console.log("[Exam screen] get solutions: ", response.content())
         if (!response.hasError()) {
             for (let solution of response.content().exam_solutions) {
                 setSolution({
@@ -99,7 +99,7 @@ const ExamScreen = (props) => {
                 });
             }
         } else {
-            console.log("[List Exams screen] error", response.content().message);
+            console.log("[Exam screen] error", response.content().message);
         }        
     }
 

@@ -7,6 +7,7 @@ import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
 import { firebase } from '../firebase';
 import { Video, AVPlaybackStatus } from 'expo-av';
+import StarRating from 'react-native-star-rating';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -21,7 +22,7 @@ const CourseScreen = (props) => {
     
     const [favorited, setFavorited] = useState(false);
 
-    const [rating, setRating] = useState(0);
+    const [rating, setRating] = useState({});
 
     const [instructors, setInstructors] = useState([]);
 
@@ -34,6 +35,8 @@ const CourseScreen = (props) => {
     const [updatingModules, setUpdatingModules] = useState(false);
 
     const [rol, setRol] = useState("");
+
+    const [subscriptionType, setSubscriptionType] = useState("");
 
     const video = React.useRef(null);
 
@@ -103,20 +106,29 @@ const CourseScreen = (props) => {
         });
     }
 
-    const handleResponseGetAllExams = (response) => {
+    /* const handleResponseGetAllExams = (response) => {
         console.log("[Course screen] get exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
             console.log("[Course screen] error", response.content().message);
         }        
-    }
+    } */
 
     const handleResponseSubscribeToCourse = (response) => {
         console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
         } else {
+            if(response.content().message === "Can't subscribe user because of subscription type") {
+                Alert.alert(
+                    "Subscription error:",
+                    `You can't subscribe to a ${item.subscription_type} course with subscription type: ${subscriptionType}`,
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                );
+            }
             console.log("[Course screen] error", response.content().message);
         }
     }
@@ -161,6 +173,7 @@ const CourseScreen = (props) => {
         console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
+            setSubscriptionType(response.content().subscription);
             for (let courseId of response.content().favoriteCourses){
                 if (courseId === item.id){
                     setFavorited(true);
@@ -181,7 +194,7 @@ const CourseScreen = (props) => {
                     setSubscribed(true);
                     setRol(course.user_type);
                 }
-                if (course.user_type === 'instructor') {
+                if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
                 }
             }
@@ -193,7 +206,7 @@ const CourseScreen = (props) => {
     const handleResponseGetCourseRating = (response) => {
         console.log("[Course screen] get rating: ", response.content())
         if (!response.hasError()) {
-            setRating(response.content().rating);
+            setRating(response.content());
         } else {
             console.log("[Course screen] error", response.content().message);
         }        
@@ -252,7 +265,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, handleResponseGetAllExams);
+        /* await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, handleResponseGetAllExams); */
         setLoading(false);
     };
   
@@ -263,6 +276,7 @@ const CourseScreen = (props) => {
 
     useEffect(() => {
         console.log("[Course screen] entro a useEffect");
+        setInstructors([]);
         onRefresh();
     }, []);
 
@@ -274,19 +288,24 @@ const CourseScreen = (props) => {
                         <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
+                        <View style={{marginRight: 55, marginBottom:10}}>
                         <Text style={styles.titlesTitle}>{item.name}</Text>
-                        <View style={styles.titlesRating}>
-                            <MaterialCommunityIcons
-                                name="star"
-                                size={18}
-                                color={'black'}
+                        </View>
+                        <View style={{ display:'flex', flexDirection: 'row' }}>
+                            <StarRating
+                                disabled={true}
+                                maxStars={5}
+                                rating={rating.rating}
+                                containerStyle={{ width: '40%', marginRight: 5 }}
+                                starSize={20}
+                                fullStarColor='gold'
                             />
-                            <Text style={styles.rating}>{rating}</Text>
+                            <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
                         </View>
                     </View>
                 </View>
-                {subscribed === false && (
-                <>
+                {/* {subscribed === false && (
+                <> */}
                     <View style={styles.descriptionWrapper}>
                         <Text style={styles.description}>{item.description}</Text>
                     </View>
@@ -297,116 +316,108 @@ const CourseScreen = (props) => {
                             <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
                             <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
                         </View>
+                    </View>
+                    <View style={styles.studentListWrapper}>
                         <Text style={styles.instructorsTitle}>Instructors:</Text>
                         {instructors.map(item => (
                             <ProfilesListComponent 
                             item={item}
                             navigation={props.navigation}/>
                         ))}
-                        <TouchableOpacity
-                            onPress={() => {
-                                props.navigation.navigate('Student List', {
-                                course_id: item.id,
-                                filter: false,
-                            });}}
-                            style={[styles.fadedButton]}
-                        >
-                            <Text style={styles.buttonFadedText}>Student List</Text>
-                        </TouchableOpacity>
-                    </View>
-                </>
-                )}
-                {subscribed === true && (
-                <>
-                {modules.map((item, key) => (
-                    <>                   
-                        <View style={styles.courseCardWrapper}>                            
-                            <View style={styles.moduleView}>
-                                <Text style={styles.examModule}>{item.title}</Text>
-                            </View>
-                            <View style={styles.moduleView}>
-                                <Text style={styles.examModule}>{item.content}</Text>
-                            </View>                            
+                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    props.navigation.navigate('Student List', {
+                                    course_id: item.id,
+                                    filter: false,
+                                });}}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Student List</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {props.navigation.navigate('List Exams', {
+                                    course_id: item.id,
+                                });}}
+                                style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
+                            >
+                                <Text style={styles.buttonOutlineText}>Exams List</Text>
+                            </TouchableOpacity>
                         </View>
-                        {item.media_url.map((media_item,media_key) => (
-                            <View style={styles.containerVideo}>
-                                <Video
-                                    ref={video}
-                                    style={styles.video}
-                                    source={{uri: media_item.url}}
-                                    resizeMode="contain"
-                                    useNativeControls={true}
-                                    shouldPlay={false}
-                                    onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                />
+                    </View>
+                {/* </>
+                )} */}
+                {subscribed === true && (
+                    <>
+                    {modules.map((item, key) => (
+                        <>                   
+                            <View style={styles.courseCardWrapper}>                            
+                                <View style={styles.moduleView}>
+                                    <Text style={styles.examModule}>{item.title}</Text>
+                                </View>
+                                <View style={styles.moduleView}>
+                                    <Text style={styles.examModule}>{item.content}</Text>
+                                </View>                            
                             </View>
-                        ))} 
-                    </>                   
-                ))}
-                    {exams.length === 0 && (
-                        <Text style={styles.examsText}>This course doesn't have exams</Text>
-                    )}
-                    {exams.map(item_exam => (
-                        <>
-                        {(item_exam.state === "active" || item_exam.state === "inactive") && (
-                            <View style={styles.examsList}>
-                                <TouchableOpacity
-                                    onPress={() => {props.navigation.navigate('Exam Screen', {
-                                        id: item_exam.id,
-                                        course_id : item.id,
-                                    })}}
-                                    style={[styles.fadedButton]}
-                                >
-                                    <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
-                                </TouchableOpacity>
-                            </View>
-                        )}
-                        </>
+                            {item.media_url.map((media_item,media_key) => (
+                                <View style={styles.containerVideo}>
+                                    <Video
+                                        ref={video}
+                                        style={styles.video}
+                                        source={{uri: media_item.url}}
+                                        resizeMode="contain"
+                                        useNativeControls={true}
+                                        shouldPlay={false}
+                                        onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                    />
+                                </View>
+                            ))} 
+                        </>                   
                     ))}
-                </>
+                    </>
                 )}
             </ScrollView>
             {((rol != "instructor") && (rol != "collaborator")) && (
-            <View style={styles.buttonsWrapper}>
-                {subscribed === false && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
+                <View style={styles.buttonsWrapper}>
+                    {subscribed === false && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
+                            <View style={styles.subscribeWrapper}>
+                                <Feather name="plus" size={18} color="black" />
+                                <Text style={styles.subscribeText}>Subscribe</Text>
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                    {subscribed === true && (
+                    <>
+                    <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
                         <View style={styles.subscribeWrapper}>
-                            <Feather name="plus" size={18} color="black" />
-                            <Text style={styles.subscribeText}>Subscribe</Text>
+                            <Feather name="x" size={18} color="black" />
+                            <Text style={styles.unsubscribeText}>Unsubscribe</Text>
                         </View>
                     </TouchableOpacity>            
-                </>
-                )}
-                {subscribed === true && (
-                <>
-                <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
-                    <View style={styles.subscribeWrapper}>
-                        <Feather name="x" size={18} color="black" />
-                        <Text style={styles.unsubscribeText}>Unsubscribe</Text>
-                    </View>
-                </TouchableOpacity>            
-                </>
-                )}
-                {favorited === false && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitFavorited()}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="heart-outline" size={18} color="black" />
-                        </View>
-                    </TouchableOpacity>            
-                </>
-                )}
-                {favorited === true && (
-                <>
-                    <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="heart" size={18} color="black" />
-                        </View>
-                    </TouchableOpacity>            
-                </>
-                )}
-            </View>
+                    </>
+                    )}
+                    {favorited === false && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitFavorited()}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="heart-outline" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                    {favorited === true && (
+                    <>
+                        <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="heart" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity>            
+                    </>
+                    )}
+                </View>
             )}
         </View>
       );
@@ -446,12 +457,14 @@ const styles = new StyleSheet.create({
     titleWrapper: {
         //paddingVertical:25,
         paddingHorizontal: 10,
-        flexDirection: "column"
+        flexDirection: "column",
     },
     titlesTitle: {
-        flex: 1, 
+        //flex: 1, 
         flexWrap: 'wrap',
         fontSize: 24,
+        color: 'black',
+        flexDirection: 'row',
     },
     titlesRating: {
         paddingVertical: 5,
@@ -461,7 +474,7 @@ const styles = new StyleSheet.create({
     instructorsTitle: {
         fontSize: 16,
         color: 'black',
-        fontWeight: "500",
+        fontWeight: "bold",
     },
     buttonsWrapper: {
         flexDirection: 'row',
@@ -478,8 +491,8 @@ const styles = new StyleSheet.create({
         fontSize: 16,
     },
     featuresWrapper: {
-        marginTop: 10,
-        paddingVertical: 5,
+        //marginTop: 10,
+        //paddingVertical: 5,
         paddingHorizontal: 15,
     },
     featuresTitle: {
@@ -560,6 +573,36 @@ const styles = new StyleSheet.create({
     examsList: {
         marginBottom: 5,
         marginLeft: 10,
+    },
+    studentListWrapper: {
+        //marginTop: 10,
+        paddingHorizontal: 15,
+    },
+    button: {
+        backgroundColor: `#87ceeb`,
+        width: '90%',
+        padding: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 15,
+        marginTop: 20,
+    },
+    buttonText: {
+        color:'white',
+        fontWeight: '700',
+        fontSize: 16,
+    },
+    buttonOutlined: {
+        backgroundColor:'white',
+        //marginTop: 5,
+        borderColor: '#87ceeb',
+        borderWidth:2,
+    },
+    buttonOutlineText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
     },
 });
 

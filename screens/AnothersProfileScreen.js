@@ -24,6 +24,7 @@ const AnothersProfileScreen = (props) => {
         profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
         interests: [],
+        rol: "",
     });
 
     const handleResponseGetCategory = (response) => {
@@ -44,7 +45,8 @@ const AnothersProfileScreen = (props) => {
                 location: response.content().location,
                 profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
-                interests: response.content().interests
+                interests: response.content().interests,
+                rol: response.content().rol,
             });
             let tokenLS = await app.getToken();
             for(let id of response.content().interests){
@@ -105,22 +107,26 @@ const AnothersProfileScreen = (props) => {
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
-                <View style={styles.locationWrapper}>
-                    <Text style={styles.locationTitle}>Location:</Text>
-                    <Text style={styles.location}>{userData.location}</Text>
-                </View>
-                <View style={styles.categoriesWrapper}>
-                    <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
-                    <View style={styles.categoriesListWrapper}>
-                        <FlatList  
-                            data={categories}
-                            renderItem={renderCategoryItem}
-                            keyExtractor={(item) => item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
+                {userData.rol === "student" && (
+                    <>
+                    <View style={styles.locationWrapper}>
+                        <Text style={styles.locationTitle}>Location:</Text>
+                        <Text style={styles.location}>{userData.location}</Text>
                     </View>
-                </View>
+                    <View style={styles.categoriesWrapper}>
+                        <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
+                        <View style={styles.categoriesListWrapper}>
+                            <FlatList  
+                                data={categories}
+                                renderItem={renderCategoryItem}
+                                keyExtractor={(item) => item.id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </View>
+                    </View>
+                    </>
+                )}
             </ScrollView>
             <View style={styles.buttonWrapper}>
                 <TouchableOpacity onPress={() => {}}> 

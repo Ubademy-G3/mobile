@@ -46,7 +46,7 @@ const CourseComponent = ({ item, navigation }) => {
         <TouchableOpacity
             key={item.id}
             onPress={() => {
-            props.navigation.navigate('Course Screen', {
+            navigation.navigate('Course Screen', {
                 item: item,
             });
             }}

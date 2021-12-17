@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
     },
     courseText: {
         marginTop: 15,

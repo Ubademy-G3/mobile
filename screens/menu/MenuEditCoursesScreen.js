@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
     },
     courseCardWrapper: {
         backgroundColor: 'white',

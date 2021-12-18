@@ -14,13 +14,12 @@ MaterialIcons.loadFont();
 
 const SolvedExamsScreen = (props) => {
     const param_course_id = props.route.params.course_id;
-    const param_view_as = props.route.params.view_as;
     const [loading, setLoading] = useState(false);
     const [solutions, setSolutions] = useState([]);
     const [filtersVisible, setFiltersVisible] = useState(false);
 
     const handleResponseGetProfile = async (response) => {
-        console.log("[Solved Exams screen] get user profile: ")
+        //console.log("[Solved Exams screen] get user profile: ")
         if (!response.hasError()) {
             for (let [idx, solution] of solutions.entries()) {
                 if (solution.user_id === response.content().id) {
@@ -35,7 +34,7 @@ const SolvedExamsScreen = (props) => {
     }
 
     const handleResponseGetExam = async (response) => {
-        console.log("[Solved Exams screen] get exam info: ")
+        //console.log("[Solved Exams screen] get exam info: ")
         if (!response.hasError()) {
             for (let [idx, solution] of solutions.entries()) {
                 if (solution.exam_template_id === response.content().id) {
@@ -50,7 +49,7 @@ const SolvedExamsScreen = (props) => {
     }
 
     const handleResponseGetSolvedExams = async (response) => {
-        console.log("[Solved Exams screen] get solved exams: ")
+        //console.log("[Solved Exams screen] get solved exams: ")
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
         } else {
@@ -60,13 +59,17 @@ const SolvedExamsScreen = (props) => {
 
     const getData = async () => {
         let tokenLS = await app.getToken();
+        let examIds = [];
         for (let solution of solutions) {
             if (!solution.user_name) {
                 await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
             }
-            if (!solution.exam_name) {
-                await app.apiClient().getExamsById({token: tokenLS}, solution.exam_template_id, handleResponseGetExam);
+            if (!solution.exam_name && !examIds.includes(solution.exam_template_id)) {
+                examIds.push(solution.exam_template_id)
             }
+        }
+        for (let id of examIds) {
+            await app.apiClient().getExamsById({token: tokenLS}, id, handleResponseGetExam);
         }
         setLoading(false);
     };

@@ -25,6 +25,7 @@ const SolvedExamsScreen = (props) => {
                 if (solution.user_id === response.content().id) {
                     const _solutions = [...solutions];
                     _solutions[idx].user_name = response.content().firstName;
+                    _solutions[idx].user_last_name = response.content().lastName;
                     setSolutions(_solutions);
                 }
             }
@@ -115,9 +116,11 @@ const SolvedExamsScreen = (props) => {
             if (approved.length > 0) {
               if (approved[0].isChecked) {
                 solvedFilters.approval_state = true;
+                solvedFilters.graded = true;
               }
               if (approved[0].isChecked && approved[0].name === 'Failed') {
                 solvedFilters.approval_state = false;
+                solvedFilters.graded = true;
               }
             }
         }
@@ -137,7 +140,7 @@ const SolvedExamsScreen = (props) => {
                         {solutions.length === 0 ? (
                             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
-                                <Text style={styles.examsText}>Oops.. could not find any solved exam</Text>
+                                <Text style={styles.examsText}>Oops.. could not find any exam</Text>
                             </View>
                         ) : (
                             <>
@@ -164,7 +167,17 @@ const SolvedExamsScreen = (props) => {
                                             style={styles.courseCardWrapper}
                                         >
                                             <View style={styles.courseCardTop}>
-                                                <Text style={styles.buttonFadedText}>{item.exam_name} - {item.user_name}</Text>
+                                                <Text style={styles.buttonFadedText}>{item.exam_name}</Text>
+                                            </View>
+                                            <View>
+                                                <Text>{`Solved by ${item.user_name} ${item.user_last_name}`}</Text>
+                                                {item.graded && (
+                                                    <>
+                                                        {/*<Text>{`Corrected by ${item.user_name} ${item.user_last_name}`}</Text>
+                                                        */}
+                                                        <Text>{`Score: ${item.score}`}</Text>
+                                                    </>
+                                                )}
                                             </View>
                                         </View>
                                     </TouchableOpacity>
@@ -177,7 +190,7 @@ const SolvedExamsScreen = (props) => {
                                 })}}
                             style={styles.questionWrapper}
                         >
-                            <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
+                            <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center', flexDirection: 'row'}]}>
                                     <View style={styles.addQuestionView}>
                                         <Text style={styles.buttonText}>Create New Exam</Text>
                                         <Feather
@@ -227,7 +240,7 @@ const styles = new StyleSheet.create({
         paddingVertical: 8,
         paddingLeft: 20,
         //marginTop: 5,
-        flexDirection: 'row',
+        flexDirection: 'column',
         shadowColor: 'black',
         shadowOffset: {
           width: 0,
@@ -235,13 +248,13 @@ const styles = new StyleSheet.create({
         },
         shadowOpacity: 0.05,
         shadowRadius: 10,
-        elevation: 2, 
+        elevation: 2,
     },
     courseCardTop: {
         //marginLeft: 20,
         //paddingRight: 40,
         marginTop: 8,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         //marginRight: 80,
     },
     courseDescriptionWrapper: {
@@ -273,6 +286,9 @@ const styles = new StyleSheet.create({
         color:'white',
         fontWeight: '700',
         fontSize: 16,
+    },
+    buttonFadedText: {
+        fontWeight: 'bold'
     },
     buttonEditIconRight: {
         marginLeft: 10,

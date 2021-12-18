@@ -277,26 +277,6 @@ const HomeScreen = (props) => {
                     keyExtractor={(item) => item.id}
                   />
                 </View>
-                <View>
-                  {!filtered && (
-                    <Text style={styles.title}>All courses</Text>
-                  )}
-                  {/* <FlatList 
-                    data={courses}
-                    renderItem={renderVerticalCourseItem}
-                    keyExtractor={(item) => item.id}
-                  /> */}
-                  <View style={styles.coursesCardWrapper}>
-                      {courses.length === 0 && (
-                          <Text style={styles.courseText}>Favorite courses to see your courses here.</Text>
-                      )}
-                      {courses.map((item) => (
-                          <CourseComponent 
-                          item={item}
-                          navigation={props.navigation}/>
-                      ))}
-                  </View>
-                </View>
               </>
             )}
         </ScrollView>
@@ -315,13 +295,8 @@ const styles = StyleSheet.create({
   },
   coursesCardWrapper: {
     paddingHorizontal: 15,
-    //justifyContent: 'center',
-    //alignItems: 'center',
   },
   logoImage: {
-    //width: 155,
-    //height: 90,
-    //borderRadius: 40,
     width: 155,
     height: 85,
   },
@@ -528,11 +503,8 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   forYouCardTop: {
-    //marginLeft: 20,
-    //paddingRight: 40,
     flexDirection: 'row',
     alignItems: 'center',
-    //marginRight: 80,
   },
   forYouCardImage: {
     width: 60,

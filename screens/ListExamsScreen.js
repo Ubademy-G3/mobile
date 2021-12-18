@@ -23,7 +23,7 @@ const ListExamsScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[List Exams screen] token:", tokenLS); 
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, {}, handleResponseGetAllExams);
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, {state: 'active'}, handleResponseGetAllExams);
         setLoading(false);
     };
 
@@ -45,7 +45,7 @@ const ListExamsScreen = (props) => {
                                 <Text style={styles.examsText}>This course doesn't have exams</Text>
                             )}
                             {exams.map(item_exam => (
-                                <>
+                                <View key={item_exam.id}>
                                     {(item_exam.state === "active" || item_exam.state === "inactive") && (
                                         <TouchableOpacity
                                             onPress={() => {props.navigation.navigate('Exam Screen', {
@@ -53,7 +53,6 @@ const ListExamsScreen = (props) => {
                                                 course_id : param_course_id,
                                             })}}
                                             style={[styles.fadedButton]}
-                                            key={item_exam.id}
                                         >
                                             <View
                                                 style={styles.courseCardWrapper}
@@ -62,7 +61,7 @@ const ListExamsScreen = (props) => {
                                             </View>
                                         </TouchableOpacity>
                                     )}
-                                </>
+                                </View>
                             ))}
                         </View>
                     )}

@@ -251,6 +251,20 @@ const EditExamScreen = (props) => {
                     state: "inactive",
                 });
             }
+        } else if (initialState === 'inactive') {
+            if (selectedExam.state === 'active') {
+                console.log("[Edit Exam screen] seteo en inactive"); 
+                setSelectedExam({
+                    ...selectedExam,
+                    state: "inactive",
+                });
+            } else {
+                console.log("[Edit Exam screen] seteo en active"); 
+                setSelectedExam({
+                    ...selectedExam,
+                    state: "active",
+                });
+            }
         }
     }
 

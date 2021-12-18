@@ -6,27 +6,20 @@ import { app } from '../app/app';
 import QuestionComponent from '../components/QuestionComponent';
 import SelectDropdown from 'react-native-select-dropdown'
 import { GetAllSolutionsByExamIdEndpoint } from '../communication/endpoints/GetAllSolutionsByExamIdEndpoint';
+import { ActivityIndicator } from 'react-native-paper';
 
 const ExamScreen = (props) => {
 
-    const param_exam_id = props.route.params ? props.route.params.id : 'defaultID';
-
-    const param_course_id = props.route.params ? props.route.params.course_id : 'defaultID';
+    const param_exam_id = props.route.params.id;
+    const param_course_id = props.route.params.course_id;
 
     const [loading, setLoading] = useState(false);
-
     const [questions, setQuestions] = useState([]);
-
     const [answer, setAnswer] = useState([]);
-
     const [solutionId, setSolutionId] = useState(0);
-
     const [blocked, setBlocked] = useState(false);
-
     const [solution, setSolution] = useState({});
-
-    //const [selectedMC, setSelectedMC] = useState(0);
-
+    
     const handleResponseCreateNewSolution = async (response) => {
         console.log("[Edit Exam screen] create new solution: ", response.content())
         if (!response.hasError()) {
@@ -53,7 +46,7 @@ const ExamScreen = (props) => {
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             let idLS = await app.getId();
-            await app.apiClient().createNewExamSolution({token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: response.content().max_score}, param_exam_id, handleResponseCreateNewSolution);
+            await app.apiClient().createNewExamSolution({ token: tokenLS, course_id: param_course_id, user_id: idLS, max_score: response.content().max_score }, param_exam_id, handleResponseCreateNewSolution);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }  
@@ -61,10 +54,8 @@ const ExamScreen = (props) => {
 
     const handleResponseGetAllQuestions = async (response) => {
         console.log("[Edit Exam screen] get questions: ", response.content())
-        let tokenLS = await app.getToken();
-        let idLS = await app.getId();
         if (!response.hasError()) {
-            for(let question of response.content().question_templates) {
+            /*for (let question of response.content().question_templates) {
                 setQuestions(questions => [...questions, {
                 saved_question: true,
                 correct: question.correct,
@@ -79,7 +70,8 @@ const ExamScreen = (props) => {
                     answer: "",
                     question_template_id: question.id,
                 }]);
-            }
+            }*/
+            setQuestions(response.content().question_templates);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }        
@@ -105,21 +97,17 @@ const ExamScreen = (props) => {
 
     const handleSubmitSave = async () => {
         let tokenLS = await app.getToken();
-        let idLS = await app.getId();
+        console.log("ANSWERS")
+        console.log(answer)
         for (let asw of answer) {
-            /* console.log("en el for asw: ", asw);
-            console.log("en el for idx: ", idx);
-            console.log("en el for solutionId[idx]: ", solutionId[idx]);
-            console.log("en el for solutionId[idx].solutionID: ", solutionId[idx].solutionId); */
             await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId, handleResponseCreateNewAnswer);
         }
         props.navigation.goBack();
     }
 
     const handleSubmitSetAnswer = (key, asw, question_id) => {
-        const _answer = [...answer];
-        _answer[key].answer = asw;
-        _answer[key].question_template_id = question_id;
+        const _answer = answer;
+        _answer[key] = { answer: asw, question_template_id: question_id };
         setAnswer(_answer);
         console.log("Set answer", _answer);
     }
@@ -156,70 +144,81 @@ const ExamScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                {questions.length === 0 && (
-                    <Text style={styles.examsText}>This exam has no questions</Text>
-                )}
-                {blocked && (
-                    <>
-                    {solution.graded && (
+                <>
+                    {console.log("BLOCKED")}
+                    {console.log(blocked)}
+                    {loading && (
+                        <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+                    )}
+                    {!loading && (
                         <>
-                        <Text style={styles.examsText}>Total score: {solution.score}/{solution.max_score}</Text>
-                        {solution.approval_state && (
-                            <Text style={styles.examsText}>Approved</Text>
-                        )}
-                        {!solution.approval_state && (
-                            <Text style={styles.examsText}>Failed</Text>
-                        )}
+                            {questions.length === 0 && (
+                                <Text style={styles.examsText}>This exam has no questions</Text>
+                            )}
+                            {blocked && (
+                                <>
+                                    {solution.graded && (
+                                        <>
+                                            <Text style={styles.examsText}>Total score: {solution.score}/{solution.max_score}</Text>
+                                            {solution.approval_state && (
+                                                <Text style={styles.examsText}>Approved</Text>
+                                            )}
+                                            {!solution.approval_state && (
+                                                <Text style={styles.examsText}>Failed</Text>
+                                            )}
+                                        </>
+                                    )}
+                                    {!solution.graded && (
+                                        <Text style={styles.examsText}>You reached the maximum amount of attempts for this exam</Text>
+                                    )}
+                                </>
+                            )}
+                            {!blocked && (
+                                <>
+                                    {questions.map((item, idx) => (
+                                        <TouchableOpacity
+                                            key={item.id}
+                                            onPress={() => {}}
+                                            style={styles.containerQuestions}
+                                        >
+                                            <View>
+                                                <Text style={styles.questionText}>{item.question}</Text>
+                                                {item.question_type === "written" && (
+                                                    <>
+                                                        <TextInput
+                                                            placeholder="Write your answer"
+                                                            multiline = {true}
+                                                            onChangeText={text => handleSubmitSetAnswer(idx, text, item.id)}
+                                                            value={answer.answer}
+                                                            style={styles.input}
+                                                        />
+                                                    </>
+                                                )}
+                                                {item.question_type === "multiple_choice" && (
+                                                    <>
+                                                        {/* Chequear que funcione esto -> parece funcionar */}
+                                                        <SelectDropdown
+                                                            data={item.options}
+                                                            onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}
+                                                            defaultButtonText={"Select an option"}
+                                                            buttonStyle={styles.buttonDropdown}
+                                                            buttonTextStyle={styles.textDropdown}
+                                                            renderDropdownIcon={() => {
+                                                                return (
+                                                                <Feather name="chevron-down" color={"#444"} size={18} />
+                                                                );
+                                                            }}
+                                                        />
+                                                    </>
+                                                )}
+                                            </View>
+                                        </TouchableOpacity>
+                                    ))}
+                                </>
+                            )}
                         </>
                     )}
-                    {!solution.graded && (
-                        <Text style={styles.examsText}>You reached the maximum amount of attempts for this exam</Text>
-                    )}
-                    </>
-                )}
-                {!blocked && (
-                    <>
-                    {questions.map((item, idx) => (
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() => {}}
-                        style={styles.containerQuestions}
-                        >
-                            <View>
-                                <Text style={styles.questionText}>{item.question}</Text>
-                                {item.question_type === "written" && (
-                                    <>
-                                        <TextInput
-                                            placeholder="Write your answer"
-                                            multiline = {true}
-                                            onChangeText={text => handleSubmitSetAnswer(idx, text, item.id)}
-                                            value={answer.answer}
-                                            style={styles.input}
-                                        />
-                                    </>
-                                )}
-                                {item.question_type === "multiple_choice" && (
-                                    <>
-                                        {/* Chequear que funcione esto -> parece funcionar */}
-                                        <SelectDropdown
-                                            data={item.options}
-                                            onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}
-                                            defaultButtonText={"Select an option"}
-                                            buttonStyle={styles.buttonDropdown}
-                                            buttonTextStyle={styles.textDropdown}
-                                            renderDropdownIcon={() => {
-                                                return (
-                                                <Feather name="chevron-down" color={"#444"} size={18} />
-                                                );
-                                            }}
-                                        />
-                                    </>
-                                )}
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                    </>
-                )}
+                </>
             </ScrollView>
             {!blocked && (
             <View style={styles.saveButtonWrapper}>

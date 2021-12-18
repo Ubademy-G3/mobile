@@ -7,6 +7,7 @@ import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
 import { firebase } from '../firebase';
 import { Video, AVPlaybackStatus } from 'expo-av';
+import { ActivityIndicator } from 'react-native-paper';
 import StarRating from 'react-native-star-rating';
 
 Feather.loadFont();
@@ -15,31 +16,18 @@ MaterialIcons.loadFont();
 
 const CourseScreen = (props) => {
     const { item } = props.route.params;
-
     const [loading, setLoading] = useState(false);
-
     const [subscribed, setSubscribed] = useState(false);
-    
     const [favorited, setFavorited] = useState(false);
-
     const [rating, setRating] = useState({});
-
     const [instructors, setInstructors] = useState([]);
-
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
-
     const [exams, setExams] = useState([]);
-
     const [modules, setModules] = useState([]); 
-
     const [updatingModules, setUpdatingModules] = useState(false);
-
     const [rol, setRol] = useState("");
-
     const [subscriptionType, setSubscriptionType] = useState("");
-
     const video = React.useRef(null);
-
     const [status, setStatus] = React.useState({});
 
     const handleGetMedia = async (response) => {
@@ -53,8 +41,7 @@ const CourseScreen = (props) => {
                     setModules(newmodule);
                 }
                 centinela = centinela + 1;
-            }
-            console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAA",modules);            
+            }          
         } else {
             console.log("[ Course screen] error", response.content().message);
         }   
@@ -106,17 +93,17 @@ const CourseScreen = (props) => {
         });
     }
 
-    /* const handleResponseGetAllExams = (response) => {
-        console.log("[Course screen] get exams: ", response.content())
+    const handleResponseGetAllExams = (response) => {
+        //console.log("[Course screen] get exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
             console.log("[Course screen] error", response.content().message);
         }        
-    } */
+    }
 
     const handleResponseSubscribeToCourse = (response) => {
-        console.log("[Course screen] subscribe content: ", response.content())
+        //console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
         } else {
@@ -134,7 +121,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseUnsubscribeToCourse = (response) => {
-        console.log("[Course screen] unsubscribe content: ", response.content())
+        //console.log("[Course screen] unsubscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(false);
         } else {
@@ -143,7 +130,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseUnfavorite = (response) => {
-        console.log("[Course screen] unfavorite content: ", response.content())
+        //console.log("[Course screen] unfavorite content: ", response.content())
         if (!response.hasError()) {
             setFavorited(false);
         } else {
@@ -152,7 +139,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseFavorited = (response) => {
-        console.log("[Course screen] favorited content: ", response.content())
+        //console.log("[Course screen] favorited content: ", response.content())
         if (!response.hasError()) {
             setFavorited(true);
         } else {
@@ -161,7 +148,7 @@ const CourseScreen = (props) => {
     }
 
     const handleApiResponseProfile = (response) => {
-        console.log("[Course screen] content: ", response.content());
+        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {  
             setInstructors(instructors => [...instructors, response.content()]);
         } else {
@@ -170,7 +157,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        console.log("[Course screen] content: ", response.content());
+        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
@@ -185,7 +172,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetAllUsersInCourses = async (response) => {
-        console.log("[Course screen] content: ", response.content())
+        //console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
             let idLS = await app.getId();
             let tokenLS = await app.getToken();
@@ -237,7 +224,7 @@ const CourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         let newList = removeElement(favoriteCoursesList, item.id);
-        console.log("[Course screen] new list:", newList);
+        //console.log("[Course screen] new list:", newList);
         await app.apiClient().editProfile({token: tokenLS, favoriteCourses: newList }, idLS, handleResponseUnfavorite);
         setFavoriteCoursesList(newList);
         setLoading(false);
@@ -265,7 +252,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
-        /* await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, handleResponseGetAllExams); */
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         setLoading(false);
     };
   
@@ -283,7 +270,12 @@ const CourseScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.titlesWrapper}>
+                {loading && (
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                )}
+                {!loading && (
+                    <>
+                    <View style={styles.titlesWrapper}>
                     <View>
                         <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
@@ -304,8 +296,14 @@ const CourseScreen = (props) => {
                         </View>
                     </View>
                 </View>
-                {/* {subscribed === false && (
-                <> */}
+                <View
+                    style={{
+                        borderBottomColor: 'grey',
+                        borderBottomWidth: 0.5,
+                    }}
+                />
+                {!subscribed && (
+                <>
                     <View style={styles.descriptionWrapper}>
                         <Text style={styles.description}>{item.description}</Text>
                     </View>
@@ -324,60 +322,78 @@ const CourseScreen = (props) => {
                             item={item}
                             navigation={props.navigation}/>
                         ))}
-                        <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                        <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('Student List', {
+                                course_id: item.id,
+                                filter: false,
+                                view_as: rol
+                            });}}
+                            style={[styles.fadedButton]}
+                        >
+                            <Text style={styles.buttonFadedText}>Student List</Text>
+                        </TouchableOpacity>
+                    </View>
+                </>
+                )}
+                {subscribed && (
+                    <>
+                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                             <TouchableOpacity
                                 onPress={() => {
                                     props.navigation.navigate('Student List', {
                                     course_id: item.id,
-                                    filter: false,
+                                    view_as: rol
                                 });}}
-                                style={styles.button}
+                                style={[styles.buttonWithImage]}
                             >
-                                <Text style={styles.buttonText}>Student List</Text>
+                                <Image source={require("../assets/images/studentsButton.png")} style={styles.buttonImage} />
+                                <Text style={{color: 'grey', textAlign: 'center'}}>Students</Text>
                             </TouchableOpacity>
                             <TouchableOpacity
-                                onPress={() => {props.navigation.navigate('List Exams', {
+                                onPress={() => {
+                                    props.navigation.navigate('Course Exams', {
                                     course_id: item.id,
+                                    view_as: rol,
+                                    exams: exams
                                 });}}
-                                style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
+                                style={[styles.buttonWithImage]}
                             >
-                                <Text style={styles.buttonOutlineText}>Exams List</Text>
+                                <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
+                                <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
                             </TouchableOpacity>
                         </View>
-                    </View>
-                {/* </>
-                )} */}
-                {subscribed === true && (
-                    <>
-                    {modules.map((item, key) => (
-                        <>                   
-                            <View style={styles.courseCardWrapper}>                            
-                                <View style={styles.moduleView}>
-                                    <Text style={styles.examModule}>{item.title}</Text>
+                        {modules.map((item, key) => (
+                            <>                   
+                                <View style={styles.courseCardWrapper}>                            
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.title}</Text>
+                                    </View>
+                                    <View style={styles.moduleView}>
+                                        <Text style={styles.examModule}>{item.content}</Text>
+                                    </View>                            
                                 </View>
-                                <View style={styles.moduleView}>
-                                    <Text style={styles.examModule}>{item.content}</Text>
-                                </View>                            
-                            </View>
-                            {item.media_url.map((media_item,media_key) => (
-                                <View style={styles.containerVideo}>
-                                    <Video
-                                        ref={video}
-                                        style={styles.video}
-                                        source={{uri: media_item.url}}
-                                        resizeMode="contain"
-                                        useNativeControls={true}
-                                        shouldPlay={false}
-                                        onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                    />
-                                </View>
-                            ))} 
-                        </>                   
-                    ))}
+                                {item.media_url.map((media_item,media_key) => (
+                                    <View style={styles.containerVideo}>
+                                        <Video
+                                            ref={video}
+                                            style={styles.video}
+                                            source={{uri: media_item.url}}
+                                            resizeMode="contain"
+                                            useNativeControls={true}
+                                            shouldPlay={false}
+                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                        />
+                                    </View>
+                                ))} 
+                            </>                   
+                        ))}
                     </>
                 )}
+                </>
+                )}
             </ScrollView>
-            {((rol != "instructor") && (rol != "collaborator")) && (
+            {!loading && rol === 'student' && (
                 <View style={styles.buttonsWrapper}>
                     {subscribed === false && (
                     <>
@@ -389,17 +405,17 @@ const CourseScreen = (props) => {
                         </TouchableOpacity>            
                     </>
                     )}
-                    {subscribed === true && (
-                    <>
-                    <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
-                        <View style={styles.subscribeWrapper}>
-                            <Feather name="x" size={18} color="black" />
-                            <Text style={styles.unsubscribeText}>Unsubscribe</Text>
-                        </View>
-                    </TouchableOpacity>            
-                    </>
+                    {subscribed && (
+                        <>
+                            <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
+                                <View style={styles.subscribeWrapper}>
+                                    <Feather name="x" size={18} color="black" />
+                                    <Text style={styles.unsubscribeText}>Unsubscribe</Text>
+                                </View>
+                            </TouchableOpacity>            
+                        </>
                     )}
-                    {favorited === false && (
+                    {!favorited && (
                     <>
                         <TouchableOpacity onPress={() => handleSubmitFavorited()}> 
                             <View style={styles.favoriteWrapper}>
@@ -408,7 +424,7 @@ const CourseScreen = (props) => {
                         </TouchableOpacity>            
                     </>
                     )}
-                    {favorited === true && (
+                    {favorited && (
                     <>
                         <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
                             <View style={styles.favoriteWrapper}>
@@ -426,18 +442,11 @@ const CourseScreen = (props) => {
 const styles = new StyleSheet.create({
     container: {
         flex: 1,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
     },
     titlesWrapper: {
         flexDirection: "row",
         paddingVertical:25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     containerVideo: {
         flex: 1,
@@ -455,14 +464,13 @@ const styles = new StyleSheet.create({
         borderRadius: 10,
     },
     titleWrapper: {
-        //paddingVertical:25,
         paddingHorizontal: 10,
         flexDirection: "column",
     },
     titlesTitle: {
-        //flex: 1, 
         flexWrap: 'wrap',
         fontSize: 24,
+        width: '90%',
         color: 'black',
         flexDirection: 'row',
     },
@@ -485,18 +493,14 @@ const styles = new StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        //paddingVertical: 10,
     },
     description: {
         fontSize: 16,
     },
     featuresWrapper: {
-        //marginTop: 10,
-        //paddingVertical: 5,
         paddingHorizontal: 15,
     },
     featuresTitle: {
-        //paddingHorizontal: 10,
         fontSize: 16,
     },
     featuresListWrapper: {
@@ -547,7 +551,6 @@ const styles = new StyleSheet.create({
         width: '70%',
         paddingVertical: 10,
         paddingHorizontal: 10,
-        //flexDirection: 'row',
     },
     subscribeText: {
         fontSize: 14,
@@ -566,13 +569,19 @@ const styles = new StyleSheet.create({
     fadedButton: {
         marginTop: 10,
         width: '100%',
-        //padding: 15,
         borderRadius: 10,
-        //alignItems: 'center',
     },
     examsList: {
         marginBottom: 5,
         marginLeft: 10,
+    },
+    buttonImage: {
+        width: 100,
+        height: 100
+    },
+    buttonWithImage: {
+        marginTop: 10,
+        borderRadius: 10,
     },
     studentListWrapper: {
         //marginTop: 10,

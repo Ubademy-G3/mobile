@@ -38,12 +38,13 @@ const AnothersProfileScreen = (props) => {
 
     const handleApiResponseProfile = async (response) => {
         console.log("[Anothers Profile screen] content: ", response.content())
-        if (!response.hasError()) {            
+        if (!response.hasError()) {
             setData({
+                id: response.content().id,
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePictureUrl: response.content().profilePictureUrl,
+                profilePicture: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests,
                 rol: response.content().rol,
@@ -97,7 +98,7 @@ const AnothersProfileScreen = (props) => {
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
-                        <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                        <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
@@ -129,7 +130,7 @@ const AnothersProfileScreen = (props) => {
                 )}
             </ScrollView>
             <View style={styles.buttonWrapper}>
-                <TouchableOpacity onPress={() => {}}> 
+                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
                     <View style={styles.favoriteWrapper}>
                         <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
                     </View>

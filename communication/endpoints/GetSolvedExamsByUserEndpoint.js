@@ -1,11 +1,11 @@
-import {Endpoint} from "./Endpoint.js";
+import { Endpoint } from "./Endpoint.js";
 
 function serializeQuery(params, prefix) {
     const query = Object.keys(params).map((key) => {
       const value  = params[key];
 
       if (params.constructor === Array)
-        key = `${prefix}`;
+        key = `${prefix}[]`;
       else if (params.constructor === Object)
         key = (prefix ? `${prefix}[${key}]` : key);
   
@@ -18,22 +18,19 @@ function serializeQuery(params, prefix) {
     return [].concat.apply([], query).join('&');
   }
 
-export class GetAllExamsByCourseIdEndpoint extends Endpoint {
-    constructor(courseId, query) {
-        super(courseId);
-        console.log("entro al constructor:", courseId);
-        this._course_id = courseId;
+export class GetSolvedExamsByUserEndpoint extends Endpoint {
+    constructor(userId, query) {
+        super(query);
         this._query = query;
-        console.log("salgo del constructor:", this._course_id);
+        this._id = userId;
     }
+
     url() {
-        let url = `/exams/courses/${this._course_id}`;
+        let url = `/users/${this._id}/solved-exams`;
         const params = serializeQuery(this._query);
         if (params.length > 0) {
             url = url.concat(`?${params}`);
         }
-        console.log("URL")
-        console.log(url)
         return url;
     }
 

@@ -2,14 +2,14 @@ import * as Updates from "expo-updates";
 
 const ENV = {
     dev: {
-        apiUrl: '',
-        usingFakeApi: '',
+        apiUrl: 'https://staging-api-gateway-app-v2.herokuapp.com',
+        usingFakeApi: false,
     },
     staging: {
-        apiUrl: '',
+        apiUrl: 'https://staging-api-gateway-app-v2.herokuapp.com',
     },
     production: {
-        apiUrl: '',
+        apiUrl: 'https://staging-api-gateway-app-v2.herokuapp.com',
     }
 };
 

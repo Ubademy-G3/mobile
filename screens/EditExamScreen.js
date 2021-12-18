@@ -216,7 +216,9 @@ const EditExamScreen = (props) => {
     }
 
     const handleSubmitApprovalScore = (value) => {
-        setSelectedExam({...exam, approval_score: value});
+        const tmp = selectedExam;
+        tmp.approval_score = value;
+        setSelectedExam(tmp);
     }
 
     const handleSubmitChangeState = () => {
@@ -315,7 +317,7 @@ const EditExamScreen = (props) => {
                         {questions.map((item,key) => (
                             <>
                             {item.saved_question === true && (
-                                <View style={styles.courseCardWrapper}>
+                                <View style={styles.courseCardWrapper} key={item.id}>
                                     <TouchableOpacity
                                         onPress = {()=> {handleSubmitEditQuestion(key)}}
                                         style={styles.questionWrapper}

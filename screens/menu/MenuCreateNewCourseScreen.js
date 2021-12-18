@@ -57,7 +57,7 @@ const MenuCreateNewCourseScreen = (props) => {
             const newURL = await task.getDownloadURL();          
             console.log("NUEVO URL:", newURL);
             setData({
-                ...userData,
+                ...courseData,
                 profilePictureUrl: newURL,
             })
             Alert.alert(
@@ -138,6 +138,7 @@ const MenuCreateNewCourseScreen = (props) => {
             language: courseData.language,
             level: courseData.level,
             modules: courseData.modules,
+            total_exams: courseData.total_exams,
             token: tokenLS}, handleApiResponseCreateCourse);
         setData({
             user_id: idLS,
@@ -151,6 +152,7 @@ const MenuCreateNewCourseScreen = (props) => {
             language: "",
             level: "",
             modules: [],
+            total_exams: 0,
         })
         setLoading(false);
         console.log("[Create Course screen] termino submit signup")
@@ -280,6 +282,16 @@ const MenuCreateNewCourseScreen = (props) => {
                             <Feather name="chevron-down" color={"#444"} size={18} />
                             );
                         }}
+                    />
+                    <Text style={styles.inputText}>Number of exams</Text>
+                    <TextInput
+                        placeholder={""}
+                        onChangeText={text => setData({
+                            ...courseData,
+                            total_exams: text,
+                        })}
+                        value={courseData.total_exams}
+                        style={styles.input}
                     />
 
                 </View>

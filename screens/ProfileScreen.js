@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -104,6 +104,7 @@ const ProfileScreen = (props) => {
 
     useEffect(() => {
         setCourses([]);
+        setFavCourses([]);
         setCategories([]);
         onRefresh();
     }, [param_id, props]);
@@ -126,65 +127,74 @@ const ProfileScreen = (props) => {
 
     return (
         <View style={styles.container}>
-            {userData && (
-                <ScrollView>
-                    <View style={styles.titlesWrapper}>
-                        <View>
-                            <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
-                        </View>
-                        <View>
-                            <View style={styles.titleWrapper}>
-                                <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
+            {
+                loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                </View>
+                :
+                <>
+                {userData && (
+                    <ScrollView>
+                        <View style={styles.titlesWrapper}>
+                            <View>
+                                <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                            </View>
+                            <View>
+                                <View style={styles.titleWrapper}>
+                                    <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
+                                </View>
                             </View>
                         </View>
-                    </View>
-                    <View style={styles.descriptionWrapper}>
-                        <Text style={styles.locationTitle}>{userData.rol.charAt(0).toUpperCase()+userData.rol.slice(1)}</Text>
-                        <Text style={styles.description}>{userData.description}</Text>
-                    </View>
-                    {userData.rol === "student" && (
-                        <>
-                        <View style={styles.locationWrapper}>
-                            <Text style={styles.locationTitle}>Location:</Text>
-                            <Text style={styles.location}>{userData.location}</Text>
+                        <View style={styles.descriptionWrapper}>
+                            <Text style={styles.locationTitle}>{userData.rol.charAt(0).toUpperCase()+userData.rol.slice(1)}</Text>
+                            <Text style={styles.description}>{userData.description}</Text>
                         </View>
-                        <View style={styles.categoriesWrapper}>
-                            <Text style={styles.coursesTitle}>Your interests</Text>
-                            <View style={styles.categoriesListWrapper}>
-                                <FlatList  
-                                    data={categories}
-                                    renderItem={renderCategoryItem}
-                                    keyExtractor={(item) => item.id}
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                />
+                        {userData.rol === "student" && (
+                            <>
+                            <View style={styles.locationWrapper}>
+                                <Text style={styles.locationTitle}>Location:</Text>
+                                <Text style={styles.location}>{userData.location}</Text>
                             </View>
-                        </View>
-                        </>
-                    )}
-                    <View style={styles.coursesCardWrapper}>
-                        <Text style={styles.coursesTitle}>Your courses</Text>
-                        {courses.length === 0 && (
-                            <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
+                            <View style={styles.categoriesWrapper}>
+                                <Text style={styles.coursesTitle}>Your interests</Text>
+                                <View style={styles.categoriesListWrapper}>
+                                    <FlatList  
+                                        data={categories}
+                                        renderItem={renderCategoryItem}
+                                        keyExtractor={(item) => item.id}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    />
+                                </View>
+                            </View>
+                            </>
                         )}
-                        {courses.map(item => (
-                            <CourseComponent 
-                            item={item}
-                            navigation={props.navigation}/>
-                        ))}
-                    </View>
-                    {userData.rol === "student" && (
                         <View style={styles.coursesCardWrapper}>
-                            <Text style={styles.coursesTitle}>Favorite courses</Text>
-                            {favCourses.map(item => (
+                            <Text style={styles.coursesTitle}>Your courses</Text>
+                            {courses.length === 0 && (
+                                <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
+                            )}
+                            {courses.map(item => (
                                 <CourseComponent 
                                 item={item}
                                 navigation={props.navigation}/>
                             ))}
                         </View>
-                    )}
-                </ScrollView>
-            )}
+                        {userData.rol === "student" && (
+                            <View style={styles.coursesCardWrapper}>
+                                <Text style={styles.coursesTitle}>Favorite courses</Text>
+                                {favCourses.map(item => (
+                                    <CourseComponent 
+                                    item={item}
+                                    navigation={props.navigation}/>
+                                ))}
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
+                </>
+            }
         </View>
     )
 }

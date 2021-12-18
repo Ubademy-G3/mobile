@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import SelectDropdown from 'react-native-select-dropdown'
@@ -7,6 +7,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { app } from '../../app/app';
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from '../../firebase';
+import { useFocusEffect } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -57,7 +59,7 @@ const MenuCreateNewCourseScreen = (props) => {
             const newURL = await task.getDownloadURL();          
             console.log("NUEVO URL:", newURL);
             setData({
-                ...userData,
+                ...courseData,
                 profilePictureUrl: newURL,
             })
             Alert.alert(
@@ -165,146 +167,165 @@ const MenuCreateNewCourseScreen = (props) => {
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         console.log("[Create Course screen] entro a useEffect");
         onRefresh();
     }, []);
+ */
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+        }, [])
+    );
+    
 
     return (
-        <ScrollView>
-            <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-                <TouchableOpacity
-                    onPress={() => {choosePhotoFromLibrary()}}
-                    /*style={styles.button}*/
-                    disabled={loading}
-                >
-                    <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
-                </TouchableOpacity>
-                <View style={styles.inputContainer}>
-                    <Text style={styles.inputText}>Course Name</Text>
-                    <TextInput
-                        placeholder={courseData.name}
-                        onChangeText={text => setData({
-                            ...courseData,
-                            name: text,
-                        })}
-                        value={courseData.name}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Description</Text>
-                    <TextInput
-                        placeholder={courseData.description}
-                        onChangeText={text => setData({
-                            ...courseData,
-                            description: text,
-                        })}
-                        value={courseData.description}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Category</Text>
-                    <SelectDropdown
-                        data={categories.map(function(item, idx) {return item.name;})}
-                        onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
-                        defaultButtonText={"Select a category"}
-                        buttonStyle={styles.buttonDropdown}
-                        buttonTextStyle={styles.textDropdown}
-                        renderDropdownIcon={() => {
-                            return (
-                            <Feather name="chevron-down" color={"#444"} size={18} />
-                            );
-                        }}
-                    />
-                    <Text style={styles.inputText}>Subscription Type</Text>
-                    <SelectDropdown
-                        data={subscriptions}
-                        onSelect={(selectedItem, index) => setData({
-                            ...courseData,
-                            subscription_type: selectedItem,
-                        })}
-                        value={courseData.subscription_type}
-                        defaultButtonText={"Select a subscription type"}
-                        buttonStyle={styles.buttonDropdown}
-                        buttonTextStyle={styles.textDropdown}
-                        renderDropdownIcon={() => {
-                            return (
-                            <Feather name="chevron-down" color={"#444"} size={18} />
-                            );
-                        }}
-                    />
-                    <Text style={styles.inputText}>Location</Text>
-                    <TextInput
-                        placeholder={courseData.location}
-                        onChangeText={text => setData({
-                            ...courseData,
-                            location: text,
-                        })}
-                        value={courseData.location}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Duration</Text>
-                    <TextInput
-                        placeholder={courseData.duration}
-                        onChangeText={text => setData({
-                            ...courseData,
-                            duration: text.replace(/[^0-9]/g, ''),
-                        })}
-                        value={courseData.duration}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Language</Text>
-                    <TextInput
-                        placeholder={courseData.language}
-                        onChangeText={text => setData({
-                            ...courseData,
-                            language: text,
-                        })}
-                        value={courseData.language}
-                        style={styles.input}
-                    />
-                    <Text style={styles.inputText}>Level</Text>
-                    <SelectDropdown
-                        data={levels}
-                        onSelect={(selectedItem, index) => setData({
-                            ...courseData,
-                            level: selectedItem,
-                        })}
-                        value={courseData.level}
-                        defaultButtonText={"Select a level type"}
-                        buttonStyle={styles.buttonDropdown}
-                        buttonTextStyle={styles.textDropdown}
-                        renderDropdownIcon={() => {
-                            return (
-                            <Feather name="chevron-down" color={"#444"} size={18} />
-                            );
-                        }}
-                    />
-
+        <View style={styles.container}>
+        {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        onPress={() => handleSubmitCreateNewCourse()}
-                        style={styles.button}
-                        disabled={loading}
+            :
+            <>
+                <ScrollView>
+                    <KeyboardAvoidingView
+                    style={styles.containerWrapper}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
                     >
-                        {
-                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Create New Course</Text>
-                        }
-                    </TouchableOpacity>
-                </View>
-            </KeyboardAvoidingView>
-        </ScrollView>
+                        <TouchableOpacity
+                            onPress={() => {choosePhotoFromLibrary()}}
+                            style={{justifyContent: 'center', alignItems: 'center', marginTop: 10}}
+                        >
+                            <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                        </TouchableOpacity>
+                        <View style={styles.inputContainer}>
+                            <Text style={styles.inputText}>Course Name</Text>
+                            <TextInput
+                                placeholder={courseData.name}
+                                onChangeText={text => setData({
+                                    ...courseData,
+                                    name: text,
+                                })}
+                                value={courseData.name}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Description</Text>
+                            <TextInput
+                                placeholder={courseData.description}
+                                onChangeText={text => setData({
+                                    ...courseData,
+                                    description: text,
+                                })}
+                                value={courseData.description}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Category</Text>
+                            <SelectDropdown
+                                data={categories.map(function(item, idx) {return item.name;})}
+                                onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
+                                defaultButtonText={"Select a category"}
+                                buttonStyle={styles.buttonDropdown}
+                                buttonTextStyle={styles.textDropdown}
+                                renderDropdownIcon={() => {
+                                    return (
+                                    <Feather name="chevron-down" color={"#444"} size={18} />
+                                    );
+                                }}
+                            />
+                            <Text style={styles.inputText}>Subscription Type</Text>
+                            <SelectDropdown
+                                data={subscriptions}
+                                onSelect={(selectedItem, index) => setData({
+                                    ...courseData,
+                                    subscription_type: selectedItem,
+                                })}
+                                value={courseData.subscription_type}
+                                defaultButtonText={"Select a subscription type"}
+                                buttonStyle={styles.buttonDropdown}
+                                buttonTextStyle={styles.textDropdown}
+                                renderDropdownIcon={() => {
+                                    return (
+                                    <Feather name="chevron-down" color={"#444"} size={18} />
+                                    );
+                                }}
+                            />
+                            <Text style={styles.inputText}>Location</Text>
+                            <TextInput
+                                placeholder={courseData.location}
+                                onChangeText={text => setData({
+                                    ...courseData,
+                                    location: text,
+                                })}
+                                value={courseData.location}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Duration</Text>
+                            <TextInput
+                                placeholder={courseData.duration}
+                                onChangeText={text => setData({
+                                    ...courseData,
+                                    duration: text.replace(/[^0-9]/g, ''),
+                                })}
+                                value={courseData.duration}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Language</Text>
+                            <TextInput
+                                placeholder={courseData.language}
+                                onChangeText={text => setData({
+                                    ...courseData,
+                                    language: text,
+                                })}
+                                value={courseData.language}
+                                style={styles.input}
+                            />
+                            <Text style={styles.inputText}>Level</Text>
+                            <SelectDropdown
+                                data={levels}
+                                onSelect={(selectedItem, index) => setData({
+                                    ...courseData,
+                                    level: selectedItem,
+                                })}
+                                value={courseData.level}
+                                defaultButtonText={"Select a level type"}
+                                buttonStyle={styles.buttonDropdown}
+                                buttonTextStyle={styles.textDropdown}
+                                renderDropdownIcon={() => {
+                                    return (
+                                    <Feather name="chevron-down" color={"#444"} size={18} />
+                                    );
+                                }}
+                            />
+
+                        </View>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity
+                                onPress={() => handleSubmitCreateNewCourse()}
+                                style={styles.button}
+                                disabled={loading}
+                            >
+                                {
+                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Create New Course</Text>
+                                }
+                            </TouchableOpacity>
+                        </View>
+                    </KeyboardAvoidingView>
+                </ScrollView>
+                </>
+            }
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+    },
+    containerWrapper: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        //paddingTop: 5,
     },
     logoImage: {
         width: 80,

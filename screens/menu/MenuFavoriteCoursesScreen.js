@@ -1,10 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import forYouData from '../../assets/data/forYouData';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CourseComponent from '../../components/CourseComponent';
 import { app } from '../../app/app';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -46,26 +47,42 @@ const MenuFavoriteCoursesScreen = (props) => {
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         setCourses([]);
         console.log("[Menu Favorite Courses screen] entro a useEffect");
         onRefresh();
-    }, [props]);
+    }, [props]); */
+
+    useFocusEffect(
+        useCallback(() => {
+            setCourses([]);
+            onRefresh();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.coursesCardWrapper}>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Favorite courses to see your courses here.</Text>
-                    )}
-                    {courses.map((item) => (
-                        <CourseComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
-            </ScrollView>
+            :
+                <>
+                <ScrollView>
+                    <View style={styles.coursesCardWrapper}>
+                        {courses.length === 0 && (
+                            <Text style={styles.courseText}>Favorite courses to see your courses here.</Text>
+                        )}
+                        {courses.map((item) => (
+                            <CourseComponent 
+                            item={item}
+                            navigation={props.navigation}/>
+                        ))}
+                    </View>
+                </ScrollView>
+                </>
+            }
         </View>
     )
 }

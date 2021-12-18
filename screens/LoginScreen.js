@@ -323,9 +323,10 @@ const styles = StyleSheet.create({
         flex: 2,
     },
     headerWrapper: {
-        paddingTop: 5,
+        paddingTop: 40,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 40,
     },
     logoImage: {
         width: 155,

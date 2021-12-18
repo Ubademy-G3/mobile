@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -65,66 +65,75 @@ const MenuEditCoursesScreen = (props) => {
         console.log("[Menu Edit Courses screen] entro a useEffect");
         onRefresh();
     }, [props.navigate]); */
+
     useFocusEffect(
         useCallback(() => {
             setCourses([]);
             onRefresh();
-            //return () => unsubscribe();
         }, [])
     );
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                {courses.length === 0 && (
-                    <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
-                )}
-                {courses.map((item) => (
-                    <View style={styles.coursesCardWrapper}>
-                    <TouchableOpacity
-                    key={item.id}
-                    onPress={() =>
-                        props.navigation.navigate('Edit Course', {
-                        item: item,
-                        })
-                    }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,
-                            },
-                            ]}>
-                            <View>
-                                <View style={styles.courseCardTop}>
-                                    <View>
-                                        <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                    </View>
-                                    <View style={styles.courseTitleWrapper}>
-                                        <Text style={styles.courseTitlesTitle}>
-                                            {item.name}
-                                        </Text>
-                                        <View style={styles.courseTitlesRating}>
-                                            <MaterialCommunityIcons
-                                            name="star"
-                                            size={20}
-                                            color={'black'}
-                                            />
-                                            <Text style={styles.rating}>{rating}</Text>
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                </View>
+            :
+            <>
+                <ScrollView>
+                    {courses.length === 0 && (
+                        <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
+                    )}
+                    {courses.map((item) => (
+                        <View style={styles.coursesCardWrapper}>
+                        <TouchableOpacity
+                        key={item.id}
+                        onPress={() =>
+                            props.navigation.navigate('Edit Course', {
+                            item: item,
+                            })
+                        }>
+                            <View
+                                style={[
+                                styles.courseCardWrapper,
+                                {
+                                    marginTop: item.id == 1 ? 10 : 20,
+                                },
+                                ]}>
+                                <View>
+                                    <View style={styles.courseCardTop}>
+                                        <View>
+                                            <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+                                        </View>
+                                        <View style={styles.courseTitleWrapper}>
+                                            <Text style={styles.courseTitlesTitle}>
+                                                {item.name}
+                                            </Text>
+                                            <View style={styles.courseTitlesRating}>
+                                                <MaterialCommunityIcons
+                                                name="star"
+                                                size={20}
+                                                color={'black'}
+                                                />
+                                                <Text style={styles.rating}>{rating}</Text>
+                                            </View>
                                         </View>
                                     </View>
+                                    <View style={styles.courseDescriptionWrapper}>
+                                        <Text style={styles.courseTitleDescription}>
+                                        {item.description}
+                                        </Text>
+                                    </View> 
                                 </View>
-                                <View style={styles.courseDescriptionWrapper}>
-                                    <Text style={styles.courseTitleDescription}>
-                                    {item.description}
-                                    </Text>
-                                </View> 
                             </View>
+                        </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
-                    </View>
-                ))}
-            </ScrollView>
+                    ))}
+                </ScrollView>
+            </>
+            }
         </View>
     )
 }

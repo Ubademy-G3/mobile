@@ -227,139 +227,149 @@ const SignupScreen = (props) => {
     }, [selectedItems]);
     
     return (
-        <ScrollView>
-            <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-                <View style={styles.inputContainer}>
-                    {!selectInterets && (
-                        <>
-                        {!param_signupGoogle && (
-                            <>
-                                <TextInput
-                                placeholder="First Name"
-                                onChangeText={text => setData({
-                                    ...SignUpData,
-                                    firstName: text,
-                                })}
-                                value={SignUpData.firstName}
-                                style={styles.input}
-                            />
-                            <TextInput
-                                placeholder="Last Name"
-                                onChangeText={text => setData({
-                                    ...SignUpData,
-                                    lastName: text,
-                                })}
-                                value={SignUpData.lastName}
-                                style={styles.input}
-                            />
-                                <TextInput
-                                placeholder="Email"
-                                onChangeText={text => setData({
-                                    ...SignUpData,
-                                    email: text,
-                                })}
-                                value={SignUpData.email}
-                                style={styles.input}
-                                />
-                                <TextInput
-                                placeholder="Password"
-                                onChangeText={text => setData({
-                                    ...SignUpData,
-                                    password: text,
-                                })}
-                                value={SignUpData.password}
-                                style={styles.input}
-                                secureTextEntry
-                                />
-                            </>
-                        )}
-                        <SelectDropdown
-                            data={rols}
-                            onSelect={(selectedItem, index) => setData({
-                                ...SignUpData,
-                                rol: selectedItem,
-                            })}
-                            value={SignUpData.rol}
-                            defaultButtonText={"Select a rol"}
-                            buttonStyle={styles.buttonDropdown}
-                            buttonTextStyle={styles.textDropdown}
-                            renderDropdownIcon={() => {
-                                return (
-                                <Feather name="chevron-down" color={"#444"} size={18} />
-                                );
-                            }}
-                        />
-                        {SignUpData.rol === "student" &&(
-                            <>
-                            <TextInput
-                                placeholder="Location"
-                                onChangeText={text => setData({
-                                    ...SignUpData,
-                                    location: text,
-                                })}
-                                value={SignUpData.location}
-                                style={styles.input}
-                            />
-                            </>
-                        )}
-                        </>
-                    )}
-                    {selectInterets && (
-                        <>
-                        <Text style={styles.inputText}>Interests</Text>
-                        <MultiSelect
-                            hideTags
-                            items={categories}
-                            uniqueKey="id"
-                            onSelectedItemsChange={onSelectedItemsChange}
-                            selectedItems={selectedItems}
-                            selectText="Pick all your interests"
-                            searchInputPlaceholderText="Select your interests..."
-                            onChangeInput={(text) => console.log(text)}
-                            tagRemoveIconColor="#CCC"
-                            tagBorderColor="#CCC"
-                            tagTextColor="#CCC"
-                            selectedItemTextColor="#CCC"
-                            selectedItemIconColor="#CCC"
-                            itemTextColor="#000"
-                            displayKey="name"
-                            styleMainWrapper={styles.inputMultiSelect}
-                            searchInputStyle={{color: '#CCC'}}
-                            submitButtonColor="#48d22b"
-                            submitButtonText="Submit"
-                        />
-                        </>
-                    )}
+        <View>
+            <SafeAreaView>
+                <View style={styles.headerWrapper}>
+                    <Image
+                    source={require("../assets/images/logo.png")}
+                    style={styles.logoImage}
+                    />
                 </View>
-                <View style={styles.buttonContainer}>
-                    {!selectInterets && (
-                    <TouchableOpacity
-                        onPress={() => {handleSubmitSignUp()}}
-                        style={styles.button}
-                        disabled={loading}
-                    >
-                        {
-                            loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
-                        }
-                    </TouchableOpacity>
-                    )}
-                    {selectInterets && (
+            </SafeAreaView>
+            <ScrollView>
+                <KeyboardAvoidingView
+                style={styles.container}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <View style={styles.inputContainer}>
+                        {!selectInterets && (
+                            <>
+                            {!param_signupGoogle && (
+                                <>
+                                    <TextInput
+                                    placeholder="First Name"
+                                    onChangeText={text => setData({
+                                        ...SignUpData,
+                                        firstName: text,
+                                    })}
+                                    value={SignUpData.firstName}
+                                    style={styles.input}
+                                />
+                                <TextInput
+                                    placeholder="Last Name"
+                                    onChangeText={text => setData({
+                                        ...SignUpData,
+                                        lastName: text,
+                                    })}
+                                    value={SignUpData.lastName}
+                                    style={styles.input}
+                                />
+                                    <TextInput
+                                    placeholder="Email"
+                                    onChangeText={text => setData({
+                                        ...SignUpData,
+                                        email: text,
+                                    })}
+                                    value={SignUpData.email}
+                                    style={styles.input}
+                                    />
+                                    <TextInput
+                                    placeholder="Password"
+                                    onChangeText={text => setData({
+                                        ...SignUpData,
+                                        password: text,
+                                    })}
+                                    value={SignUpData.password}
+                                    style={styles.input}
+                                    secureTextEntry
+                                    />
+                                </>
+                            )}
+                            <SelectDropdown
+                                data={rols}
+                                onSelect={(selectedItem, index) => setData({
+                                    ...SignUpData,
+                                    rol: selectedItem,
+                                })}
+                                value={SignUpData.rol}
+                                defaultButtonText={"Select a rol"}
+                                buttonStyle={styles.buttonDropdown}
+                                buttonTextStyle={styles.textDropdown}
+                                renderDropdownIcon={() => {
+                                    return (
+                                    <Feather name="chevron-down" color={"#444"} size={18} />
+                                    );
+                                }}
+                            />
+                            {SignUpData.rol === "student" &&(
+                                <>
+                                <TextInput
+                                    placeholder="Location"
+                                    onChangeText={text => setData({
+                                        ...SignUpData,
+                                        location: text,
+                                    })}
+                                    value={SignUpData.location}
+                                    style={styles.input}
+                                />
+                                </>
+                            )}
+                            </>
+                        )}
+                        {selectInterets && (
+                            <>
+                            <Text style={styles.inputText}>Interests</Text>
+                            <MultiSelect
+                                hideTags
+                                items={categories}
+                                uniqueKey="id"
+                                onSelectedItemsChange={onSelectedItemsChange}
+                                selectedItems={selectedItems}
+                                selectText="Pick all your interests"
+                                searchInputPlaceholderText="Select your interests..."
+                                onChangeInput={(text) => console.log(text)}
+                                tagRemoveIconColor="#CCC"
+                                tagBorderColor="#CCC"
+                                tagTextColor="#CCC"
+                                selectedItemTextColor="#CCC"
+                                selectedItemIconColor="#CCC"
+                                itemTextColor="#000"
+                                displayKey="name"
+                                styleMainWrapper={styles.inputMultiSelect}
+                                searchInputStyle={{color: '#CCC'}}
+                                submitButtonColor="#48d22b"
+                                submitButtonText="Submit"
+                            />
+                            </>
+                        )}
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {!selectInterets && (
                         <TouchableOpacity
-                            onPress={() => {handleSubmitEditProfile()}}
+                            onPress={() => {handleSubmitSignUp()}}
                             style={styles.button}
                             disabled={loading}
                         >
                             {
-                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                                loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
                             }
                         </TouchableOpacity>
-                    )}
-                </View>
-            </KeyboardAvoidingView>
-        </ScrollView>
+                        )}
+                        {selectInterets && (
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitEditProfile()}}
+                                style={styles.button}
+                                disabled={loading}
+                            >
+                                {
+                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                                }
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                </KeyboardAvoidingView>
+            </ScrollView>
+        </View>
     )
 }
 
@@ -375,14 +385,14 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     headerWrapper: {
-        paddingTop: 5,
+        paddingTop: 40,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 40,
     },
     logoImage: {
-        width: 75,
-        height: 75,
-        borderRadius: 40,
+        width: 155,
+        height: 85
     },
     inputContainer: {
         width:'80%',

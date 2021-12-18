@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -50,56 +50,64 @@ const MenuCreatedCoursesScreen = (props) => {
         useCallback(() => {
             setCourses([]);
             onRefresh();
-            //return () => unsubscribe();
         }, [])
     );
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                {courses.length === 0 && (
-                    <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
-                )}
-                {courses.map((item) => (
-                    <View style={styles.coursesCardWrapper}>
-                        {console.log(item.id)}
-                    <TouchableOpacity
-                    onPress={() =>
-                        props.navigation.navigate('Course Screen', {
-                        item: item,
-                        })
-                    }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,
-                            },
-                            ]}>
-                            <View>
-                                <View style={styles.courseCardTop}>
-                                    <View>
-                                        <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                </View>
+            :
+                <>
+                <ScrollView>
+                    {courses.length === 0 && (
+                        <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
+                    )}
+                    {courses.map((item) => (
+                        <View style={styles.coursesCardWrapper}>
+                            {console.log(item.id)}
+                        <TouchableOpacity
+                        onPress={() =>
+                            props.navigation.navigate('Course Screen', {
+                            item: item,
+                            })
+                        }>
+                            <View
+                                style={[
+                                styles.courseCardWrapper,
+                                {
+                                    marginTop: item.id == 1 ? 10 : 20,
+                                },
+                                ]}>
+                                <View>
+                                    <View style={styles.courseCardTop}>
+                                        <View>
+                                            <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+                                        </View>
+                                        <View style={styles.courseTitleWrapper}>
+                                            <Text style={styles.courseTitlesTitle}>
+                                                {item.name}
+                                            </Text>
+                                        </View>
                                     </View>
-                                    <View style={styles.courseTitleWrapper}>
-                                        <Text style={styles.courseTitlesTitle}>
-                                            {item.name}
+                                    <View style={styles.courseDescriptionWrapper}>
+                                        <Text style={styles.courseTitleDescription}>
+                                        {item.description}
                                         </Text>
-                                    </View>
+                                    </View> 
                                 </View>
-                                <View style={styles.courseDescriptionWrapper}>
-                                    <Text style={styles.courseTitleDescription}>
-                                    {item.description}
-                                    </Text>
-                                </View> 
                             </View>
+                        </TouchableOpacity>
                         </View>
-                    </TouchableOpacity>
-                    </View>
-                ))}
-            </ScrollView>
+                    ))}
+                </ScrollView>
+                </>
+            }
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({

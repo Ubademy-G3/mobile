@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -100,138 +101,158 @@ const MenuChangeSubscription = (props) => {
         console.log("[Menu Update Subscription screen] salgo del onRefresh");
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         onRefresh();
-    }, []);
+    }, []); */
+
+    useFocusEffect(
+        useCallback(() => {
+            onRefresh();
+        }, [])
+    );
 
     return (
-        <SafeAreaView style={styles.container}>
-            {modalVisible && (
-                <View style={{backgroundColor: 'rgba(0, 0, 0, 0.8)', height: '100%'}}>
-                    <Modal 
-                        animationType="slide"
-                        transparent={true}
-                        visible={modalVisible}
-                        onRequestClose={() => {
-                            setModalVisible(!modalVisible);
-                        }}
-                    >
-                        <View style={styles.dialog}>
-                            {selected == 'gold' && !downgrade && (
-                                <Text style={styles.description}>You are transferring $5 to Ubademy Account</Text>
-                            )}
-                            {selected == 'platinum' && !downgrade && (
-                                <Text style={styles.description}>You are transferring $8 to Ubademy Account</Text>
-                            )}
-                            {downgrade ? (
-                                <>
-                                    <Text style={styles.description}>
-                                        {`You're choosing to downgrade your plan.\nDon't worry, your current subscription will be available until ${subscriptionExpDate.substring(0, 10)}`}
-                                    </Text>
-                                    <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
-                                        <Pressable
-                                            onPress={() => setModalVisible(false)}
-                                            style={styles.confirmButton}
-                                        >
-                                            <Text>OK</Text>
-                                        </Pressable>
-                                    </View>
-                                </>
-                            ) : (
-                                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
-                                    <Pressable
-                                        onPress={() => setModalVisible(!modalVisible)}
-                                        style={styles.cancelButton}
-                                    >
-                                        <Text>Cancel</Text>
-                                    </Pressable>
-                                    <Pressable
-                                        onPress={() => handleConfirmSubscription()}
-                                        style={styles.confirmButton}
-                                    >
-                                        <Text>Confirm</Text>
-                                    </Pressable>
-                                </View>
-                            )}
-                        </View>
-                    </Modal>
+        <View style={styles.container}>
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
-            )}
-            <ScrollView style={styles.info}>
-                {subscription && (
-                    <Text style={styles.title} >
-                        You are currently a {subscription} member
-                    </Text>
-                )}
-                {subscriptionExpDate && !(subscription === 'free') && (
-                    <Text style={{color: 'black', marginLeft: 50}}>
-                        Subscription valid until {subscriptionExpDate.substring(0,10)}
-                    </Text>
-                )}
-                {subscription !== 'free' && (
-                    <View style={styles.buttonContainer}>
-                        <Text style={styles.description}>
-                            {`+100 courses available for\nFREE`}
-                        </Text>
-                        <Image style={styles.image} source={require("../../assets/images/free_subscription.jpg")} />
-                        <TouchableOpacity
-                            onPress={() => {handleUpdateSubscription("free")}}
-                            style={styles.button}
-                            disabled={loading}
-                        >
-                            {
-                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
-                            }
-                        </TouchableOpacity>
-                    </View>
-                )}
-                {subscription !== 'gold' && (
-                    <View style={styles.buttonContainer}>
-                        <Text style={styles.description}>
-                            +250 courses available for
-                        </Text>
-                        <Text style={{fontSize: 20, fontWeight: 'bold'}}>
-                            $5
-                        </Text>
-                        <Image style={styles.image} source={require("../../assets/images/gold_subscription.jpg")} />
-                        <TouchableOpacity
-                            onPress={() => {handleUpdateSubscription("gold")}}
-                            style={styles.button}
-                            disabled={loading}
-                        >
-                            {
-                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
-                            }
-                        </TouchableOpacity>
-                    </View>
-                )}
-                {subscription !== 'platinum' && (
-                    <View style={styles.buttonContainer}>
-                        <Text style={styles.description}>
-                            Access to every course in Ubademy for
-                        </Text>
-                        <Text style={{fontSize: 20, fontWeight: 'bold'}}>
-                            $8
-                        </Text>
-                        <Image style={styles.image} source={require("../../assets/images/platinum_subscription.jpg")} />
-                        <TouchableOpacity
-                            onPress={() => {handleUpdateSubscription("platinum")}}
-                            style={styles.button}
-                            disabled={loading}
-                        >
-                            {
-                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
-                            }
-                        </TouchableOpacity>
-                    </View>
-                )}
-            </ScrollView>
-        </SafeAreaView>
+            :
+                <>
+                <SafeAreaView style={styles.containerWrapper}>
+                    {modalVisible && (
+                        <View style={{backgroundColor: 'rgba(0, 0, 0, 0.8)', height: '100%'}}>
+                            <Modal 
+                                animationType="slide"
+                                transparent={true}
+                                visible={modalVisible}
+                                onRequestClose={() => {
+                                    setModalVisible(!modalVisible);
+                                }}
+                            >
+                                <View style={styles.dialog}>
+                                    {selected == 'gold' && !downgrade && (
+                                        <Text style={styles.description}>You are transferring $5 to Ubademy Account</Text>
+                                    )}
+                                    {selected == 'platinum' && !downgrade && (
+                                        <Text style={styles.description}>You are transferring $8 to Ubademy Account</Text>
+                                    )}
+                                    {downgrade ? (
+                                        <>
+                                            <Text style={styles.description}>
+                                                {`You're choosing to downgrade your plan.\nDon't worry, your current subscription will be available until ${subscriptionExpDate.substring(0, 10)}`}
+                                            </Text>
+                                            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
+                                                <Pressable
+                                                    onPress={() => setModalVisible(false)}
+                                                    style={styles.confirmButton}
+                                                >
+                                                    <Text>OK</Text>
+                                                </Pressable>
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
+                                            <Pressable
+                                                onPress={() => setModalVisible(!modalVisible)}
+                                                style={styles.cancelButton}
+                                            >
+                                                <Text>Cancel</Text>
+                                            </Pressable>
+                                            <Pressable
+                                                onPress={() => handleConfirmSubscription()}
+                                                style={styles.confirmButton}
+                                            >
+                                                <Text>Confirm</Text>
+                                            </Pressable>
+                                        </View>
+                                    )}
+                                </View>
+                            </Modal>
+                        </View>
+                    )}
+                    <ScrollView style={styles.info}>
+                        {subscription && (
+                            <Text style={styles.title} >
+                                You are currently a {subscription} member
+                            </Text>
+                        )}
+                        {subscriptionExpDate && !(subscription === 'free') && (
+                            <Text style={{color: 'black', marginLeft: 50}}>
+                                Subscription valid until {subscriptionExpDate.substring(0,10)}
+                            </Text>
+                        )}
+                        {subscription !== 'free' && (
+                            <View style={styles.buttonContainer}>
+                                <Text style={styles.description}>
+                                    {`+100 courses available for\nFREE`}
+                                </Text>
+                                <Image style={styles.image} source={require("../../assets/images/free_subscription.jpg")} />
+                                <TouchableOpacity
+                                    onPress={() => {handleUpdateSubscription("free")}}
+                                    style={styles.button}
+                                    disabled={loading}
+                                >
+                                    {
+                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        {subscription !== 'gold' && (
+                            <View style={styles.buttonContainer}>
+                                <Text style={styles.description}>
+                                    +250 courses available for
+                                </Text>
+                                <Text style={{fontSize: 20, fontWeight: 'bold'}}>
+                                    $5
+                                </Text>
+                                <Image style={styles.image} source={require("../../assets/images/gold_subscription.jpg")} />
+                                <TouchableOpacity
+                                    onPress={() => {handleUpdateSubscription("gold")}}
+                                    style={styles.button}
+                                    disabled={loading}
+                                >
+                                    {
+                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                        {subscription !== 'platinum' && (
+                            <View style={styles.buttonContainer}>
+                                <Text style={styles.description}>
+                                    Access to every course in Ubademy for
+                                </Text>
+                                <Text style={{fontSize: 20, fontWeight: 'bold'}}>
+                                    $8
+                                </Text>
+                                <Image style={styles.image} source={require("../../assets/images/platinum_subscription.jpg")} />
+                                <TouchableOpacity
+                                    onPress={() => {handleUpdateSubscription("platinum")}}
+                                    style={styles.button}
+                                    disabled={loading}
+                                >
+                                    {
+                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
+                                    }
+                                </TouchableOpacity>
+                            </View>
+                        )}
+                    </ScrollView>
+                </SafeAreaView>
+            </>
+            }
+        </View>
     )
 }
 
 const styles = StyleSheet.create({
     container: {
+        flex: 1,
+    },
+    containerWrapper: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center'

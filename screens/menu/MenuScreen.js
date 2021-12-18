@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import { DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { Drawer } from 'react-native-paper';
@@ -8,6 +8,7 @@ import Icons from 'react-native-vector-icons/Ionicons';
 import image from "../../assets/images/profilePic.jpg"
 import { useState, useEffect } from 'react';
 import { app } from '../../app/app';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
@@ -51,10 +52,17 @@ const MenuScreen = (props) => {
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         console.log("[Menu screen] entro a useEffect");
         onRefresh();
-    }, []);
+    }, []); */
+
+    useFocusEffect(
+        useCallback(() => {
+            console.log("[Menu screen] entro a useEffect");
+            onRefresh();
+        }, [])
+    );
 
     const signOut = async () => {
         console.log("[Menu screen] entro a signOut"); 

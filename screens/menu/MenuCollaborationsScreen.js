@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CourseComponent from '../../components/CourseComponent';
 import { app } from '../../app/app';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -16,11 +17,11 @@ const MenuCollaborationsScreen = (props) => {
     const [rating, setRating] = useState(0);
 
     const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Subscribed Courses Screen] content: ", response.content())
+        console.log("[Menu Collaborations Courses Screen] content: ", response.content())
         if (!response.hasError()) {
                setCourses(courses => [...courses, response.content()]);
         } else {
-            console.log("[Menu Subscribed Courses Screen] error", response.content().message);
+            console.log("[Menu Collaborations Courses Screen] error", response.content().message);
         }
     }
     
@@ -34,89 +35,106 @@ const MenuCollaborationsScreen = (props) => {
     }
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Subscribed Courses screen] content: ", response.content())
+        console.log("[Menu Collaborations Courses screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let course of response.content().courses){
                 await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
                 await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
             }
-            console.log("[Menu Subscribed Courses screen] response: ", courses);
+            console.log("[Menu Collaborations Courses screen] response: ", courses);
         } else {
-            console.log("[Menu Subscribed Courses screen] error", response.content().message);
+            console.log("[Menu Collaborations Courses screen] error", response.content().message);
         }
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Subscribed Courses screen] entro a onRefresh"); 
+        console.log("[Menu Collaborations Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Subscribed Courses screen] token:",tokenLS);
+        console.log("[Menu Collaborations Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, undefined, "collaborator", handleResponseGetCoursesByUser);
         setLoading(false);
     }
 
-    useEffect(() => {
+    /* useEffect(() => {
         setCourses([]);
-        console.log("[Menu Subscribed Courses screen] entro a useEffect");
+        console.log("[Menu Collaborations Courses screen] entro a useEffect");
         onRefresh();
-    }, [props]);
+    }, [props]); */
+    
+    useFocusEffect(
+        useCallback(() => {
+            setCourses([]);
+            console.log("[Menu Collaborations screen] entro a useEffect");
+            onRefresh();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.coursesCardWrapper}>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Be a collaborator to see your courses here.</Text>
-                    )}
-                    {courses.map((item) => (
-                        <>
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() =>
-                            props.navigation.navigate('Edit Course', {
-                            item: item,
-                            })
-                        }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,
-                            },
-                            ]}>
-                            <View>
-                                <View style={styles.courseCardTop}>
+            {
+                loading ? 
+                    <View style={{flex:1, justifyContent: 'center'}}>
+                        <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    </View>
+                :
+                    <>
+                    <ScrollView>
+                        <View style={styles.coursesCardWrapper}>
+                            {courses.length === 0 && (
+                                <Text style={styles.courseText}>Be a collaborator to see your courses here.</Text>
+                            )}
+                            {courses.map((item) => (
+                                <>
+                                <TouchableOpacity
+                                key={item.id}
+                                onPress={() =>
+                                    props.navigation.navigate('Edit Course', {
+                                    item: item,
+                                    })
+                                }>
+                                <View
+                                    style={[
+                                    styles.courseCardWrapper,
+                                    {
+                                        marginTop: item.id == 1 ? 10 : 20,
+                                    },
+                                    ]}>
                                     <View>
-                                        <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                    </View>
-                                    <View style={styles.courseTitleWrapper}>
-                                        <Text style={styles.courseTitlesTitle}>
-                                            {item.name}
-                                        </Text>
-                                        <View style={styles.courseTitlesRating}>
-                                            <MaterialCommunityIcons
-                                            name="star"
-                                            size={20}
-                                            color={'black'}
-                                            />
-                                            <Text style={styles.rating}>{rating}</Text>
+                                        <View style={styles.courseCardTop}>
+                                            <View>
+                                                <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+                                            </View>
+                                            <View style={styles.courseTitleWrapper}>
+                                                <Text style={styles.courseTitlesTitle}>
+                                                    {item.name}
+                                                </Text>
+                                                <View style={styles.courseTitlesRating}>
+                                                    <MaterialCommunityIcons
+                                                    name="star"
+                                                    size={20}
+                                                    color={'black'}
+                                                    />
+                                                    <Text style={styles.rating}>{rating}</Text>
+                                                </View>
+                                            </View>
                                         </View>
+                                        <View style={styles.courseDescriptionWrapper}>
+                                            <Text style={styles.courseTitleDescription}>
+                                            {item.description}
+                                            </Text>
+                                        </View> 
                                     </View>
                                 </View>
-                                <View style={styles.courseDescriptionWrapper}>
-                                    <Text style={styles.courseTitleDescription}>
-                                    {item.description}
-                                    </Text>
-                                </View> 
-                            </View>
+                                </TouchableOpacity>
+                                </>
+                            ))}
                         </View>
-                        </TouchableOpacity>
-                        </>
-                    ))}
-                </View>
-            </ScrollView>
+                    </ScrollView>
+                </>
+            }
         </View>
     )
 }

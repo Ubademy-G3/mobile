@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -9,6 +9,7 @@ import courseImage from '../assets/images/generic_course.png';
 import { app } from '../app/app';
 import CoursesFilterComponent from '../components/CourseFilterComponent';
 import CourseComponent from '../components/CourseComponent';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -71,10 +72,16 @@ const HomeScreen = (props) => {
       setLoading(false);
   };
 
-  useEffect(() => {
+  /* useEffect(() => {
       console.log("[Home screen] entro a useEffect");
       onRefresh();
-  }, []);
+  }, []); */
+
+  useFocusEffect(
+    useCallback(() => {
+        onRefresh();
+    }, [])
+  );
 
   const getBestRatedCourses = () => {
     const bestRated = courses.filter((course) => course.rating.rating >= 4);
@@ -190,98 +197,92 @@ const HomeScreen = (props) => {
     );
   }
   return (
-      <View style={styles.container}>
-        {loading && (
-          <ActivityIndicator color="lightblue" style={{marginTop: "50%"}} />
-        )}
-        {!loading && (
-          <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          showsVerticalScrollIndicator={false}>
-            {/* Filter */}
-            {modalVisible && (
-              <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
-            )}
-            
-            {/* Logo */}
-            <SafeAreaView>
-                <View style={styles.headerWrapper}>
-                    <Image
-                        source={require("../assets/images/logo_toc.png")}
-                        style={styles.logoImage}
-                    />
-                    <View style={{ position: 'absolute', top: 10, right: 30 }}>
-                      <TouchableOpacity
-                        onPress={() => { setModalVisible(true) }}
-                      >
-                        <Feather name="filter" color={"#444"} size={18} />
-                      </TouchableOpacity>
-                    </View>
-                    {filtered && (
-                      <View style={{ position: 'absolute', top: 10, left: 10 }}>
-                        <Feather name="arrow-left" color={"#444"} size={25} onPress={() => { filterCoursesByText("") }}/>
-                      </View>
-                    )}
-                </View>
-            </SafeAreaView>
-
-            {/* Search */}
-            <View style={styles.searchWrapper}>
-                <Feather name="search" size={16}/>
-                <View style={styles.search}>
-                    <TextInput 
-                      placeholder="Search course"
-                      onSubmitEditing={(e) => { filterCoursesByText(e.nativeEvent.text) }}
-                      style={styles.searchText}
-                    />
-                </View>
-            </View>
-
-            {courses && (
-              <>
-                {!filtered && (
-                  <View>
-                    <Text style={styles.title}>Best rated</Text>
-                    <Carousel
-                      data={getBestRatedCourses()}
-                      renderItem={renderHorizontalCourseItem}
-                      sliderWidth={530}
-                      itemWidth={500}
-                      onSnapToItem={(index) => setIndexCarousel(index)}
-                      useScrollView={true}
-                    />
-                    <Pagination
-                      dotsLength={getBestRatedCourses().length}
-                      activeDotIndex={indexCarousel}
-                      //carouselRef={isCarousel}
-                      dotStyle={{
-                        width: 10,
-                        height: 10,
-                        borderRadius: 5,
-                        marginHorizontal: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.92)'
-                      }}
-                      inactiveDotOpacity={0.4}
-                      inactiveDotScale={0.6}
-                      tappableDots={true}
-                    />
+    <View style={styles.container}>
+      {
+      loading ? 
+        <View style={{flex:1, justifyContent: 'center'}}>
+          <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+        </View>
+        :
+        <>
+        <ScrollView
+        contentInsetAdjustmentBehavior="automatic"
+        showsVerticalScrollIndicator={false}>
+          {/* Filter */}
+          {modalVisible && (
+            <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
+          )}
+          
+          {/* Logo */}
+          <SafeAreaView>
+              <View style={styles.headerWrapper}>
+                  <Image
+                      source={require("../assets/images/logo_toc.png")}
+                      style={styles.logoImage}
+                  />
+                  <View style={{ position: 'absolute', top: 10, right: 30 }}>
+                    <TouchableOpacity
+                      onPress={() => { setModalVisible(true) }}
+                    >
+                      <Feather name="filter" color={"#444"} size={18} />
+                    </TouchableOpacity>
                   </View>
-                )}
-                <View>
-                  {!filtered && (
-                    <Text style={styles.title}>All courses</Text>
+                  {filtered && (
+                    <View style={{ position: 'absolute', top: 10, left: 10 }}>
+                      <Feather name="arrow-left" color={"#444"} size={25} onPress={() => { filterCoursesByText("") }}/>
+                    </View>
                   )}
-                  <FlatList 
-                    data={courses}
-                    renderItem={renderVerticalCourseItem}
-                    keyExtractor={(item) => item.id}
+              </View>
+          </SafeAreaView>
+
+          {/* Search */}
+          <View style={styles.searchWrapper}>
+              <Feather name="search" size={16}/>
+              <View style={styles.search}>
+                  <TextInput 
+                    placeholder="Search course"
+                    onSubmitEditing={(e) => { filterCoursesByText(e.nativeEvent.text) }}
+                    style={styles.searchText}
+                  />
+              </View>
+          </View>
+
+          {courses && (
+            <>
+              {!filtered && (
+                <View>
+                  <Text style={styles.title}>Best rated</Text>
+                  <Carousel
+                    data={getBestRatedCourses()}
+                    renderItem={renderHorizontalCourseItem}
+                    sliderWidth={530}
+                    itemWidth={500}
+                    onSnapToItem={(index) => setIndexCarousel(index)}
+                    useScrollView={true}
+                  />
+                  <Pagination
+                    dotsLength={getBestRatedCourses().length}
+                    activeDotIndex={indexCarousel}
+                    //carouselRef={isCarousel}
+                    dotStyle={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      marginHorizontal: 0,
+                      backgroundColor: 'rgba(0, 0, 0, 0.92)'
+                    }}
+                    inactiveDotOpacity={0.4}
+                    inactiveDotScale={0.6}
+                    tappableDots={true}
                   />
                 </View>
+              )}
               </>
             )}
         </ScrollView>
-        )}
-      </View>
+        </>
+      }
+    </View>
   );
 }
 

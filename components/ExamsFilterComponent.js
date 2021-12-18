@@ -7,17 +7,17 @@ MaterialCommunityIcons.loadFont();
 const data = {
     state: [
         {
-            id: 0,
+            id: '0',
             name: 'Draft',
             isChecked: false
         },
         {
-            id: 1,
+            id: '1',
             name: 'Active',
             isChecked: false
         },
         {
-            id: 2,
+            id: '2',
             name: 'Inactive',
             isChecked: false
         }

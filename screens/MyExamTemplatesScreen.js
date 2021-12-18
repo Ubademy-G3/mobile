@@ -52,14 +52,8 @@ const MyExamTemplatesScreen = (props) => {
             const state = query.state.filter((s) => s.isChecked);
             if (state.length > 0) {
                 state.forEach((st) => {
-                    if (st.isChecked && st.name == 'Active') {
-                        templateFilters.state.push('active');
-                    }
-                    if (st.isChecked && st.name == 'Draft') {
-                        templateFilters.state.push('draft');
-                    }
-                    if (st.isChecked && st.name == 'Inactive') {
-                        templateFilters.state.push('inactive');
+                    if (st.isChecked) {
+                        templateFilters.state.push(st.name.toLowerCase());
                     }
                 })
             }
@@ -111,10 +105,10 @@ const MyExamTemplatesScreen = (props) => {
                                         >
                                             <View style={styles.courseCardTop}>
                                                 <Text style={styles.buttonFadedText}>{item.name}</Text>
+                                                <Text style={styles.examPoints}>Max Score: {item.max_score}</Text>
                                             </View>
                                             <View style={styles.courseDescriptionWrapper}>
-                                                <Text style={styles.courseTitleDescription}>points: {item.max_score}</Text>
-                                                <Text style={styles.courseTitleDescription}>{item.state}</Text>
+                                                <Text style={[styles.examState, item.state === 'active' ? styles.textActive : styles.textInactive]}>{item.state}</Text>
                                             </View> 
                                         </View>
                                     </TouchableOpacity>
@@ -174,7 +168,7 @@ const styles = new StyleSheet.create({
         width: 320,
         borderRadius: 25,
         paddingVertical: 8,
-        paddingLeft: 20,
+        paddingBottom: 15,
         flexDirection: 'row',
         shadowColor: 'black',
         shadowOffset: {
@@ -183,16 +177,18 @@ const styles = new StyleSheet.create({
         },
         shadowOpacity: 0.05,
         shadowRadius: 10,
-        elevation: 2, 
+        elevation: 2,
+        justifyContent: 'space-between',
+        paddingHorizontal: 20,
+        alignContent: 'center'
     },
     courseCardTop: {
         marginTop: 8,
-        alignItems: 'center',
+        alignItems: 'flex-start',
     },
     courseDescriptionWrapper: {
-        paddingLeft: 10,
         flexDirection: 'column',
-        alignItems: 'flex-end',
+        alignItems: 'stretch',
     },
     courseTitleDescription: {
         paddingBottom: 3,
@@ -220,6 +216,22 @@ const styles = new StyleSheet.create({
     buttonEditIconRight: {
         marginLeft: 10,
     },
+    buttonFadedText: {
+        fontWeight: 'bold',
+    },
+    examPoints: {
+        textAlign: 'right'
+    },
+    examState: {
+        textAlign: 'right',
+        fontWeight: 'bold'
+    },
+    textActive: {
+        color: '#8fc489'
+    },
+    textInactive: {
+        color: '#f7746a'
+    }
 });
 
 export default MyExamTemplatesScreen;

@@ -304,6 +304,10 @@ const CreateExamScreen = (props) => {
     return (
         <View style={styles.container}>
             <ScrollView style={styles.inputsContainer}>
+                <KeyboardAvoidingView
+                    style={styles.containerWrapper}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                > 
                 { !nameSaved && (
                     <View style={styles.nameWrapper}>
                         <TextInput 
@@ -338,13 +342,18 @@ const CreateExamScreen = (props) => {
                             { !input.question_saved && (
                                 <>
                                     <View style={styles.inputContainer}>
-                                        <TextInput 
-                                            placeholder={"Enter Question"}
-                                            multiline = {true}
-                                            value={input.question} 
-                                            onChangeText={(text)=>inputHandler(text,key)}
-                                            style={styles.input}
-                                        />
+                                        {/* <KeyboardAvoidingView
+                                            style={styles.container}
+                                            behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                        > */}
+                                            <TextInput 
+                                                placeholder={"Enter Question"}
+                                                multiline = {true}
+                                                value={input.question} 
+                                                onChangeText={(text)=>inputHandler(text,key)}
+                                                style={styles.input}
+                                            />
+                                        {/* </KeyboardAvoidingView> */}
                                         <View style={styles.buttonsRightWrapper}>
                                             <TouchableOpacity
                                                 onPress = {()=> {handleSaveQuestion(key)}}
@@ -389,12 +398,17 @@ const CreateExamScreen = (props) => {
                                         />
                                     </View> */}
                                     <Text style={styles.textAnswer}>Points:</Text>
-                                    <TextInput 
-                                        placeholder={"Points assigned to this question"}
-                                        value={input.value} 
-                                        onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
-                                        style={[styles.input,{marginBottom:10}]}
-                                    />
+                                    {/* <KeyboardAvoidingView
+                                        style={styles.container}
+                                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                    > */}
+                                        <TextInput 
+                                            placeholder={"Points assigned to this question"}
+                                            value={input.value} 
+                                            onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
+                                            style={[styles.input,{marginBottom:10}]}
+                                        />
+                                    {/* </KeyboardAvoidingView> */}
                                     <Text style={styles.textAnswer}>Answer</Text>
                                     <View style={styles.buttonInputWrapper}>
                                         <TouchableOpacity
@@ -432,7 +446,10 @@ const CreateExamScreen = (props) => {
                                             <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
                                             <Text style={styles.choiceText}>Fill the multiple answers:</Text>
                                             <View style={styles.wrapperOptionsInChoice}>
-                                                {/* <KeyboardAvoidingView> */}
+                                                {/* <KeyboardAvoidingView
+                                                    style={styles.container}
+                                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                                > */}
                                                     <TextInput 
                                                     placeholder={"Enter Option"}
                                                     multiline = {true}
@@ -441,7 +458,6 @@ const CreateExamScreen = (props) => {
                                                     style={styles.input}
                                                     />
                                                 {/* </KeyboardAvoidingView> */}
-                                                {/*<View style={styles.buttonsRightWrapper}>*/}
                                                 <TouchableOpacity
                                                     onPress = {()=> {handleMultipleChoiceOption(key)}}
                                                     style={styles.buttonSaveIconRight}
@@ -535,6 +551,7 @@ const CreateExamScreen = (props) => {
                     </View>
                     </>
                 )}
+                </KeyboardAvoidingView>
             </ScrollView>
             { nameSaved && (
                 <View style={styles.buttonWrapper}>
@@ -565,8 +582,10 @@ const CreateExamScreen = (props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 15,
-        
+        padding: 15, 
+    },
+    containerWrapper: {
+        flex: 1,
     },
     numberPicker: {
         width: 50,

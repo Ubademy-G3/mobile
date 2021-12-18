@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useState, useCallback} from 'react';
-import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import image from "../assets/images/profilePic.jpg";
 
 const ProfilesListComponent = ({ item, navigation }) => {

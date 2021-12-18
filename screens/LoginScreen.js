@@ -3,6 +3,7 @@ import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, Tou
 import { app } from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const LoginScreen = (props) => {                   
     const [data, setData] = useState({
@@ -220,86 +221,88 @@ const LoginScreen = (props) => {
                     />
                 </View>
             </SafeAreaView>
-            <KeyboardAvoidingView
-              style={styles.containerText}
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Email"
-                        onChangeText={text => setData({
-                            ...data,
-                            email: text,
-                        })}
-                        value={data.email}
-                        style={styles.input}
-                    />
-                    {!restorePassword && (
+            <ScrollView>
+                <KeyboardAvoidingView
+                style={styles.containerText}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <View style={styles.inputContainer}>
                         <TextInput
-                            placeholder="Password"
+                            placeholder="Email"
                             onChangeText={text => setData({
                                 ...data,
-                                password: text,
+                                email: text,
                             })}
-                            value={data.password}
+                            value={data.email}
                             style={styles.input}
-                            secureTextEntry
                         />
-                    )}
-                </View>
-                <View style={styles.buttonContainer}>
-                    {!restorePassword && (
-                        <>
-                        <TouchableOpacity
-                            onPress={() => {setLogin(true)}}
-                            style={styles.button}
-                            //error={errorData.showError}
-                            disabled={loading}
-                        >
-                            {
-                                loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
-                            }
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {handleSubmitSignUp()}}
-                            style={[styles.button, styles.buttonOutlined]}
-                        >
-                            <Text style={styles.buttonOutlineText}>Sign Up</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {
-                                //setsignupGoogle(true);
-                                setData({...data, loginType: "google"});
-                            }}
-                            style={styles.button}>
-                            <Text style={styles.buttonText}>Login with Google</Text>
-                        </TouchableOpacity> 
-                        <TouchableOpacity
-                            onPress={() => {handleSubmitForgotPassword()}}
-                            style={[styles.fadedButton]}
-                        >
-                            <Text style={styles.buttonFadedText}>Forgot password?</Text>
-                        </TouchableOpacity>
-                        </>
-                    )}
-                    {restorePassword && (
-                        <>
-                        <TouchableOpacity
-                            onPress={() => {handleSubmitRestorePassword()}}
-                            style={styles.button}
-                        >
-                            <Text style={styles.buttonText}>Restore password</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {handleSubmitDontRestore()}}
-                            style={[styles.fadedButton]}
-                        >
-                            <Text style={styles.buttonFadedText}>Go back</Text>
-                        </TouchableOpacity>
-                        </>
-                    )}
-                </View>
-            </KeyboardAvoidingView>
+                        {!restorePassword && (
+                            <TextInput
+                                placeholder="Password"
+                                onChangeText={text => setData({
+                                    ...data,
+                                    password: text,
+                                })}
+                                value={data.password}
+                                style={styles.input}
+                                secureTextEntry
+                            />
+                        )}
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {!restorePassword && (
+                            <>
+                            <TouchableOpacity
+                                onPress={() => {setLogin(true)}}
+                                style={styles.button}
+                                //error={errorData.showError}
+                                disabled={loading}
+                            >
+                                {
+                                    loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                                }
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitSignUp()}}
+                                style={[styles.button, styles.buttonOutlined]}
+                            >
+                                <Text style={styles.buttonOutlineText}>Sign Up</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    //setsignupGoogle(true);
+                                    setData({...data, loginType: "google"});
+                                }}
+                                style={styles.button}>
+                                <Text style={styles.buttonText}>Login with Google</Text>
+                            </TouchableOpacity> 
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitForgotPassword()}}
+                                style={[styles.fadedButton]}
+                            >
+                                <Text style={styles.buttonFadedText}>Forgot password?</Text>
+                            </TouchableOpacity>
+                            </>
+                        )}
+                        {restorePassword && (
+                            <>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitRestorePassword()}}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Restore password</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitDontRestore()}}
+                                style={[styles.fadedButton]}
+                            >
+                                <Text style={styles.buttonFadedText}>Go back</Text>
+                            </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+                </KeyboardAvoidingView>
+            </ScrollView>
         </View>
     );
 }
@@ -311,6 +314,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     containerText: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: 30

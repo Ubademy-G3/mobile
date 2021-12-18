@@ -140,6 +140,7 @@ const MenuCreateNewCourseScreen = (props) => {
             language: courseData.language,
             level: courseData.level,
             modules: courseData.modules,
+            total_exams: courseData.total_exams,
             token: tokenLS}, handleApiResponseCreateCourse);
         setData({
             user_id: idLS,
@@ -153,6 +154,7 @@ const MenuCreateNewCourseScreen = (props) => {
             language: "",
             level: "",
             modules: [],
+            total_exams: 0,
         })
         setLoading(false);
         console.log("[Create Course screen] termino submit signup")
@@ -187,130 +189,141 @@ const MenuCreateNewCourseScreen = (props) => {
                     <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
             :
-            <>
+                <>
                 <ScrollView>
-                    <KeyboardAvoidingView
-                    style={styles.containerWrapper}
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                <KeyboardAvoidingView
+                style={styles.containerWrapper}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <TouchableOpacity
+                        onPress={() => {choosePhotoFromLibrary()}}
+                        /*style={styles.button}*/
+                        disabled={loading}
                     >
-                        <TouchableOpacity
-                            onPress={() => {choosePhotoFromLibrary()}}
-                            style={{justifyContent: 'center', alignItems: 'center', marginTop: 10}}
-                        >
-                            <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
-                        </TouchableOpacity>
-                        <View style={styles.inputContainer}>
-                            <Text style={styles.inputText}>Course Name</Text>
-                            <TextInput
-                                placeholder={courseData.name}
-                                onChangeText={text => setData({
-                                    ...courseData,
-                                    name: text,
-                                })}
-                                value={courseData.name}
-                                style={styles.input}
-                            />
-                            <Text style={styles.inputText}>Description</Text>
-                            <TextInput
-                                placeholder={courseData.description}
-                                onChangeText={text => setData({
-                                    ...courseData,
-                                    description: text,
-                                })}
-                                value={courseData.description}
-                                style={styles.input}
-                            />
-                            <Text style={styles.inputText}>Category</Text>
-                            <SelectDropdown
-                                data={categories.map(function(item, idx) {return item.name;})}
-                                onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
-                                defaultButtonText={"Select a category"}
-                                buttonStyle={styles.buttonDropdown}
-                                buttonTextStyle={styles.textDropdown}
-                                renderDropdownIcon={() => {
-                                    return (
-                                    <Feather name="chevron-down" color={"#444"} size={18} />
-                                    );
-                                }}
-                            />
-                            <Text style={styles.inputText}>Subscription Type</Text>
-                            <SelectDropdown
-                                data={subscriptions}
-                                onSelect={(selectedItem, index) => setData({
-                                    ...courseData,
-                                    subscription_type: selectedItem,
-                                })}
-                                value={courseData.subscription_type}
-                                defaultButtonText={"Select a subscription type"}
-                                buttonStyle={styles.buttonDropdown}
-                                buttonTextStyle={styles.textDropdown}
-                                renderDropdownIcon={() => {
-                                    return (
-                                    <Feather name="chevron-down" color={"#444"} size={18} />
-                                    );
-                                }}
-                            />
-                            <Text style={styles.inputText}>Location</Text>
-                            <TextInput
-                                placeholder={courseData.location}
-                                onChangeText={text => setData({
-                                    ...courseData,
-                                    location: text,
-                                })}
-                                value={courseData.location}
-                                style={styles.input}
-                            />
-                            <Text style={styles.inputText}>Duration</Text>
-                            <TextInput
-                                placeholder={courseData.duration}
-                                onChangeText={text => setData({
-                                    ...courseData,
-                                    duration: text.replace(/[^0-9]/g, ''),
-                                })}
-                                value={courseData.duration}
-                                style={styles.input}
-                            />
-                            <Text style={styles.inputText}>Language</Text>
-                            <TextInput
-                                placeholder={courseData.language}
-                                onChangeText={text => setData({
-                                    ...courseData,
-                                    language: text,
-                                })}
-                                value={courseData.language}
-                                style={styles.input}
-                            />
-                            <Text style={styles.inputText}>Level</Text>
-                            <SelectDropdown
-                                data={levels}
-                                onSelect={(selectedItem, index) => setData({
-                                    ...courseData,
-                                    level: selectedItem,
-                                })}
-                                value={courseData.level}
-                                defaultButtonText={"Select a level type"}
-                                buttonStyle={styles.buttonDropdown}
-                                buttonTextStyle={styles.textDropdown}
-                                renderDropdownIcon={() => {
-                                    return (
-                                    <Feather name="chevron-down" color={"#444"} size={18} />
-                                    );
-                                }}
-                            />
+                        <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                    </TouchableOpacity>
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.inputText}>Course Name</Text>
+                        <TextInput
+                            placeholder={courseData.name}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                name: text,
+                            })}
+                            value={courseData.name}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Description</Text>
+                        <TextInput
+                            placeholder={courseData.description}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                description: text,
+                            })}
+                            value={courseData.description}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Category</Text>
+                        <SelectDropdown
+                            data={categories.map(function(item, idx) {return item.name;})}
+                            onSelect={(selectedItem, index) => setCategorySelected(selectedItem, index)}
+                            defaultButtonText={"Select a category"}
+                            buttonStyle={styles.buttonDropdown}
+                            buttonTextStyle={styles.textDropdown}
+                            renderDropdownIcon={() => {
+                                return (
+                                <Feather name="chevron-down" color={"#444"} size={18} />
+                                );
+                            }}
+                        />
+                        <Text style={styles.inputText}>Subscription Type</Text>
+                        <SelectDropdown
+                            data={subscriptions}
+                            onSelect={(selectedItem, index) => setData({
+                                ...courseData,
+                                subscription_type: selectedItem,
+                            })}
+                            value={courseData.subscription_type}
+                            defaultButtonText={"Select a subscription type"}
+                            buttonStyle={styles.buttonDropdown}
+                            buttonTextStyle={styles.textDropdown}
+                            renderDropdownIcon={() => {
+                                return (
+                                <Feather name="chevron-down" color={"#444"} size={18} />
+                                );
+                            }}
+                        />
+                        <Text style={styles.inputText}>Location</Text>
+                        <TextInput
+                            placeholder={courseData.location}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                location: text,
+                            })}
+                            value={courseData.location}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Duration</Text>
+                        <TextInput
+                            placeholder={courseData.duration}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                duration: text.replace(/[^0-9]/g, ''),
+                            })}
+                            value={courseData.duration}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Language</Text>
+                        <TextInput
+                            placeholder={courseData.language}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                language: text,
+                            })}
+                            value={courseData.language}
+                            style={styles.input}
+                        />
+                        <Text style={styles.inputText}>Level</Text>
+                        <SelectDropdown
+                            data={levels}
+                            onSelect={(selectedItem, index) => setData({
+                                ...courseData,
+                                level: selectedItem,
+                            })}
+                            value={courseData.level}
+                            defaultButtonText={"Select a level type"}
+                            buttonStyle={styles.buttonDropdown}
+                            buttonTextStyle={styles.textDropdown}
+                            renderDropdownIcon={() => {
+                                return (
+                                <Feather name="chevron-down" color={"#444"} size={18} />
+                                );
+                            }}
+                        />
+                        <Text style={styles.inputText}>Number of exams</Text>
+                        <TextInput
+                            placeholder={""}
+                            onChangeText={text => setData({
+                                ...courseData,
+                                total_exams: text,
+                            })}
+                            value={courseData.total_exams}
+                            style={styles.input}
+                        />
 
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity
-                                onPress={() => handleSubmitCreateNewCourse()}
-                                style={styles.button}
-                                disabled={loading}
-                            >
-                                {
-                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Create New Course</Text>
-                                }
-                            </TouchableOpacity>
-                        </View>
-                    </KeyboardAvoidingView>
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            onPress={() => handleSubmitCreateNewCourse()}
+                            style={styles.button}
+                            disabled={loading}
+                        >
+                            {
+                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Create New Course</Text>
+                            }
+                        </TouchableOpacity>
+                    </View>
+                </KeyboardAvoidingView>
                 </ScrollView>
                 </>
             }

@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, CheckBox, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather';
-import { app } from '../app/app';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
-Feather.loadFont();
+MaterialCommunityIcons.loadFont();
 
 const data = {
     state: [

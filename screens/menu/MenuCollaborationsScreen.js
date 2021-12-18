@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
       },
     coursesTitle: {
         fontSize: 20,
@@ -205,9 +205,6 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
         resizeMode: 'contain',
-    },
-    coursesCardWrapper: {
-        paddingHorizontal: 20,
     },
     courseCardWrapper: {
         backgroundColor: 'white',

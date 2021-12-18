@@ -8,6 +8,7 @@ import Carousel, { Pagination } from 'react-native-snap-carousel';
 import courseImage from '../assets/images/generic_course.png';
 import { app } from '../app/app';
 import CoursesFilterComponent from '../components/CourseFilterComponent';
+import CourseComponent from '../components/CourseComponent';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -276,10 +277,30 @@ const HomeScreen = (props) => {
                     keyExtractor={(item) => item.id}
                   />
                 </View>
+                <View>
+                  {!filtered && (
+                    <Text style={styles.title}>All courses</Text>
+                  )}
+                  {/* <FlatList 
+                    data={courses}
+                    renderItem={renderVerticalCourseItem}
+                    keyExtractor={(item) => item.id}
+                  /> */}
+                  <View style={styles.coursesCardWrapper}>
+                      {courses.length === 0 && (
+                          <Text style={styles.courseText}>Favorite courses to see your courses here.</Text>
+                      )}
+                      {courses.map((item) => (
+                          <CourseComponent 
+                          item={item}
+                          navigation={props.navigation}/>
+                      ))}
+                  </View>
+                </View>
               </>
             )}
-          </ScrollView>
-        )}      
+        </ScrollView>
+        )}
       </View>
   );
 }
@@ -291,6 +312,11 @@ const styles = StyleSheet.create({
   headerWrapper: {
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  coursesCardWrapper: {
+    paddingHorizontal: 15,
+    //justifyContent: 'center',
+    //alignItems: 'center',
   },
   logoImage: {
     //width: 155,

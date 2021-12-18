@@ -316,7 +316,7 @@ const EditCourseScreen = (props) => {
                 </View>
                 <View style={styles.examsList}>
                     <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('List Exams', {
+                        onPress={() => {props.navigation.navigate('List Edit Exams', {
                             course_id : item.id,
                         })}}
                         style={[styles.fadedButton]}

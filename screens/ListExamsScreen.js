@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Feather from 'react-native-vector-icons/Feather';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity } from 'react-native';
 import { app } from '../app/app';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useFocusEffect } from '@react-navigation/native';
 import { ActivityIndicator } from 'react-native-paper';
@@ -78,10 +78,6 @@ const ListExamsScreen = (props) => {
         if (!response.hasError()) {
             setSolutions([])
             setExams(response.content().exam_templates);
-            let tokenLS = await app.getToken();
-            /*for (let exam of response.content().exam_templates) {
-                await app.apiClient().getAllSolutionsByExamId({token: tokenLS}, exam.id, handleResponseGetAllSolutions);
-            }*/
         } else {
             console.log("[List Exams screen] error", response.content().message);
         }
@@ -118,18 +114,10 @@ const ListExamsScreen = (props) => {
         setLoading(false);
     };
 
-    useFocusEffect(
-        useCallback(() => {
-            setSolutions([]);
-            onRefresh();
-        }, [])
-    );
-
     useEffect(() => {
-        //setSolutions([]);
-        console.log("[List Exams screen] entro a useEffect");
-        getData();
-    }, [solutions]);
+        console.log("[Course screen] entro a useEffect");
+        onRefresh();
+    }, []);
 
     const filterExams = async (query) => {
         setLoading(true);
@@ -277,39 +265,34 @@ const ListExamsScreen = (props) => {
             </ScrollView>
         </View>
     );
-};
+}
 
-const styles = new StyleSheet.create({
-    container: {
+const styles = StyleSheet.create({
+    container:{
         flex: 1,
-        paddingTop: 10,
-        paddingLeft: 10,
     },
-    newExamWrapper: {
-        flex: 1,
-        paddingTop: 10,
-        paddingLeft: 10,
+    coursesCardWrapper: {
+        paddingHorizontal: 15,
+        /* justifyContent: 'center',
+        alignItems: 'center', */
     },
-    examsText: {
+    fadedButton: {
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    courseText: {
         marginTop: 15,
         fontWeight: '300',
         fontSize: 16,
         paddingBottom: 5,
-        marginLeft: 5,
-    },
-    fadedButton: {
-        padding: 10,
-        borderRadius: 10,
-        alignItems: 'center',
-        //marginBottom: 5,
     },
     courseCardWrapper: {
-        backgroundColor: 'white',
-        width: 320,
+        backgroundColor: '#87ceeb',
+        width: '90%',
         borderRadius: 25,
         paddingVertical: 8,
         paddingLeft: 20,
-        //marginTop: 5,
+        marginTop: 20,
         flexDirection: 'row',
         shadowColor: 'black',
         shadowOffset: {
@@ -319,46 +302,13 @@ const styles = new StyleSheet.create({
         shadowOpacity: 0.05,
         shadowRadius: 10,
         elevation: 2, 
-    },
-    courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
-        marginTop: 8,
-        alignItems: 'center',
-        //marginRight: 80,
-    },
-    courseDescriptionWrapper: {
-        paddingLeft: 10,
-        //paddingRight: 40,
-        flexDirection: 'column',
-        alignItems: 'flex-end',
-        //marginRight: 80,
-    },
-    courseTitleDescription: {
-        paddingBottom: 3,
-        color:'black',
-        fontWeight: '300',
-        fontSize: 12,
-    },
-    questionWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
         justifyContent: 'center',
-        padding: 10,
-        borderRadius: 10,
-    },
-    addQuestionView: {
-        flexDirection: 'row',
-        marginTop: 8,
         alignItems: 'center',
     },
     buttonText: {
         color:'white',
-        fontWeight: '700',
+        fontWeight: 'bold',
         fontSize: 16,
-    },
-    buttonEditIconRight: {
-        marginLeft: 10,
     },
 });
 

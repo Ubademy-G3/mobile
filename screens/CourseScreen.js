@@ -8,6 +8,7 @@ import ProfilesListComponent from "../components/ProfilesListComponent";
 import { firebase } from '../firebase';
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { ActivityIndicator } from 'react-native-paper';
+import StarRating from 'react-native-star-rating';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -18,13 +19,14 @@ const CourseScreen = (props) => {
     const [loading, setLoading] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
     const [favorited, setFavorited] = useState(false);
-    const [rating, setRating] = useState(0);
+    const [rating, setRating] = useState({});
     const [instructors, setInstructors] = useState([]);
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
     const [exams, setExams] = useState([]);
     const [modules, setModules] = useState([]); 
     const [updatingModules, setUpdatingModules] = useState(false);
     const [rol, setRol] = useState("");
+    const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
 
@@ -105,6 +107,15 @@ const CourseScreen = (props) => {
         if (!response.hasError()) {
             setSubscribed(true);
         } else {
+            if(response.content().message === "Can't subscribe user because of subscription type") {
+                Alert.alert(
+                    "Subscription error:",
+                    `You can't subscribe to a ${item.subscription_type} course with subscription type: ${subscriptionType}`,
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                );
+            }
             console.log("[Course screen] error", response.content().message);
         }
     }
@@ -149,6 +160,7 @@ const CourseScreen = (props) => {
         //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
+            setSubscriptionType(response.content().subscription);
             for (let courseId of response.content().favoriteCourses){
                 if (courseId === item.id){
                     setFavorited(true);
@@ -169,7 +181,7 @@ const CourseScreen = (props) => {
                     setSubscribed(true);
                     setRol(course.user_type);
                 }
-                if (course.user_type === 'instructor') {
+                if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
                 }
             }
@@ -181,7 +193,7 @@ const CourseScreen = (props) => {
     const handleResponseGetCourseRating = (response) => {
         console.log("[Course screen] get rating: ", response.content())
         if (!response.hasError()) {
-            setRating(response.content().rating);
+            setRating(response.content());
         } else {
             console.log("[Course screen] error", response.content().message);
         }        
@@ -251,6 +263,7 @@ const CourseScreen = (props) => {
 
     useEffect(() => {
         console.log("[Course screen] entro a useEffect");
+        setInstructors([]);
         onRefresh();
     }, []);
 
@@ -267,14 +280,19 @@ const CourseScreen = (props) => {
                         <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
                     </View>
                     <View style={styles.titleWrapper}>
+                        <View style={{marginRight: 55, marginBottom:10}}>
                         <Text style={styles.titlesTitle}>{item.name}</Text>
-                        <View style={styles.titlesRating}>
-                            <MaterialCommunityIcons
-                                name="star"
-                                size={18}
-                                color={'black'}
+                        </View>
+                        <View style={{ display:'flex', flexDirection: 'row' }}>
+                            <StarRating
+                                disabled={true}
+                                maxStars={5}
+                                rating={rating.rating}
+                                containerStyle={{ width: '40%', marginRight: 5 }}
+                                starSize={20}
+                                fullStarColor='gold'
                             />
-                            <Text style={styles.rating}>{rating}</Text>
+                            <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
                         </View>
                     </View>
                 </View>
@@ -296,6 +314,8 @@ const CourseScreen = (props) => {
                             <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
                             <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
                         </View>
+                    </View>
+                    <View style={styles.studentListWrapper}>
                         <Text style={styles.instructorsTitle}>Instructors:</Text>
                         {instructors.map(item => (
                             <ProfilesListComponent 
@@ -344,8 +364,8 @@ const CourseScreen = (props) => {
                             </TouchableOpacity>
                         </View>
                         {modules.map((item, key) => (
-                            <>
-                                <View style={styles.courseCardWrapper}>    
+                            <>                   
+                                <View style={styles.courseCardWrapper}>                            
                                     <View style={styles.moduleView}>
                                         <Text style={styles.examModule}>{item.title}</Text>
                                     </View>
@@ -385,15 +405,15 @@ const CourseScreen = (props) => {
                         </TouchableOpacity>            
                     </>
                     )}
-                    {subscribed === true && (
-                    <>
-                    <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
-                        <View style={styles.subscribeWrapper}>
-                            <Feather name="x" size={18} color="black" />
-                            <Text style={styles.unsubscribeText}>Unsubscribe</Text>
-                        </View>
-                    </TouchableOpacity>            
-                    </>
+                    {subscribed && (
+                        <>
+                            <TouchableOpacity onPress={() => handleSubmitUnsubscribe()}> 
+                                <View style={styles.subscribeWrapper}>
+                                    <Feather name="x" size={18} color="black" />
+                                    <Text style={styles.unsubscribeText}>Unsubscribe</Text>
+                                </View>
+                            </TouchableOpacity>            
+                        </>
                     )}
                     {!favorited && (
                     <>
@@ -422,18 +442,11 @@ const CourseScreen = (props) => {
 const styles = new StyleSheet.create({
     container: {
         flex: 1,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
     },
     titlesWrapper: {
         flexDirection: "row",
         paddingVertical:25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     containerVideo: {
         flex: 1,
@@ -451,15 +464,15 @@ const styles = new StyleSheet.create({
         borderRadius: 10,
     },
     titleWrapper: {
-        //paddingVertical:25,
         paddingHorizontal: 10,
-        flexDirection: "column"
+        flexDirection: "column",
     },
     titlesTitle: {
-        flex: 1, 
         flexWrap: 'wrap',
         fontSize: 24,
-        width: '90%'
+        width: '90%',
+        color: 'black',
+        flexDirection: 'row',
     },
     titlesRating: {
         paddingVertical: 5,
@@ -469,7 +482,7 @@ const styles = new StyleSheet.create({
     instructorsTitle: {
         fontSize: 16,
         color: 'black',
-        fontWeight: "500",
+        fontWeight: "bold",
     },
     buttonsWrapper: {
         flexDirection: 'row',
@@ -480,18 +493,14 @@ const styles = new StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        //paddingVertical: 10,
     },
     description: {
         fontSize: 16,
     },
     featuresWrapper: {
-        marginTop: 10,
-        paddingVertical: 5,
         paddingHorizontal: 15,
     },
     featuresTitle: {
-        //paddingHorizontal: 10,
         fontSize: 16,
     },
     featuresListWrapper: {
@@ -542,7 +551,6 @@ const styles = new StyleSheet.create({
         width: '70%',
         paddingVertical: 10,
         paddingHorizontal: 10,
-        //flexDirection: 'row',
     },
     subscribeText: {
         fontSize: 14,
@@ -561,9 +569,7 @@ const styles = new StyleSheet.create({
     fadedButton: {
         marginTop: 10,
         width: '100%',
-        //padding: 15,
         borderRadius: 10,
-        //alignItems: 'center',
     },
     examsList: {
         marginBottom: 5,
@@ -576,7 +582,37 @@ const styles = new StyleSheet.create({
     buttonWithImage: {
         marginTop: 10,
         borderRadius: 10,
-    }
+    },
+    studentListWrapper: {
+        //marginTop: 10,
+        paddingHorizontal: 15,
+    },
+    button: {
+        backgroundColor: `#87ceeb`,
+        width: '90%',
+        padding: 20,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: 15,
+        marginTop: 20,
+    },
+    buttonText: {
+        color:'white',
+        fontWeight: '700',
+        fontSize: 16,
+    },
+    buttonOutlined: {
+        backgroundColor:'white',
+        //marginTop: 5,
+        borderColor: '#87ceeb',
+        borderWidth:2,
+    },
+    buttonOutlineText: {
+        color:'#87ceeb',
+        fontWeight: '700',
+        fontSize: 16,
+    },
 });
 
 export default CourseScreen;

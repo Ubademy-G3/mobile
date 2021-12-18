@@ -126,7 +126,10 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
+      },
+    coursesTitle: {
+        fontSize: 20,
     },
     courseCardWrapper: {
         backgroundColor: 'white',

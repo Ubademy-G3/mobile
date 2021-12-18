@@ -41,14 +41,13 @@ const MyExamsScreen = (props) => {
                     {exams.map(item_exam => (
                         <>
                             {(item_exam.state === "active" || item_exam.state === "inactive") && (
-                                <View style={styles.examsList}>
+                                <View style={styles.examsList} key={item_exam.id}>
                                     <TouchableOpacity
                                         onPress={() => {props.navigation.navigate('Exam Screen', {
                                             id: item_exam.id,
-                                            course_id : item.id,
+                                            course_id : courseId,
                                         })}}
                                         style={[styles.fadedButton]}
-                                        key={item_exam.id}
                                     >
                                         <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
                                     </TouchableOpacity>

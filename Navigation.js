@@ -135,7 +135,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Modules" component={EditModulesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Course Metrics" component={CourseMetricsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="List Exams" component={ListExamsScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="My Exams" component={MyExamsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Course Exams" component={MyExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="My Exam Templates" component={MyExamTemplatesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Solved Exams" component={SolvedExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />

@@ -240,7 +240,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, handleResponseGetAllExams);
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         setLoading(false);
     };
   
@@ -316,63 +316,14 @@ const CourseScreen = (props) => {
                     </View>
                 </>
                 )}
-                {subscribed && rol === 'student' && (
-                    <>
-                        {modules.map((item, key) => (
-                            <>                   
-                                <View style={styles.courseCardWrapper}>                            
-                                    <View style={styles.moduleView}>
-                                        <Text style={styles.examModule}>{item.title}</Text>
-                                    </View>
-                                    <View style={styles.moduleView}>
-                                        <Text style={styles.examModule}>{item.content}</Text>
-                                    </View>                            
-                                </View>
-                                {item.media_url.map((media_item,media_key) => (
-                                    <View style={styles.containerVideo}>
-                                        <Video
-                                            ref={video}
-                                            style={styles.video}
-                                            source={{uri: media_item.url}}
-                                            resizeMode="contain"
-                                            useNativeControls={true}
-                                            shouldPlay={false}
-                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                        />
-                                    </View>
-                                ))} 
-                            </>                   
-                        ))}
-                        {exams.length === 0 && (
-                            <Text style={styles.examsText}>This course doesn't have exams</Text>
-                        )}
-                        {exams.map(item_exam => (
-                            <>
-                                {(item_exam.state === "active" || item_exam.state === "inactive") && (
-                                    <View style={styles.examsList}>
-                                        <TouchableOpacity
-                                            onPress={() => {props.navigation.navigate('Exam Screen', {
-                                                id: item_exam.id,
-                                                course_id : item.id,
-                                            })}}
-                                            style={[styles.fadedButton]}
-                                        >
-                                            <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                            </>
-                        ))}
-                    </>
-                )}
-                {subscribed && (rol === 'instructor' || rol === 'collaborator') && (
+                {subscribed && (
                     <>
                         <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
                             <TouchableOpacity
                                 onPress={() => {
                                     props.navigation.navigate('Student List', {
                                     course_id: item.id,
-                                    view_as: 'instructor'
+                                    view_as: rol
                                 });}}
                                 style={[styles.buttonWithImage]}
                             >
@@ -381,9 +332,10 @@ const CourseScreen = (props) => {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
-                                    props.navigation.navigate('My Exams', {
+                                    props.navigation.navigate('Course Exams', {
                                     course_id: item.id,
-                                    view_as: 'instructor'
+                                    view_as: rol,
+                                    exams: exams
                                 });}}
                                 style={[styles.buttonWithImage]}
                             >
@@ -452,7 +404,7 @@ const CourseScreen = (props) => {
                         </TouchableOpacity>            
                     </>
                     )}
-                    {!favorited && (
+                    {favorited && (
                     <>
                         <TouchableOpacity onPress={() => handleSubmitUnfavorite()}> 
                             <View style={styles.favoriteWrapper}>

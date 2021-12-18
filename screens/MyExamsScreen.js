@@ -4,30 +4,61 @@ import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 const MyExamsScreen = (props) => {
     const courseId = props.route.params.course_id;
     const rol = props.route.params.view_as;
+    const exams = props.route.params.exams;
+    console.log(exams)
 
     return (
-        <View style={{justifyContent: 'center', alignItems: 'center'}}>
-            <TouchableOpacity
-                onPress={() => {
-                    props.navigation.navigate('My Exam Templates', {
-                    course_id: courseId,
-                    view_as: rol
-                });}}
-                style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
-            >
-                <Text style={styles.buttonOutlineText}>Exam Templates</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => {
-                    props.navigation.navigate('Solved Exams', {
-                    course_id: courseId,
-                    view_as: rol
-                });}}
-                style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
-            >
-                <Text style={styles.buttonOutlineText}>Solved Exams</Text>
-            </TouchableOpacity>
-        </View>
+        <>
+            {rol !== 'student' && (
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('My Exam Templates', {
+                            course_id: courseId,
+                            view_as: rol
+                        });}}
+                        style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
+                    >
+                        <Text style={styles.buttonOutlineText}>Exam Templates</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('Solved Exams', {
+                            course_id: courseId,
+                            view_as: rol
+                        });}}
+                        style={[styles.button, styles.buttonOutlined, {marginBottom: 10,}]}
+                    >
+                        <Text style={styles.buttonOutlineText}>Solved Exams</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
+            {rol === 'student' && (
+                <>
+                    {exams.length === 0 && (
+                        <Text style={styles.examsText}>This course doesn't have any exams</Text>
+                    )}
+                    {exams.map(item_exam => (
+                        <>
+                            {(item_exam.state === "active" || item_exam.state === "inactive") && (
+                                <View style={styles.examsList}>
+                                    <TouchableOpacity
+                                        onPress={() => {props.navigation.navigate('Exam Screen', {
+                                            id: item_exam.id,
+                                            course_id : item.id,
+                                        })}}
+                                        style={[styles.fadedButton]}
+                                        key={item_exam.id}
+                                    >
+                                        <Text style={styles.buttonFadedText}>{item_exam.name}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            )}
+                        </>
+                    ))}
+                </>
+            )}
+        </>
     );
 }
 

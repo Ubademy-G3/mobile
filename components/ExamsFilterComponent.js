@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, CheckBox, Text, View, Button, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, CheckBox, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 
@@ -15,6 +15,11 @@ const data = {
         {
             id: 1,
             name: 'Active',
+            isChecked: false
+        },
+        {
+            id: 2,
+            name: 'Inactive',
             isChecked: false
         }
     ],
@@ -45,6 +50,7 @@ const data = {
 }
 
 const ExamsFilterComponent = (props) => {
+    const type = props.type;
     const [state, setState] = useState(data.state);
     const [graded, setGraded] = useState(data.graded);
     const [approved, setApproved] = useState(data.approval);
@@ -144,30 +150,36 @@ const ExamsFilterComponent = (props) => {
     return (
         <View style={styles.container}>
             <View style={styles.dialog}>
-                <View>
-                    <Text style={styles.title}>State</Text>
-                    <FlatList
-                        data={state}
-                        renderItem={renderStateItem}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-                <View>
-                    <Text style={styles.title}>Graded</Text>
-                    <FlatList
-                        data={graded}
-                        renderItem={renderGradedItem}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-                <View>
-                    <Text style={styles.title}>Approval</Text>
-                    <FlatList
-                        data={approved}
-                        renderItem={renderApprovedItem}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
+                {type && type === 'template' && (
+                    <View>
+                        <Text style={styles.title}>State</Text>
+                        <FlatList
+                            data={state}
+                            renderItem={renderStateItem}
+                            keyExtractor={(item) => item.id}
+                        />
+                    </View>
+                )}
+                {type && type === 'solved' && (
+                    <>
+                        <View>
+                            <Text style={styles.title}>Graded</Text>
+                            <FlatList
+                                data={graded}
+                                renderItem={renderGradedItem}
+                                keyExtractor={(item) => item.id}
+                            />
+                        </View>
+                        <View>
+                            <Text style={styles.title}>Approval</Text>
+                            <FlatList
+                                data={approved}
+                                renderItem={renderApprovedItem}
+                                keyExtractor={(item) => item.id}
+                            />
+                        </View>
+                    </>
+                )}
             </View>
             <TouchableOpacity
                 onPress={() => { setFilter() }}

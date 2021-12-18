@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
@@ -12,102 +12,21 @@ Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
 
-const ListExamsScreen = (props) => {
+const MyExamTemplatesScreen = (props) => {
     const param_course_id = props.route.params ? props.route.params.course_id : 'defaultID';
-    const param_view_as = props.route.params.view_as;
+
     const [loading, setLoading] = useState(false);
     const [exams, setExams] = useState([]);
-    const [solutions, setSolutions] = useState([]);
     const [filtersVisible, setFiltersVisible] = useState(false);
-
-    const handleResponseGetExam = async (response) => {
-        console.log("[List Exams screen] get exam info: ", response.content())
-        if (!response.hasError()) {
-            for (let [idx, solution] of solutions.entries()) {
-                if (solution.exam_template_id === response.content().id) {
-                    const _solutions = [...solutions];
-                    _solutions[idx].exam_name = response.content().name;
-                    setSolutions(_solutions);
-                }
-            }
-        } else {
-            console.log("[List Exams screen] error", response.content().message);
-        }
-    }
-
-    const handleResponseGetProfile = async (response) => {
-        console.log("[List Exams screen] get user profile: ", response.content())
-        if (!response.hasError()) {
-            for (let [idx, solution] of solutions.entries()) {
-                if (solution.user_id === response.content().id) {
-                    const _solutions = [...solutions];
-                    _solutions[idx].user_name = response.content().firstName;
-                    setSolutions(_solutions);
-                }
-            }
-        } else {
-            console.log("[List Exams screen] error", response.content().message);
-        }
-    }
-
-    const handleResponseGetAllSolutions = async (response) => {
-        console.log("[List Exams screen] get solutions: ", response.content())
-        if (!response.hasError()) {
-            for (let solution of response.content().exam_solutions) {
-                setSolutions(solutions => [...solutions,{
-                    id: solution.id,
-                    course_id: solution.course_id,
-                    user_id: solution.user_id,
-                    user_name: "",
-                    exam_template_id: solution.exam_template_id,
-                    exam_name: "",
-                    corrector_id: solution.corrector_id,
-                    graded: solution.graded,
-                    score: solution.score,
-                    max_score: solution.max_score,
-                    approval_state: solution.approval_state,
-                }]);
-            }
-        } else {
-            console.log("[List Exams screen] error", response.content().message);
-        }
-    }
 
     const handleResponseGetAllExams = async (response) => {
         console.log("[List Exams screen] get all exams: ", response.content())
         if (!response.hasError()) {
-            setSolutions([])
             setExams(response.content().exam_templates);
-            let tokenLS = await app.getToken();
-            /*for (let exam of response.content().exam_templates) {
-                await app.apiClient().getAllSolutionsByExamId({token: tokenLS}, exam.id, handleResponseGetAllSolutions);
-            }*/
         } else {
             console.log("[List Exams screen] error", response.content().message);
         }
     }
-
-    const handleResponseGetSolvedExams = async (response) => {
-        console.log("[List Exams screen] get solved exams: ", response.content())
-        if (!response.hasError()) {
-            setExams([]);
-            setSolutions(response.content().exam_solutions)
-        } else {
-            console.log("[List Exams screen] error", response.content().message);
-        }
-    }
-
-    const getData = async () => {
-        let tokenLS = await app.getToken();
-        for (let solution of solutions) {
-            if (solution.user_name === "") {
-                await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
-            }
-            if (solution.exam_name === "") {
-                await app.apiClient().getExamsById({token: tokenLS}, solution.exam_template_id, handleResponseGetExam);
-            }
-        }
-    };
 
     const onRefresh = async () => {
         console.log("[List Exams screen] entro a onRefresh");
@@ -120,45 +39,15 @@ const ListExamsScreen = (props) => {
 
     useFocusEffect(
         useCallback(() => {
-            setSolutions([]);
             onRefresh();
         }, [])
     );
 
-    useEffect(() => {
-        //setSolutions([]);
-        console.log("[List Exams screen] entro a useEffect");
-        getData();
-    }, [solutions]);
-
     const filterExams = async (query) => {
         setLoading(true);
-        let solvedFilters = {};
         let templateFilters = {
             state: []
         };
-        if (query.graded) {
-          const graded = query.graded.filter((g) => g.isChecked);
-          if (graded.length > 0) {
-            if (graded[0].isChecked) {
-              solvedFilters.graded = true;
-            }
-            if (graded[0].isChecked && graded[0].name === 'Not yet graded') {
-              solvedFilters.graded = false;
-            }
-          }
-        }
-        if (query.approved) {
-            const approved = query.approved.filter((a) => a.isChecked);
-            if (approved.length > 0) {
-              if (approved[0].isChecked) {
-                solvedFilters.approval_state = true;
-              }
-              if (approved[0].isChecked && approved[0].name === 'Failed') {
-                solvedFilters.approval_state = false;
-              }
-            }
-        }
         if (query.state) {
             const state = query.state.filter((s) => s.isChecked);
             if (state.length > 0) {
@@ -170,20 +59,14 @@ const ListExamsScreen = (props) => {
                         templateFilters.state.push('draft');
                     }
                     if (st.isChecked && st.name == 'Inactive') {
-                    templateFilters.state.push('inactive');
+                        templateFilters.state.push('inactive');
                     }
                 })
             }
         }
-        solvedFilters.user_type = 'corrector';
         const idLS = await app.getId();
         const tokenLS = await app.getToken();
-        if (Object.keys(solvedFilters).length > 0) {
-            await app.apiClient().getSolvedExams({ token: tokenLS }, idLS, solvedFilters, handleResponseGetSolvedExams);
-        }
-        if (templateFilters.state.length > 0) {
-            await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, templateFilters, handleResponseGetAllExams);
-        }
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, templateFilters, handleResponseGetAllExams);
         setLoading(false);
       }
 
@@ -195,7 +78,7 @@ const ListExamsScreen = (props) => {
                 )}
                 {!loading && (
                     <>
-                        {exams.length === 0 && solutions.length === 0 ? (
+                        {exams.length === 0 ? (
                             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
                                 <Text style={styles.examsText}>Oops.. could not find any exam</Text>
@@ -213,7 +96,7 @@ const ListExamsScreen = (props) => {
                                     </TouchableOpacity>
                                 </View>
                                 {filtersVisible && (
-                                    <ExamsFilterComponent updateExams={filterExams} />
+                                    <ExamsFilterComponent updateExams={filterExams} type="template" />
                                 )}
                                 {exams.map(item => (
                                     <TouchableOpacity
@@ -236,22 +119,6 @@ const ListExamsScreen = (props) => {
                                         </View>
                                     </TouchableOpacity>
                                 ))}
-                                {solutions.map(item => (
-                                    <TouchableOpacity
-                                        onPress={() => {props.navigation.navigate('Exam Correction', {
-                                            param_solution: item,
-                                        })}}
-                                        style={styles.fadedButton}
-                                    >
-                                        <View
-                                            style={styles.courseCardWrapper}
-                                        >
-                                            <View style={styles.courseCardTop}>
-                                                <Text style={styles.buttonFadedText}>{item.exam_name} - {item.user_name}</Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-                                ))}
                             </>
                         )}
                         <TouchableOpacity
@@ -261,15 +128,15 @@ const ListExamsScreen = (props) => {
                             style={styles.questionWrapper}
                         >
                             <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
-                                    <View style={styles.addQuestionView}>
-                                        <Text style={styles.buttonText}>Create New Exam</Text>
-                                        <Feather
-                                            name="plus"
-                                            size={20}
-                                            color={'white'}
-                                            style={styles.buttonEditIconRight}
-                                        />
-                                    </View>
+                                <View style={styles.addQuestionView}>
+                                    <Text style={styles.buttonText}>Create New Exam</Text>
+                                    <Feather
+                                        name="plus"
+                                        size={20}
+                                        color={'white'}
+                                        style={styles.buttonEditIconRight}
+                                    />
+                                </View>
                             </View>
                         </TouchableOpacity>
                     </>
@@ -301,7 +168,6 @@ const styles = new StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         alignItems: 'center',
-        //marginBottom: 5,
     },
     courseCardWrapper: {
         backgroundColor: 'white',
@@ -309,7 +175,6 @@ const styles = new StyleSheet.create({
         borderRadius: 25,
         paddingVertical: 8,
         paddingLeft: 20,
-        //marginTop: 5,
         flexDirection: 'row',
         shadowColor: 'black',
         shadowOffset: {
@@ -321,18 +186,13 @@ const styles = new StyleSheet.create({
         elevation: 2, 
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         marginTop: 8,
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseDescriptionWrapper: {
         paddingLeft: 10,
-        //paddingRight: 40,
         flexDirection: 'column',
         alignItems: 'flex-end',
-        //marginRight: 80,
     },
     courseTitleDescription: {
         paddingBottom: 3,
@@ -362,4 +222,4 @@ const styles = new StyleSheet.create({
     },
 });
 
-export default ListExamsScreen;
+export default MyExamTemplatesScreen;

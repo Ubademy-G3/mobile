@@ -381,7 +381,7 @@ const CourseScreen = (props) => {
                             </TouchableOpacity>
                             <TouchableOpacity
                                 onPress={() => {
-                                    props.navigation.navigate('List Exams', {
+                                    props.navigation.navigate('My Exams', {
                                     course_id: item.id,
                                     view_as: 'instructor'
                                 });}}

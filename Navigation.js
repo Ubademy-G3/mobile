@@ -1,6 +1,5 @@
-//import { StatusBar } from 'expo-status-bar';
-import React, { Component } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from 'react';
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -36,7 +35,9 @@ import ListExamsScreen from './screens/ListExamsScreen';
 import EditExamScreen from './screens/EditExamScreen';
 import ExamCorrectionScreen from './screens/ExamCorrectionScreen';
 import ChatScreen from './screens/ChatScreen';
-
+import MyExamsScreen from './screens/MyExamsScreen';
+import MyExamTemplatesScreen from './screens/MyExamTemplatesScreen';
+import SolvedExamsScreen from './screens/SolvedExamsScreen';
 
 Entypo.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -134,6 +135,9 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Modules" component={EditModulesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Course Metrics" component={CourseMetricsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="List Exams" component={ListExamsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="My Exams" component={MyExamsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="My Exam Templates" component={MyExamTemplatesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Solved Exams" component={SolvedExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />

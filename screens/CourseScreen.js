@@ -5,8 +5,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
-import { firebase } from '../firebase';
-import { Video, AVPlaybackStatus } from 'expo-av';
+import { Video } from 'expo-av';
 import { ActivityIndicator } from 'react-native-paper';
 import StarRating from 'react-native-star-rating';
 
@@ -25,7 +24,7 @@ const CourseScreen = (props) => {
     const [exams, setExams] = useState([]);
     const [modules, setModules] = useState([]); 
     const [updatingModules, setUpdatingModules] = useState(false);
-    const [rol, setRol] = useState("");
+    const [rol, setRol] = useState(null);
     const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
@@ -77,19 +76,19 @@ const CourseScreen = (props) => {
 
     const getAllModules = async () => {
         let tokenLS = await app.getToken();
-        for (let module_id of item.modules){                   
-            await app.apiClient().getModuleById({token: tokenLS}, item.id, module_id, handleGetModule);          
-        }               
+        for (let module_id of item.modules) {    
+            await app.apiClient().getModuleById({token: tokenLS}, item.id, module_id, handleGetModule);
+        }
     }
 
     useEffect(() => {
-        funcionauxiliar(); 
-        setUpdatingModules(false);              
+        funcionauxiliar();
+        setUpdatingModules(false);
     }, [updatingModules]);
 
-    const removeElement = (arr, value) => { 
-        return arr.filter(function(ele){ 
-            return ele != value; 
+    const removeElement = (arr, value) => {
+        return arr.filter(function(ele) {
+            return ele != value;
         });
     }
 
@@ -99,7 +98,7 @@ const CourseScreen = (props) => {
             setExams(response.content().exam_templates);
         } else {
             console.log("[Course screen] error", response.content().message);
-        }        
+        }
     }
 
     const handleResponseSubscribeToCourse = (response) => {
@@ -161,6 +160,7 @@ const CourseScreen = (props) => {
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
+            setRol(response.content().rol);
             for (let courseId of response.content().favoriteCourses){
                 if (courseId === item.id){
                     setFavorited(true);
@@ -179,7 +179,7 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
-                    setRol(course.user_type);
+                    //setRol(course.user_type);
                 }
                 if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
@@ -267,6 +267,15 @@ const CourseScreen = (props) => {
         onRefresh();
     }, []);
 
+    const getNav = () => {
+        if (rol === 'student') {
+            console.log("BIEN");
+            return 'Exams';
+        } else {
+            return 'Course Exams';
+        }
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
@@ -275,135 +284,143 @@ const CourseScreen = (props) => {
                 )}
                 {!loading && (
                     <>
-                    <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <View style={{marginRight: 55, marginBottom:10}}>
-                        <Text style={styles.titlesTitle}>{item.name}</Text>
+                        <View style={styles.titlesWrapper}>
+                            <View>
+                                <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
+                            </View>
+                            <View style={styles.titleWrapper}>
+                                <View style={{marginRight: 55, marginBottom:10}}>
+                                    <Text style={styles.titlesTitle}>{item.name}</Text>
+                                </View>
+                                <View style={{ display:'flex', flexDirection: 'row' }}>
+                                    <StarRating
+                                        disabled={true}
+                                        maxStars={5}
+                                        rating={rating.rating}
+                                        containerStyle={{ width: '40%', marginRight: 5 }}
+                                        starSize={20}
+                                        fullStarColor='gold'
+                                    />
+                                    <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
+                                </View>
+                            </View>
                         </View>
-                        <View style={{ display:'flex', flexDirection: 'row' }}>
-                            <StarRating
-                                disabled={true}
-                                maxStars={5}
-                                rating={rating.rating}
-                                containerStyle={{ width: '40%', marginRight: 5 }}
-                                starSize={20}
-                                fullStarColor='gold'
-                            />
-                            <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
-                        </View>
-                    </View>
-                </View>
-                <View
-                    style={{
-                        borderBottomColor: 'grey',
-                        borderBottomWidth: 0.5,
-                    }}
-                />
-                {!subscribed && (
-                <>
-                    <View style={styles.descriptionWrapper}>
-                        <Text style={styles.description}>{item.description}</Text>
-                    </View>
-
-                    <View style={styles.featuresWrapper}>
-                        <View style={styles.featuresListWrapper}>
-                            <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
-                            <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
-                            <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
-                        </View>
-                    </View>
-                    <View style={styles.studentListWrapper}>
-                        <Text style={styles.instructorsTitle}>Instructors:</Text>
-                        {instructors.map(item => (
-                            <ProfilesListComponent 
-                            item={item}
-                            navigation={props.navigation}/>
-                        ))}
-                        <TouchableOpacity
-                            onPress={() => {
-                                props.navigation.navigate('Student List', {
-                                course_id: item.id,
-                                filter: false,
-                                view_as: rol
-                            });}}
-                            style={[styles.fadedButton]}
-                        >
-                            <Text style={styles.buttonFadedText}>Student List</Text>
-                        </TouchableOpacity>
-                    </View>
-                </>
-                )}
-                {subscribed && (
-                    <>
-                        <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                        <View
+                            style={{
+                                borderBottomColor: 'grey',
+                                borderBottomWidth: 0.5,
+                            }}
+                        />
+                        {!subscribed && (
                             <TouchableOpacity
                                 onPress={() => {
                                     props.navigation.navigate('Student List', {
                                     course_id: item.id,
+                                    filter: false,
                                     view_as: rol
                                 });}}
-                                style={[styles.buttonWithImage]}
+                                style={[styles.fadedButton]}
                             >
-                                <Image source={require("../assets/images/studentsButton.png")} style={styles.buttonImage} />
-                                <Text style={{color: 'grey', textAlign: 'center'}}>Students</Text>
+                                <Text style={styles.buttonFadedText}>Student List</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    props.navigation.navigate('Course Exams', {
-                                    course_id: item.id,
-                                    view_as: rol,
-                                    exams: exams
-                                });}}
-                                style={[styles.buttonWithImage]}
-                            >
-                                <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
-                                <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
-                            </TouchableOpacity>
-                        </View>
-                        {modules.map((item, key) => (
-                            <>                   
-                                <View style={styles.courseCardWrapper}>                            
-                                    <View style={styles.moduleView}>
-                                        <Text style={styles.examModule}>{item.title}</Text>
-                                    </View>
-                                    <View style={styles.moduleView}>
-                                        <Text style={styles.examModule}>{item.content}</Text>
-                                    </View>                            
+                        )}
+                        {subscribed && (
+                            <>
+                                <View style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-around'}}>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            props.navigation.navigate('Student List', {
+                                            course_id: item.id,
+                                            view_as: rol
+                                        });}}
+                                        style={[styles.buttonWithImage]}
+                                    >
+                                        <Image source={require("../assets/images/studentsButton.png")} style={styles.buttonImage} />
+                                        <Text style={{color: 'grey', textAlign: 'center'}}>Students</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            props.navigation.navigate(getNav(), {
+                                            course_id: item.id,
+                                            view_as: rol,
+                                            exams: exams
+                                        });}}
+                                        style={[styles.buttonWithImage]}
+                                    >
+                                        <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
+                                        <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
+                                    </TouchableOpacity>
                                 </View>
-                                {item.media_url.map((media_item,media_key) => (
-                                    <View style={styles.containerVideo}>
-                                        <Video
-                                            ref={video}
-                                            style={styles.video}
-                                            source={{uri: media_item.url}}
-                                            resizeMode="contain"
-                                            useNativeControls={true}
-                                            shouldPlay={false}
-                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                        />
+                            </>
+                        )}
+                        <>
+                            <View style={styles.studentListWrapper}>
+                                <Text style={styles.instructorsTitle}>About this course</Text>
+                                <View style={styles.descriptionWrapper}>
+                                    <Text style={styles.description}>{item.description}</Text>
+                                </View>
+
+                                <View style={styles.featuresWrapper}>
+                                    <View style={styles.featuresListWrapper}>
+                                        <Text style={styles.featuresItemTitle}>Language: {item.language}</Text>
+                                        <Text style={styles.featuresItemTitle}>Level: {item.level}</Text>
+                                        <Text style={styles.featuresItemTitle}>Duration: {item.duration} days</Text>
                                     </View>
-                                ))} 
-                            </>                   
-                        ))}
+                                </View>
+                            </View>
+                        </>
+                        {subscribed && (
+                            <>
+                                {modules.map((item, key) => (
+                                    <View key={item.id}>                   
+                                        <View style={styles.courseCardWrapper}>                            
+                                            <View style={styles.moduleView}>
+                                                <Text style={styles.examModule}>{item.title}</Text>
+                                            </View>
+                                            <View style={styles.moduleView}>
+                                                <Text style={styles.examModule}>{item.content}</Text>
+                                            </View>                            
+                                        </View>
+                                        {item.media_url.map((media_item,media_key) => (
+                                            <View style={styles.containerVideo} key={media_item.id}>
+                                                <Video
+                                                    ref={video}
+                                                    style={styles.video}
+                                                    source={{uri: media_item.url}}
+                                                    resizeMode="contain"
+                                                    useNativeControls={true}
+                                                    shouldPlay={false}
+                                                    onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                                />
+                                            </View>
+                                        ))} 
+                                    </View>
+                                ))}
+                            </>
+                        )}
+                        <View style={styles.studentListWrapper}>
+                            <Text style={styles.instructorsTitle}>Instructors</Text>
+                            {instructors.map(item => (
+                                <ProfilesListComponent 
+                                item={item}
+                                navigation={props.navigation}
+                                key={item.id}/>
+                            ))}
+                        </View>
                     </>
-                )}
-                </>
                 )}
             </ScrollView>
             {!loading && rol === 'student' && (
                 <View style={styles.buttonsWrapper}>
-                    {subscribed === false && (
-                    <>
-                        <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
-                            <View style={styles.subscribeWrapper}>
-                                <Feather name="plus" size={18} color="black" />
-                                <Text style={styles.subscribeText}>Subscribe</Text>
-                            </View>
-                        </TouchableOpacity>            
-                    </>
+                    {!subscribed && (
+                        <>
+                            <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 
+                                <View style={styles.subscribeWrapper}>
+                                    <Feather name="plus" size={18} color="black" />
+                                    <Text style={styles.subscribeText}>Subscribe</Text>
+                                </View>
+                            </TouchableOpacity>            
+                        </>
                     )}
                     {subscribed && (
                         <>
@@ -483,6 +500,7 @@ const styles = new StyleSheet.create({
         fontSize: 16,
         color: 'black',
         fontWeight: "bold",
+        marginTop: 10
     },
     buttonsWrapper: {
         flexDirection: 'row',
@@ -576,8 +594,8 @@ const styles = new StyleSheet.create({
         marginLeft: 10,
     },
     buttonImage: {
-        width: 100,
-        height: 100
+        width: 70,
+        height: 70
     },
     buttonWithImage: {
         marginTop: 10,

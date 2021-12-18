@@ -31,7 +31,6 @@ import ExamScreen from './screens/ExamScreen';
 import EditModulesScreen from './screens/EditModulesScreen';
 import CourseMetricsScreen from './screens/CourseMetricsScreeen';
 import MenuWalletScreen from './screens/menu/MenuWalletScreen';
-import ListEditExamsScreen from './screens/ListEditExamsScreen';
 import EditExamScreen from './screens/EditExamScreen';
 import ExamCorrectionScreen from './screens/ExamCorrectionScreen';
 import ChatScreen from './screens/ChatScreen';
@@ -135,11 +134,10 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Exam Screen" component={ExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Modules" component={EditModulesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Course Metrics" component={CourseMetricsScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="List Exams" component={ListExamsScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Exams" component={ListExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Course Exams" component={MyExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="My Exam Templates" component={MyExamTemplatesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Solved Exams" component={SolvedExamsScreen} />
-                  <Stack.Screen options={{headerShown: true}} name="List Edit Exams" component={ListEditExamsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />

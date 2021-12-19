@@ -154,7 +154,7 @@ const EditCourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
-        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, "collaborator", handleGetAllUsersInCourse);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, { user_type: 'collaborator' }, handleGetAllUsersInCourse);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
         setLoading(false);
     };

@@ -42,7 +42,7 @@ const ListStudentScreen = (props) => {
       setLoading(true);
       let tokenLS = await app.getToken();
       console.log("[Student screen] token:", tokenLS); 
-      await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, "student", handleGetAllUsersInCourse);
+      await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, { user_type: 'student' }, handleGetAllUsersInCourse);
       setLoading(false);
   };
 

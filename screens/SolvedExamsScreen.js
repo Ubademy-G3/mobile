@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,36 +14,16 @@ MaterialIcons.loadFont();
 
 const SolvedExamsScreen = (props) => {
     const param_course_id = props.route.params.course_id;
+    const mounted = useRef(false);
     const [loading, setLoading] = useState(false);
     const [solutions, setSolutions] = useState([]);
+    const [users, setUsers] = useState(null);
+    const [templates, setTemplates] = useState(null);
     const [filtersVisible, setFiltersVisible] = useState(false);
 
-    const handleResponseGetProfile = async (response) => {
-        //console.log("[Solved Exams screen] get user profile: ")
+    const handleGetUsers = async (response) => {
         if (!response.hasError()) {
-            for (let [idx, solution] of solutions.entries()) {
-                if (solution.user_id === response.content().id) {
-                    const _solutions = [...solutions];
-                    _solutions[idx].user_name = response.content().firstName;
-                    _solutions[idx].user_last_name = response.content().lastName;
-                    setSolutions(_solutions);
-                }
-            }
-        } else {
-            console.log("[Solved Exams screen] error", response.content().message);
-        }
-    }
-
-    const handleResponseGetExam = async (response) => {
-        //console.log("[Solved Exams screen] get exam info: ")
-        if (!response.hasError()) {
-            for (let [idx, solution] of solutions.entries()) {
-                if (solution.exam_template_id === response.content().id) {
-                    const _solutions = [...solutions];
-                    _solutions[idx].exam_name = response.content().name;
-                    setSolutions(_solutions);
-                }
-            }
+            setUsers(response.content())
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
@@ -53,48 +33,44 @@ const SolvedExamsScreen = (props) => {
         //console.log("[Solved Exams screen] get solved exams: ")
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
+            let tokenLS = await app.getToken();
+            if (solutions.length > 0) {
+                let userIds = solutions.map((sol) => sol.user_id);
+                userIds = [ ...new Set(userIds) ];
+                await app.apiClient().getAllUsersFromList({ token: tokenLS }, userIds, handleGetUsers)
+            }
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
     }
 
-    const getData = async () => {
-        let tokenLS = await app.getToken();
-        let examIds = [];
-        for (let solution of solutions) {
-            if (!solution.user_name) {
-                await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
-            }
-            if (!solution.exam_name && !examIds.includes(solution.exam_template_id)) {
-                examIds.push(solution.exam_template_id)
-            }
+    const handleGetExamTemplates = async (response) => {
+        if (!response.hasError()) {
+            setTemplates(response.content().exam_templates);
+        } else {
+            console.log("[Solved Exams screen] error", response.content().message);
         }
-        for (let id of examIds) {
-            await app.apiClient().getExamsById({token: tokenLS}, id, handleResponseGetExam);
-        }
-        setLoading(false);
-    };
+    }
 
     const onRefresh = async () => {
         console.log("[Solved Exams screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Solved Exams screen] token:", tokenLS);
-        app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams)
-            .then(() => {
-                getData();
-            })
+        await app.apiClient().getAllExamsByCourseId({ token: tokenLS }, param_course_id, {}, handleGetExamTemplates);
+        await app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams);
+        setLoading(false);
     };
 
     useFocusEffect(
         useCallback(() => {
+            mounted.current = true;
             onRefresh();
+            return() => {
+                mounted.current = false;
+            }
         }, [])
     );
-
-    useEffect(() => {
-        getData();
-    }, [solutions]);
 
     const filterExams = async (query) => {
         setLoading(true);
@@ -129,15 +105,25 @@ const SolvedExamsScreen = (props) => {
         setLoading(false);
       }
 
+    const getStudentName = (id) => {
+        const u = users.filter((u) => u.id === id);
+        return `${u[0].firstName} ${u[0].lastName}`;
+    }
+
+    const getExamName = (id) => {
+        const e = templates.filter((e) => e.id === id);
+        return e[0].name;
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
                 {loading && (
                     <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
                 )}
-                {!loading && (
+                {!loading && users && templates && solutions && (
                     <>
-                        {solutions.length === 0 ? (
+                        {(solutions.length === 0 || users.length === 0 || templates.length === 0) ? (
                             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
                                 <Text style={styles.examsText}>Oops.. could not find any exam</Text>
@@ -162,15 +148,18 @@ const SolvedExamsScreen = (props) => {
                                             param_solution: item,
                                         })}}
                                         style={styles.fadedButton}
+                                        key={item.id}
                                     >
+                                        {console.log("ITEM:")}
+                                        {console.log(item)}
                                         <View
                                             style={styles.courseCardWrapper}
                                         >
                                             <View style={styles.courseCardTop}>
-                                                <Text style={styles.buttonFadedText}>{item.exam_name}</Text>
+                                                <Text style={styles.buttonFadedText}>{getExamName(item.exam_template_id)}</Text>
                                             </View>
                                             <View>
-                                                <Text>{`Solved by ${item.user_name} ${item.user_last_name}`}</Text>
+                                                <Text>{`Solved by ${getStudentName(item.user_id)}`}</Text>
                                                 {item.graded && (
                                                     <>
                                                         {/*<Text>{`Corrected by ${item.user_name} ${item.user_last_name}`}</Text>

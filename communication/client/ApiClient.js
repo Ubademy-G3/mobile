@@ -48,6 +48,7 @@ import { GetSolvedExamsByCourseEndpoint } from "../endpoints/GetSolvedExamsByCou
 import { GetAllModulesByCourseIdEndpoint } from "../endpoints/GetAllModulesByCourseIdEndpoint";
 import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseIdEndpoint";
 import { UpdateUserFromCourseEndpoint } from "../endpoints/UpdateUserFromCourseEndpoint.js";
+import { GetAllUsersFromListEndpoint } from "../endpoints/GetAllUsersFromListEndpoint";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -322,9 +323,9 @@ class ApiClient {
         })
     }
 
-    getAllUsersInCourse(data, courseId, userType, onResponse) {
+    getAllUsersInCourse(data, courseId, params, onResponse) {
         return this._requester.call({
-            endpoint: new GetAllUsersInCourseEndpoint(courseId, userType),
+            endpoint: new GetAllUsersInCourseEndpoint(courseId, params),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });
@@ -451,6 +452,14 @@ class ApiClient {
     getAllMedia(data, id, onResponse) {
         return this._requester.call({
             endpoint: new GetAllMediaByCourseIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllUsersFromList(data, ids, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllUsersFromListEndpoint(ids),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         })

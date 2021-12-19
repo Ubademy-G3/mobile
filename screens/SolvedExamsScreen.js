@@ -51,10 +51,25 @@ const SolvedExamsScreen = (props) => {
         }
     }*/
 
+    const handleGetUsers = async (response) => {
+        if (!response.hasError()) {
+            setUsers(response.content())
+        } else {
+            console.log("[Solved Exams screen] error", response.content().message);
+        }
+    }
+
     const handleResponseGetSolvedExams = async (response) => {
         //console.log("[Solved Exams screen] get solved exams: ")
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
+            let tokenLS = await app.getToken();
+            console.log("solutions after get solved exams");
+            console.log(solutions);
+            let userIds = solutions.map((sol) => sol.user_id);
+            userIds = [ ...new Set(userIds) ];
+            console.log(userIds)
+            await app.apiClient().getAllUsersFromList({ token: tokenLS }, userIds, handleGetUsers)
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
@@ -102,9 +117,9 @@ const SolvedExamsScreen = (props) => {
             .then(() => {
                 getData();
             })*/
-        await app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams);
         await app.apiClient().getAllExamsByCourseId({ token: tokenLS }, param_course_id, {}, handleGetExamTemplates);
-        await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_course_id, { user_type: 'student', aprobal_state: false }, handleGetAllUsers);
+        //await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_course_id, { user_type: 'student', approval_state: false }, handleGetAllUsers);
+        await app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams);
         setLoading(false);
     };
 
@@ -152,7 +167,11 @@ const SolvedExamsScreen = (props) => {
       }
 
     const getStudentName = (id) => {
+        console.log("USERS HERE")
+        console.log(users)
+        console.log(id)
         const u = users.filter((u) => u.id === id);
+        console.log(u);
         return `${u[0].firstName} ${u[0].lastName}`;
     }
 
@@ -169,7 +188,7 @@ const SolvedExamsScreen = (props) => {
                 )}
                 {!loading && users && templates && solutions && (
                     <>
-                        {solutions.length === 0 ? (
+                        {(solutions.length === 0 || users.length === 0 || templates.length === 0) ? (
                             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                                 <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
                                 <Text style={styles.examsText}>Oops.. could not find any exam</Text>
@@ -194,7 +213,10 @@ const SolvedExamsScreen = (props) => {
                                             param_solution: item,
                                         })}}
                                         style={styles.fadedButton}
+                                        key={item.id}
                                     >
+                                        {console.log("ITEM:")}
+                                        {console.log(item)}
                                         <View
                                             style={styles.courseCardWrapper}
                                         >

@@ -1,6 +1,5 @@
 import {Endpoint} from "./Endpoint.js";
 
-
 function serializeQuery(params, prefix) {
     const query = Object.keys(params).map((key) => {
       const value  = params[key];

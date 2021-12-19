@@ -150,9 +150,14 @@ const ExamCorrectionScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
-        await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS}, solution.exam_template_id, _answers[key].exam_solution_id, handleResponseUpdateSolution);
+        if (total_score < approvalScore) {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: false});
+        } else {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: true});
+        }
         setAnswers(_answers);
-        setSolution({...solution, score: total_score});
     };
 
     const handleSumbitRemoveScore = async (key) => {
@@ -166,6 +171,7 @@ const ExamCorrectionScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
+        console.log
         if (total_score < approvalScore) {
             await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
             setSolution({...solution, score: total_score, approval_state: false});

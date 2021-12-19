@@ -9,7 +9,7 @@ import StarRating from 'react-native-star-rating';
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const CourseComponent = ({ item, navigation }) => {
+const CourseComponent = ({ item }) => {
 
     console.log("[Course component] item", item);
 
@@ -43,45 +43,39 @@ const CourseComponent = ({ item, navigation }) => {
     }, []);
 
     return(
-        <TouchableOpacity
-            key={item.id}
-            onPress={() => {
-            navigation.navigate('Course Screen', {
-                item: item,
-            });
-            }}
-        >
-            <View style={styles.verticalCourseItemWrapper}>
-            <View>
-                <View style={{ width: '70%', /* marginLeft: 10, */ flexDirection: 'row', alignItems: 'center',}}>
-                <View style={{alignItems: 'center', justifyContent: 'center',}}>
-                <Image
-                    source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
-                    style={styles.image}
-                />
-                </View>
-                <View style={styles.courseTitleWrapper}>
-                    <Text style={styles.courseTitle}>{item.name}</Text>
-                    <View style={{ display:'flex', flexDirection: 'row' }}>
-                        <StarRating
-                            disabled={true}
-                            maxStars={5}
-                            rating={rating.rating}
-                            containerStyle={{ width: 110}}
-                            starSize={20}
-                            fullStarColor='gold'
-                        />
-                        <Text style={{position: 'absolute', left: 115, right: 0, top: 1, bottom: 0}}>{`(${rating.amount})`}</Text>
+        <View style={styles.verticalCourseItemWrapper}>
+                <View>
+                    <View style={{ width: '70%', /* marginLeft: 10, */ flexDirection: 'row', alignItems: 'center',}}>
+                        <View style={{alignItems: 'center', justifyContent: 'center',}}>
+                            <Image
+                                source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
+                                style={styles.image}
+                            />
+                        </View>
+                        <View style={styles.courseTitleWrapper}>
+                            <Text style={styles.courseTitle}>{item.name}</Text>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <StarRating
+                                    disabled={true}
+                                    maxStars={5}
+                                    rating={rating.rating}
+                                    containerStyle={{ width: 110}}
+                                    starSize={20}
+                                    fullStarColor='gold'
+                                />
+                                <Text style={{position: 'absolute', left: 115, top: 1,}}>{`(${rating.amount})`}</Text>
+                            </View>
+                            <Text style={{ /* textAlign: 'right', */ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
+                        </View>
                     </View>
-                    <Text style={{ /* textAlign: 'right', */ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
-                </View>
-                </View>
-                <View style={styles.courseDescriptionWrapper}>
-                <Text numberOfLines={2}>{item.description}</Text>
+                    {item.description != "" && (
+                        <View style={styles.courseDescriptionWrapper}>
+                            <Text numberOfLines={2}>{item.description}</Text>
+                        </View>
+                    )}
                 </View>
             </View>
-            </View>
-        </TouchableOpacity>
+        /* </TouchableOpacity> */
     );
 }
 

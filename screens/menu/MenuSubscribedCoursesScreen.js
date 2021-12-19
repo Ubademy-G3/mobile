@@ -76,9 +76,17 @@ const MenuSubscribedCoursesScreen = (props) => {
                             <Text style={styles.courseText}>Subscribe to courses to see your courses here.</Text>
                         )}
                         {courses.map((item) => (
-                            <CourseComponent 
-                            item={item}
-                            navigation={props.navigation}/>
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => {
+                                props.navigation.navigate('Course Screen', {item: item});
+                                }}
+                            >
+                                <CourseComponent 
+                                item={item}
+                                key={item.id}
+                                />
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </ScrollView>

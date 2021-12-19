@@ -63,46 +63,24 @@ const MenuCreatedCoursesScreen = (props) => {
             :
                 <>
                 <ScrollView>
+                    <View style={styles.coursesCardWrapper}>
                     {courses.length === 0 && (
                         <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
                     )}
                     {courses.map((item) => (
-                        <View style={styles.coursesCardWrapper} key={item.id}>
-                            {console.log(item.id)}
                         <TouchableOpacity
-                        onPress={() =>
-                            props.navigation.navigate('Course Screen', {
-                            item: item,
-                            })
-                        }>
-                            <View
-                                style={[
-                                styles.courseCardWrapper,
-                                {
-                                    marginTop: item.id == 1 ? 10 : 20,
-                                },
-                                ]}>
-                                <View>
-                                    <View style={styles.courseCardTop}>
-                                        <View>
-                                            <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                        </View>
-                                        <View style={styles.courseTitleWrapper}>
-                                            <Text style={styles.courseTitlesTitle}>
-                                                {item.name}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                    <View style={styles.courseDescriptionWrapper}>
-                                        <Text style={styles.courseTitleDescription}>
-                                        {item.description}
-                                        </Text>
-                                    </View> 
-                                </View>
-                            </View>
+                            key={item.id}
+                            onPress={() => {
+                            props.navigation.navigate('Course Screen', {item: item});
+                            }}
+                        >
+                            <CourseComponent 
+                            item={item}
+                            key={item.id}
+                            />
                         </TouchableOpacity>
-                        </View>
                     ))}
+                    </View>
                 </ScrollView>
                 </>
             }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useFocusEffect } from '@react-navigation/native';
@@ -181,22 +181,34 @@ const ProfileScreen = (props) => {
                                 <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
                             )}
                             {courses.map(item => (
-                                <CourseComponent 
-                                item={item}
-                                navigation={props.navigation}
-                                key={item.id}
-                                />
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => {
+                                    props.navigation.navigate('Course Screen', {item: item});
+                                    }}
+                                >
+                                    <CourseComponent 
+                                    item={item}
+                                    key={item.id}
+                                    />
+                                </TouchableOpacity>
                             ))}
                         </View>
                         {userData.rol === "student" && (
                             <View style={styles.coursesCardWrapper}>
                                 <Text style={styles.coursesTitle}>Favorite courses</Text>
                                 {favCourses.map(item => (
-                                    <CourseComponent 
-                                    item={item}
-                                    navigation={props.navigation}
-                                    key={item.id}
-                                    />
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        onPress={() => {
+                                        props.navigation.navigate('Course Screen', {item: item});
+                                        }}
+                                    >
+                                        <CourseComponent 
+                                        item={item}
+                                        key={item.id}
+                                        />
+                                    </TouchableOpacity>
                                 ))}
                             </View>
                         )}

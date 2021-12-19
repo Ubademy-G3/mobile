@@ -184,7 +184,7 @@ const SolvedExamsScreen = (props) => {
                                 ))}
                             </>
                         )}
-                        <TouchableOpacity
+                        {/* <TouchableOpacity
                             onPress = {()=> {props.navigation.navigate('Create New Exam', {
                                 id: param_course_id,
                                 })}}
@@ -201,7 +201,7 @@ const SolvedExamsScreen = (props) => {
                                         />
                                     </View>
                             </View>
-                        </TouchableOpacity>
+                        </TouchableOpacity> */}
                     </>
                 )}
             </ScrollView>

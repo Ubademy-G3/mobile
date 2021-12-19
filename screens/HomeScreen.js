@@ -277,6 +277,23 @@ const HomeScreen = (props) => {
                   />
                 </View>
               )}
+              <View style={styles.coursesCardWrapper}>
+                {!filtered && (
+                  <Text style={styles.title}>All courses</Text>
+                )}
+                {courses.map(item => (
+                    <CourseComponent 
+                    item={item}
+                    navigation={props.navigation}
+                    key={item.id}
+                    />
+                ))}
+                {/* <FlatList 
+                  data={courses}
+                  renderItem={renderVerticalCourseItem}
+                  keyExtractor={(item) => item.id}
+                /> */}
+              </View>
               </>
             )}
         </ScrollView>

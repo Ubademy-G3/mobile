@@ -47,6 +47,7 @@ import { GetSolvedExamsByUserEndpoint } from "../endpoints/GetSolvedExamsByUserE
 import { GetSolvedExamsByCourseEndpoint } from "../endpoints/GetSolvedExamsByCourseEndpoint";
 import { GetAllModulesByCourseIdEndpoint } from "../endpoints/GetAllModulesByCourseIdEndpoint";
 import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseIdEndpoint";
+import { UpdateUserFromCourseEndpoint } from "../endpoints/UpdateUserFromCourseEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -108,6 +109,14 @@ class ApiClient {
     getUsersByEmail(data, email, onResponse) {
         return this._requester.call({
             endpoint: new GetUserByEmailEndpoint(email),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    updateUserFromCourse(data, courseId, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new UpdateUserFromCourseEndpoint(courseId, userId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

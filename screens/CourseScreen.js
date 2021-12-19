@@ -8,6 +8,7 @@ import ProfilesListComponent from "../components/ProfilesListComponent";
 import { Video } from 'expo-av';
 import { ActivityIndicator } from 'react-native-paper';
 import StarRating from 'react-native-star-rating';
+import ProgressCircle from 'react-native-progress-circle'
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -26,6 +27,7 @@ const CourseScreen = (props) => {
     const [media, setMedia] = useState(null);
     const [updatingModules, setUpdatingModules] = useState(false);
     const [rol, setRol] = useState(null);
+    const [progress, setProgress] = useState(0);
     const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
@@ -183,6 +185,7 @@ const CourseScreen = (props) => {
             for (let course of response.content().users){
                 if (course.user_id === idLS){
                     setSubscribed(true);
+                    setProgress(course.progress);
                     //setRol(course.user_type);
                 }
                 if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
@@ -310,20 +313,36 @@ const CourseScreen = (props) => {
                                         disabled={true}
                                         maxStars={5}
                                         rating={rating.rating}
-                                        containerStyle={{ width: '40%', marginRight: 5 }}
+                                        containerStyle={{ width: '30%'}}
                                         starSize={20}
                                         fullStarColor='gold'
                                     />
-                                    <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
+                                    <Text style={{ marginLeft: 10, fontSize: 16 }}>{`(${rating.amount})`}</Text>
+                                    {subscribed && (
+                                        <>
+                                        <View style={{position: 'absolute', left: 180, right: 0, top: -12, bottom: 0}}>
+                                        <ProgressCircle
+                                            percent={progress}
+                                            radius={25}
+                                            borderWidth={3}
+                                            color="#228b22"
+                                            shadowColor="#999"
+                                            bgColor="#fff"
+                                        >
+                                            <Text style={{ fontSize: 16 }}>{`${progress}%`}</Text>
+                                        </ProgressCircle>
+                                        </View>
+                                        </>
+                                    )}
                                 </View>
                             </View>
                         </View>
-                        <View
+                        {/* <View
                             style={{
                                 borderBottomColor: 'grey',
                                 borderBottomWidth: 0.5,
                             }}
-                        />
+                        /> */}
                         {!subscribed && (
                             <TouchableOpacity
                                 onPress={() => {

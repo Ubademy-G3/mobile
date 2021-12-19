@@ -16,26 +16,28 @@ const ListStudentScreen = (props) => {
 
   const [studentsData, setStudentsData] = useState([]);
 
-  const handleApiResponseProfile = (response) => {
-      console.log("[ListStudent Screen] content: ", response.content())
-      if (!response.hasError()) {
-              setStudentsData(studentsData => [...studentsData, response.content()]);
-      } else {
-          console.log("[ListStudent Screen] error", response.content().message);
-      }
-  }
-  
-  const handleGetAllUsersInCourse = async (response) => {
-      console.log("[ListStudent Screen] content: ", response.content())
-      if (!response.hasError()) {
-          let tokenLS = await app.getToken();
-          for(let student of response.content().users){
-            await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
-          }
-      } else {
-          console.log("[ListStudent Screen] error", response.content().message);
-      }
-  }
+  const handleGetProfileFromList = (response) => {
+    console.log("[List Student Screen] content: ", response.content())
+    if (!response.hasError()) {
+            setStudentsData(response.content());
+    } else {
+        console.log("[List Student Screen] error", response.content().message);
+    }
+}
+
+const handleGetAllUsersInCourse = async (response) => {
+    console.log("[List Student Screen] get all users content: ", response.content())
+    if (!response.hasError()) {
+        const colaboratorsIds = [];
+        for(let user of response.content().users){
+          colaboratorsIds.push(user.user_id)
+        }
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllUsersFromList({token: tokenLS}, colaboratorsIds, handleGetProfileFromList); 
+    } else {
+        console.log("[List Student Screen] error", response.content().message);
+    }
+}
 
   const onRefresh = async () => {
       console.log("[Student screen] entro a onRefresh"); 

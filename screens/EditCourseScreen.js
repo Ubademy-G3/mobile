@@ -43,22 +43,24 @@ const EditCourseScreen = (props) => {
         }        
     }
 
-    const handleApiResponseProfile = (response) => {
+    const handleGetProfileFromList = (response) => {
         console.log("[Edit Course Screen] content: ", response.content())
         if (!response.hasError()) {
-                setCollaboratorsData(collaboratorsData => [...collaboratorsData, response.content()]);
+                setCollaboratorsData(response.content());
         } else {
             console.log("[Edit Course Screen] error", response.content().message);
         }
     }
 
     const handleGetAllUsersInCourse = async (response) => {
-        console.log("[Edit Course Screen] content: ", response.content())
+        console.log("[Edit Course Screen] get all users content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let student of response.content().users){
-              await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
+            const colaboratorsIds = [];
+            for(let user of response.content().users){
+              colaboratorsIds.push(user.user_id)
             }
+            let tokenLS = await app.getToken();
+            await app.apiClient().getAllUsersFromList({token: tokenLS}, colaboratorsIds, handleGetProfileFromList); 
         } else {
             console.log("[Edit Course Screen] error", response.content().message);
         }

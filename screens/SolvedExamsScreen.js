@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -14,6 +14,7 @@ MaterialIcons.loadFont();
 
 const SolvedExamsScreen = (props) => {
     const param_course_id = props.route.params.course_id;
+    const mounted = useRef(false);
     const [loading, setLoading] = useState(false);
     const [solutions, setSolutions] = useState([]);
     const [users, setUsers] = useState(null);
@@ -33,12 +34,11 @@ const SolvedExamsScreen = (props) => {
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
             let tokenLS = await app.getToken();
-            console.log("solutions after get solved exams");
-            console.log(solutions);
-            let userIds = solutions.map((sol) => sol.user_id);
-            userIds = [ ...new Set(userIds) ];
-            console.log(userIds)
-            await app.apiClient().getAllUsersFromList({ token: tokenLS }, userIds, handleGetUsers)
+            if (solutions.length > 0) {
+                let userIds = solutions.map((sol) => sol.user_id);
+                userIds = [ ...new Set(userIds) ];
+                await app.apiClient().getAllUsersFromList({ token: tokenLS }, userIds, handleGetUsers)
+            }
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
@@ -47,14 +47,6 @@ const SolvedExamsScreen = (props) => {
     const handleGetExamTemplates = async (response) => {
         if (!response.hasError()) {
             setTemplates(response.content().exam_templates);
-        } else {
-            console.log("[Solved Exams screen] error", response.content().message);
-        }
-    }
-
-    const handleGetAllUsers = async (response) => {
-        if (!response.hasError()) {
-            setUsers(response.content().users);
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
@@ -72,13 +64,13 @@ const SolvedExamsScreen = (props) => {
 
     useFocusEffect(
         useCallback(() => {
+            mounted.current = true;
             onRefresh();
+            return() => {
+                mounted.current = false;
+            }
         }, [])
     );
-
-    /*useEffect(() => {
-        getData();
-    }, [solutions]);*/
 
     const filterExams = async (query) => {
         setLoading(true);

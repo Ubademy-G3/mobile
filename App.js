@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Navigation from "./Navigation";
+import { LogBox } from 'react-native';
 import * as Notifications from 'expo-notifications';
 
 Notifications.setNotificationHandler({
@@ -31,6 +32,9 @@ export default function App() {
           Notifications.removeNotificationSubscription(responseListener.current);
         };
     }, []);
+
+    //console.disableYellowBox = true;
+    LogBox.ignoreAllLogs()
 
     return (
         <Navigation/>

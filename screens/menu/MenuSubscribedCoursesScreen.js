@@ -44,7 +44,7 @@ const MenuSubscribedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Subscribed Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, false, "student", handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 
@@ -76,9 +76,17 @@ const MenuSubscribedCoursesScreen = (props) => {
                             <Text style={styles.courseText}>Subscribe to courses to see your courses here.</Text>
                         )}
                         {courses.map((item) => (
-                            <CourseComponent 
-                            item={item}
-                            navigation={props.navigation}/>
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => {
+                                props.navigation.navigate('Course Screen', {item: item});
+                                }}
+                            >
+                                <CourseComponent 
+                                item={item}
+                                key={item.id}
+                                />
+                            </TouchableOpacity>
                         ))}
                     </View>
                 </ScrollView>

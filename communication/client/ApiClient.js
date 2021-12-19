@@ -139,9 +139,9 @@ class ApiClient {
         });
     }
 
-    getAllCoursesByUser(data, id, aprobalState, userType, onResponse) {
+    getAllCoursesByUser(data, id, params, onResponse) {
         return this._requester.call({
-            endpoint: new GetAllCoursesByUserEndpoint(id, aprobalState, userType),
+            endpoint: new GetAllCoursesByUserEndpoint(id, params),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

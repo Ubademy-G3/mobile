@@ -282,11 +282,17 @@ const HomeScreen = (props) => {
                   <Text style={styles.title}>All courses</Text>
                 )}
                 {courses.map(item => (
-                    <CourseComponent 
-                    item={item}
-                    navigation={props.navigation}
-                    key={item.id}
-                    />
+                    <TouchableOpacity
+                      key={item.id}
+                      onPress={() => {
+                      props.navigation.navigate('Course Screen', {item: item});
+                      }}
+                    >
+                      <CourseComponent 
+                      item={item}
+                      key={item.id}
+                      />
+                    </TouchableOpacity>
                 ))}
                 {/* <FlatList 
                   data={courses}

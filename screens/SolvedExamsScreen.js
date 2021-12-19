@@ -34,10 +34,8 @@ const SolvedExamsScreen = (props) => {
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
             let tokenLS = await app.getToken();
-            console.log("SOLVED")
-            console.log(response.content())
-            if (solutions.length > 0) {
-                let userIds = solutions.map((sol) => sol.user_id);
+            if (response.content().exam_solutions.length > 0) {
+                let userIds = response.content().exam_solutions.map((sol) => sol.user_id);
                 userIds = [ ...new Set(userIds) ];
                 await app.apiClient().getAllUsersFromList({ token: tokenLS }, userIds, handleGetUsers)
             }

@@ -19,7 +19,15 @@ const ProfileScreen = (props) => {
     
     const [courses, setCourses] = useState([]);  
     
-    const [userData, setData] = useState(null);
+    const [userData, setData] = useState({
+        firstName: "Name",
+        lastName: "Last name",
+        location: "",
+        profilePictureUrl: "../assets/images/profilePic.jpg",
+        description: "",
+        interests: [],
+        rol: "",
+    });
 
     const [categories, setCategories] = useState([]);
 
@@ -44,10 +52,11 @@ const ProfileScreen = (props) => {
         }
     }
     
-    const handleResponseGetCategory = (response) => {
+    const handleGetCategories = (response) => {
         console.log("[Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
-            setCategories(categories => [...categories, response.content()]);
+            const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
+            setCategories(userCategories);
         } else {
             console.log("[Profile Screen] error", response.content().message);
         }
@@ -79,11 +88,11 @@ const ProfileScreen = (props) => {
                 favoriteCourses: response.content().favoriteCourses,
                 rol: response.content().rol,
             });
-            let tokenLS = await app.getToken();
-            for (let id of response.content().interests) {
-                console.log("[Profile screen] interests id:", id);
-                await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            }
+            // let tokenLS = await app.getToken();
+            // for (let id of response.content().interests) {
+            //     console.log("[Profile screen] interests id:", id);
+            //     await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
+            // }
             await Promise.all(
                 response.content().favoriteCourses.map(async (courseId) => {
                     return await app.apiClient().getCourseById({ token: tokenLS }, courseId, handleFavoriteCourseResponse);
@@ -93,6 +102,18 @@ const ProfileScreen = (props) => {
             console.log("[Profile screen] error", response.content().message);
         }
     }
+
+    const onRefreshCategories = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+    }
+
+    useEffect(() => {
+        if (userData.interests.length > 0) {
+            console.log("[Anothers Profile screen] entro a updating categories"); 
+            onRefreshCategories();            
+        }
+    }, [userData]);
     
     const onRefresh = async () => {
         console.log("[Profile screen] entro a onRefresh"); 

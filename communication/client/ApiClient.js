@@ -115,9 +115,9 @@ class ApiClient {
         });
     }
 
-    updateUserFromCourse(data, courseId, userId, onResponse) {
+    updateUserFromCourse(data, courseId, userId, query, onResponse) {
         return this._requester.call({
-            endpoint: new UpdateUserFromCourseEndpoint(courseId, userId),
+            endpoint: new UpdateUserFromCourseEndpoint(courseId, userId, query),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

@@ -15,6 +15,8 @@ const ExamCorrectionScreen = (props) => {
     const [questions, setQuestions] = useState(null);
     const [amountExams, setAmountExams] = useState(0);
     const [amountExamsApproved, setAmountExamsApproved] = useState(null);
+    const [approvalScore, setApprovalScore] = useState(0);
+    const [username, setUsername] = useState("");
 
     const getAnswerMC = (key, questionId) => {
         const _answers = [...answers];
@@ -46,7 +48,7 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseUpdateUserFromCourse = (response) => {
-        console.log("[Exam Correction screen] update answer: ", response.content())
+        console.log("[Exam Correction screen] update user from course: ", response.content())
         if (!response.hasError()) {
             console.log("[Exam Correction screen] ok");
         } else {
@@ -54,21 +56,38 @@ const ExamCorrectionScreen = (props) => {
         }
     }
 
-
     const handleResponseGetAllExamsByCourse = (response) => {
         console.log("[Exam Correction screen] get all exams: ", response.content())
         if (!response.hasError()) {
-            console.log("EXAM AMOUNT",response.content()[0].amount);
-            setAmountExams(response.content()[0].amount);
+            console.log("EXAM AMOUNT",response.content().amount);
+            setAmountExams(response.content().amount);
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }
+    }
+
+    const handleResponseGetExam = (response) => {
+        console.log("[Exam Correction screen] get exam: ", response.content())
+        if (!response.hasError()) {
+            setApprovalScore(response.content().approval_score);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
         }
     }
 
     const handleResponseGetSolvedExams = (response) => {
-        console.log("[Exam Correction screen] get all exams: ", response.content())
+        console.log("[Exam Correction screen] get solved exams: ", response.content())
         if (!response.hasError()) {
             setAmountExamsApproved(response.content().amount);
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }
+    }
+
+    const handleResponseGetProfile = (response) => {
+        console.log("[Exam Correction screen] get solved exams: ", response.content())
+        if (!response.hasError()) {
+            setUsername(`${response.content().firstName} ${response.content().lastName}`);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
         }
@@ -131,9 +150,14 @@ const ExamCorrectionScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
-        await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS}, solution.exam_template_id, _answers[key].exam_solution_id, handleResponseUpdateSolution);
+        if (total_score < approvalScore) {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: false});
+        } else {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: true});
+        }
         setAnswers(_answers);
-        setSolution({...solution, score: total_score});
     };
 
     const handleSumbitRemoveScore = async (key) => {
@@ -147,12 +171,18 @@ const ExamCorrectionScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
-        await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+        console.log
+        if (total_score < approvalScore) {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: false});
+        } else {
+            await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
+            setSolution({...solution, score: total_score, approval_state: true});
+        }
         setAnswers(_answers);
-        setSolution({...solution, score: total_score});
     };
 
-    const handleSubmitChangeState = async () => {
+    /* const handleSubmitChangeState = async () => {
         let tokenLS = await app.getToken();
         if(solution.approval_state){
             await app.apiClient().updateSolution({token: tokenLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
@@ -167,7 +197,7 @@ const ExamCorrectionScreen = (props) => {
                 approval_state: true,
             });
         }
-    };
+    }; */
 
     const handleSubmitSave = async () => {
         //updeatear solution y poner graded: true
@@ -176,7 +206,6 @@ const ExamCorrectionScreen = (props) => {
         setSolution({...solution, graded: true});
         await app.apiClient().getSolvedExamsByUser({token: tokenLS}, solution.user_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
     }
-
 
     const getQuestions = async () => {
         console.log("[Exam Correction screen] entro a onRefresh"); 
@@ -198,7 +227,9 @@ const ExamCorrectionScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Exam Correction screen] token:", tokenLS);
         await app.apiClient().getAllAnswersByExamId({token: tokenLS}, solution.exam_template_id, solution.id, handleResponseGetAllAnswers);
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, handleResponseGetAllExamsByCourse);
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, {}, handleResponseGetAllExamsByCourse);
+        await app.apiClient().getExamsById({token: tokenLS}, solution.exam_template_id, handleResponseGetExam);
+        await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
         setLoading(false);
     };
 
@@ -209,7 +240,7 @@ const ExamCorrectionScreen = (props) => {
         console.log("DIVISION", (amountExamsApproved/amountExams));
         let new_progress = ((amountExamsApproved/amountExams) * 100);
         console.log("NEW PROGRESS!!!", new_progress);
-        await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, handleResponseUpdateUserFromCourse);
+        await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, {username: username},handleResponseUpdateUserFromCourse);
     }
 
     useEffect(() => {
@@ -288,10 +319,10 @@ const ExamCorrectionScreen = (props) => {
                                 backgroundColor: solution.approval_state ? "white": '#87ceeb',
                             }]}>
                             <View style={styles.examDescritpionWrapper}>
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     onPress = {()=> {handleSubmitChangeState()}}
                                     style={styles.questionWrapper}
-                                >
+                                > */}
                                     <View style={styles.questionView}>
                                     {solution.approval_state && (
                                         <Text style={styles.examDescription}>Approved: {solution.score}/{solution.max_score}</Text>
@@ -300,7 +331,7 @@ const ExamCorrectionScreen = (props) => {
                                         <Text style={styles.examDescription}>Failed: {solution.score}/{solution.max_score}</Text>
                                     )}
                                     </View>
-                                </TouchableOpacity>
+                                {/* </TouchableOpacity> */}
                             </View>
                         </View>
                         {answers.map((item, idx) => (
@@ -540,6 +571,7 @@ const styles = new StyleSheet.create({
     },
     examDescritpionWrapper: {
         //marginTop:5,
+        flexDirection: 'row',
         justifyContent: 'center',
     },
     questionWrapper: {

@@ -153,7 +153,9 @@ const ProfileScreen = (props) => {
                         </View>
                         <View style={styles.descriptionWrapper}>
                             <Text style={styles.locationTitle}>{userData.rol.charAt(0).toUpperCase()+userData.rol.slice(1)}</Text>
-                            <Text style={styles.description}>{userData.description}</Text>
+                            {userData.description != "" &&(
+                                <Text style={styles.description}>{userData.description}</Text>
+                            )}
                         </View>
                         {userData.rol === "student" && (
                             <>

@@ -89,45 +89,15 @@ const MenuCollaborationsScreen = (props) => {
                             {courses.map((item) => (
                                 <>
                                 <TouchableOpacity
-                                key={item.id}
-                                onPress={() =>
-                                    props.navigation.navigate('Edit Course', {
-                                    item: item,
-                                    })
-                                }>
-                                <View
-                                    style={[
-                                    styles.courseCardWrapper,
-                                    {
-                                        marginTop: item.id == 1 ? 10 : 20,
-                                    },
-                                    ]}>
-                                    <View>
-                                        <View style={styles.courseCardTop}>
-                                            <View>
-                                                <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                            </View>
-                                            <View style={styles.courseTitleWrapper}>
-                                                <Text style={styles.courseTitlesTitle}>
-                                                    {item.name}
-                                                </Text>
-                                                <View style={styles.courseTitlesRating}>
-                                                    <MaterialCommunityIcons
-                                                    name="star"
-                                                    size={20}
-                                                    color={'black'}
-                                                    />
-                                                    <Text style={styles.rating}>{rating}</Text>
-                                                </View>
-                                            </View>
-                                        </View>
-                                        <View style={styles.courseDescriptionWrapper}>
-                                            <Text style={styles.courseTitleDescription}>
-                                            {item.description}
-                                            </Text>
-                                        </View> 
-                                    </View>
-                                </View>
+                                    key={item.id}
+                                    onPress={() => {
+                                    props.navigation.navigate('Edit Course', {item: item});
+                                    }}
+                                >
+                                    <CourseComponent 
+                                    item={item}
+                                    key={item.id}
+                                    />
                                 </TouchableOpacity>
                                 </>
                             ))}

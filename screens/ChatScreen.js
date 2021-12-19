@@ -12,15 +12,10 @@ const ChatScreen = (props) => {
 
     const[loading, setLoading] = useState(false);
 
-    const handleApiResponseProfile = (response) => {
+    const handleGetProfileFromList = (response) => {
+        console.log("[Chat screen] Get Profiles From List", response.content());
         if (!response.hasError()) {
-            const userData = {
-                id: response.content().id,
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                profilePicture: response.content().profilePictureUrl
-            }
-            return userData;
+            setUsers(response.content());
         } else {
             console.log("[Chat screen] error", response.content().message);
         }
@@ -41,34 +36,15 @@ const ChatScreen = (props) => {
                 }
             });
             getProfiles(usersIds);
+            console.log("USER IDS list: ", usersIds);
         });
         setLoading(false);
     }
 
     const getProfiles = async (ids) => {
         const token = await app.getToken();
-        const u = [];
-        for (let id of ids) {
-            let add = true;
-            if (users) {
-                users.forEach(user => {
-                    if (user.id === id) {
-                        add = false
-                    }
-                });
-            }
-
-            if (add) {
-                const a = await app.apiClient().getProfile({ id: id, token: token }, id, handleApiResponseProfile);
-                u.push(a);
-            }
-        }
-        setUsers(u)
+        await app.apiClient().getAllUsersFromList({token: token}, ids,handleGetProfileFromList);
     }
-
-    /* useEffect(() => {
-        getUsers();
-    }, []); */
 
     useFocusEffect(
         useCallback(() => {
@@ -81,7 +57,7 @@ const ChatScreen = (props) => {
         return (
             <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id, firstName: item.firstName, lastName: item.lastName })}>
                 <View style={styles.mycard}>
-                    <Image source={item.profilePicture ? { uri: item.profilePicture } : image} style={styles.img} />
+                    <Image source={item.profilePictureUrl ? { uri: item.profilePictureUrl } : image} style={styles.img} />
                     <View>
                         <Text style={styles.text}>
                             {`${item.firstName} ${item.lastName}`}

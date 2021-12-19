@@ -10,7 +10,7 @@ export class GetAllUsersFromListEndpoint extends Endpoint {
     url() {
         let url = `/users`;
         const idList = this._ids.join(',');
-        url = url.concat(`?${idList}`);
+        url = url.concat(`?idList=${idList}`);
 
         return url;
     }

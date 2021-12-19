@@ -63,15 +63,15 @@ const CourseComponent = ({ item, navigation }) => {
                 <View style={styles.courseTitleWrapper}>
                     <Text style={styles.courseTitle}>{item.name}</Text>
                     <View style={{ display:'flex', flexDirection: 'row' }}>
-                    <StarRating
-                        disabled={true}
-                        maxStars={5}
-                        rating={rating.rating}
-                        containerStyle={{ width: '40%', marginRight: 5 }}
-                        starSize={20}
-                        fullStarColor='gold'
-                    />
-                    <Text style={{ marginLeft: 15 }}>{`(${rating.amount})`}</Text>
+                        <StarRating
+                            disabled={true}
+                            maxStars={5}
+                            rating={rating.rating}
+                            containerStyle={{ width: 110}}
+                            starSize={20}
+                            fullStarColor='gold'
+                        />
+                        <Text style={{position: 'absolute', left: 115, right: 0, top: 1, bottom: 0}}>{`(${rating.amount})`}</Text>
                     </View>
                     <Text style={{ /* textAlign: 'right', */ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
                 </View>

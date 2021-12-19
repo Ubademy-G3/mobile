@@ -138,7 +138,6 @@ const ExamScreen = (props) => {
         if (blocked){
             getSolution();
         }
-        onRefresh();
     }, [blocked]);
 
     return (

@@ -13,6 +13,8 @@ const ExamCorrectionScreen = (props) => {
     const [solution, setSolution] = useState(param_solution);
     const [answers, setAnswers] = useState(null);
     const [questions, setQuestions] = useState(null);
+    const [amountExams, setAmountExams] = useState(0);
+    const [amountExamsApproved, setAmountExamsApproved] = useState(null);
 
     const getAnswerMC = (key, questionId) => {
         const _answers = [...answers];
@@ -38,6 +40,35 @@ const ExamCorrectionScreen = (props) => {
         console.log("[Exam Correction screen] update answer: ", response.content())
         if (!response.hasError()) {
             console.log("[Exam Correction screen] ok");
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }
+    }
+
+    const handleResponseUpdateUserFromCourse = (response) => {
+        console.log("[Exam Correction screen] update answer: ", response.content())
+        if (!response.hasError()) {
+            console.log("[Exam Correction screen] ok");
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }
+    }
+
+
+    const handleResponseGetAllExamsByCourse = (response) => {
+        console.log("[Exam Correction screen] get all exams: ", response.content())
+        if (!response.hasError()) {
+            console.log("EXAM AMOUNT",response.content()[0].amount);
+            setAmountExams(response.content()[0].amount);
+        } else {
+            console.log("[Exam Correction screen] error", response.content().message);
+        }
+    }
+
+    const handleResponseGetSolvedExams = (response) => {
+        console.log("[Exam Correction screen] get all exams: ", response.content())
+        if (!response.hasError()) {
+            setAmountExamsApproved(response.content().amount);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
         }
@@ -143,6 +174,7 @@ const ExamCorrectionScreen = (props) => {
         let tokenLS = await app.getToken();
         await app.apiClient().updateSolution({token: tokenLS, graded: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
         setSolution({...solution, graded: true});
+        await app.apiClient().getSolvedExamsByUser({token: tokenLS}, solution.user_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
     }
 
 
@@ -166,8 +198,19 @@ const ExamCorrectionScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Exam Correction screen] token:", tokenLS);
         await app.apiClient().getAllAnswersByExamId({token: tokenLS}, solution.exam_template_id, solution.id, handleResponseGetAllAnswers);
+        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, handleResponseGetAllExamsByCourse);
         setLoading(false);
     };
+
+    const setProgress = async () => {
+        let tokenLS = await app.getToken();
+        console.log("amount exams approved", amountExamsApproved);
+        console.log("amount exams", amountExams);
+        console.log("DIVISION", (amountExamsApproved/amountExams));
+        let new_progress = ((amountExamsApproved/amountExams) * 100);
+        console.log("NEW PROGRESS!!!", new_progress);
+        await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, handleResponseUpdateUserFromCourse);
+    }
 
     useEffect(() => {
         console.log("[Exam screen] entro a useEffect");
@@ -178,6 +221,12 @@ const ExamCorrectionScreen = (props) => {
         console.log("[Exam screen] entro a useEffect");
         getQuestions();
     }, [answers]);
+
+    useEffect(() => {
+        if (amountExamsApproved != null){
+            setProgress();
+        }
+    }, [amountExamsApproved])
 
     const getQuestionById = (id) => {
         let question = questions.filter((q) => {

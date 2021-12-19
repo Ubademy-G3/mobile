@@ -67,7 +67,7 @@ const MenuCreatedCoursesScreen = (props) => {
                         <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
                     )}
                     {courses.map((item) => (
-                        <View style={styles.coursesCardWrapper}>
+                        <View style={styles.coursesCardWrapper} key={item.id}>
                             {console.log(item.id)}
                         <TouchableOpacity
                         onPress={() =>

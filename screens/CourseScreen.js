@@ -254,7 +254,7 @@ const CourseScreen = (props) => {
         let idLS = await app.getId();
         console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
-        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, {}, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);

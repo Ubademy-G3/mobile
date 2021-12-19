@@ -16,9 +16,11 @@ const SolvedExamsScreen = (props) => {
     const param_course_id = props.route.params.course_id;
     const [loading, setLoading] = useState(false);
     const [solutions, setSolutions] = useState([]);
+    const [users, setUsers] = useState(null);
+    const [templates, setTemplates] = useState(null);
     const [filtersVisible, setFiltersVisible] = useState(false);
 
-    const handleResponseGetProfile = async (response) => {
+    /*const handleResponseGetProfile = async (response) => {
         //console.log("[Solved Exams screen] get user profile: ")
         if (!response.hasError()) {
             for (let [idx, solution] of solutions.entries()) {
@@ -32,9 +34,9 @@ const SolvedExamsScreen = (props) => {
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
-    }
+    }*/
 
-    const handleResponseGetExam = async (response) => {
+    /*const handleResponseGetExam = async (response) => {
         //console.log("[Solved Exams screen] get exam info: ")
         if (!response.hasError()) {
             for (let [idx, solution] of solutions.entries()) {
@@ -47,7 +49,7 @@ const SolvedExamsScreen = (props) => {
         } else {
             console.log("[Solved Exams screen] error", response.content().message);
         }
-    }
+    }*/
 
     const handleResponseGetSolvedExams = async (response) => {
         //console.log("[Solved Exams screen] get solved exams: ")
@@ -58,7 +60,23 @@ const SolvedExamsScreen = (props) => {
         }
     }
 
-    const getData = async () => {
+    const handleGetExamTemplates = async (response) => {
+        if (!response.hasError()) {
+            setTemplates(response.content().exam_templates);
+        } else {
+            console.log("[Solved Exams screen] error", response.content().message);
+        }
+    }
+
+    const handleGetAllUsers = async (response) => {
+        if (!response.hasError()) {
+            setUsers(response.content().users);
+        } else {
+            console.log("[Solved Exams screen] error", response.content().message);
+        }
+    }
+
+    /*const getData = async () => {
         let tokenLS = await app.getToken();
         let examIds = [];
         for (let solution of solutions) {
@@ -73,17 +91,21 @@ const SolvedExamsScreen = (props) => {
             await app.apiClient().getExamsById({token: tokenLS}, id, handleResponseGetExam);
         }
         setLoading(false);
-    };
+    };*/
 
     const onRefresh = async () => {
         console.log("[Solved Exams screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Solved Exams screen] token:", tokenLS);
-        app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams)
+        /*app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams)
             .then(() => {
                 getData();
-            })
+            })*/
+        await app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams);
+        await app.apiClient().getAllExamsByCourseId({ token: tokenLS }, param_course_id, {}, handleGetExamTemplates);
+        await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_course_id, { user_type: 'student', aprobal_state: false }, handleGetAllUsers);
+        setLoading(false);
     };
 
     useFocusEffect(
@@ -92,9 +114,9 @@ const SolvedExamsScreen = (props) => {
         }, [])
     );
 
-    useEffect(() => {
+    /*useEffect(() => {
         getData();
-    }, [solutions]);
+    }, [solutions]);*/
 
     const filterExams = async (query) => {
         setLoading(true);
@@ -129,13 +151,23 @@ const SolvedExamsScreen = (props) => {
         setLoading(false);
       }
 
+    const getStudentName = (id) => {
+        const u = users.filter((u) => u.id === id);
+        return `${u[0].firstName} ${u[0].lastName}`;
+    }
+
+    const getExamName = (id) => {
+        const e = templates.filter((e) => e.id === id);
+        return e[0].name;
+    }
+
     return (
         <View style={styles.container}>
             <ScrollView>
                 {loading && (
                     <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
                 )}
-                {!loading && (
+                {!loading && users && templates && solutions && (
                     <>
                         {solutions.length === 0 ? (
                             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -167,10 +199,10 @@ const SolvedExamsScreen = (props) => {
                                             style={styles.courseCardWrapper}
                                         >
                                             <View style={styles.courseCardTop}>
-                                                <Text style={styles.buttonFadedText}>{item.exam_name}</Text>
+                                                <Text style={styles.buttonFadedText}>{getExamName(item.exam_template_id)}</Text>
                                             </View>
                                             <View>
-                                                <Text>{`Solved by ${item.user_name} ${item.user_last_name}`}</Text>
+                                                <Text>{`Solved by ${getStudentName(item.user_id)}`}</Text>
                                                 {item.graded && (
                                                     <>
                                                         {/*<Text>{`Corrected by ${item.user_name} ${item.user_last_name}`}</Text>

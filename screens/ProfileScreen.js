@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const ProfileScreen = (props) => {
+    const mounted = useRef(false);
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
 
     console.log("PROFILE ID: ",param_id);
@@ -103,10 +104,14 @@ const ProfileScreen = (props) => {
     };
 
     useEffect(() => {
+        mounted.current = true;
         setCourses([]);
         setFavCourses([]);
         setCategories([]);
         onRefresh();
+        return() => {
+            mounted.current = false;
+        }
     }, [param_id, props]);
 
     const renderCategoryItem = ({ item }) => {
@@ -178,7 +183,9 @@ const ProfileScreen = (props) => {
                             {courses.map(item => (
                                 <CourseComponent 
                                 item={item}
-                                navigation={props.navigation}/>
+                                navigation={props.navigation}
+                                key={item.id}
+                                />
                             ))}
                         </View>
                         {userData.rol === "student" && (
@@ -187,7 +194,9 @@ const ProfileScreen = (props) => {
                                 {favCourses.map(item => (
                                     <CourseComponent 
                                     item={item}
-                                    navigation={props.navigation}/>
+                                    navigation={props.navigation}
+                                    key={item.id}
+                                    />
                                 ))}
                             </View>
                         )}

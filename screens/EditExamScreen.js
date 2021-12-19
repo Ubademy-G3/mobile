@@ -3,26 +3,20 @@ import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, Scro
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import SelectDropdown from 'react-native-select-dropdown';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
 
 const EditExamScreen = (props) => {
-    
     const param_exam_id = props.route.params ? props.route.params.exam_id : 'defaultID';
-
     const [loading, setLoading] = useState(false);
-    
     const [questions, setQuestions] = useState([]);
-
     const [questionMC, setQuestionMC] = useState("");
-
     const [finishedMC, setFinishedMC] = useState(false);
-
     const [initialState, setInitialState] = useState("");
-
     const [selectedExam, setSelectedExam] = useState({
         id: 0,
         has_media: false,
@@ -290,6 +284,13 @@ const EditExamScreen = (props) => {
     useEffect(() => {
         selectExam();
     }, []);
+
+    const setCorrect = (key, idx) => {
+        const _inputs = [...questions];
+        _inputs[key].correct = idx;
+        console.log(_inputs);
+        setQuestions(_inputs);
+    }
 
     return (
         <View style={styles.container}>

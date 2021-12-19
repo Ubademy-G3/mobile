@@ -87,14 +87,13 @@ const MenuEditCoursesScreen = (props) => {
                         <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
                     )}
                     {courses.map((item) => (
-                        <View style={styles.coursesCardWrapper}>
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() =>
-                            props.navigation.navigate('Edit Course', {
-                            item: item,
-                            })
-                        }>
+                        <View style={styles.coursesCardWrapper} key={item.id}>
+                            <TouchableOpacity
+                            onPress={() =>
+                                props.navigation.navigate('Edit Course', {
+                                item: item,
+                                })
+                            }>
                             <View
                                 style={[
                                 styles.courseCardWrapper,

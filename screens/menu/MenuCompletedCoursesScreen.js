@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CourseComponent from '../../components/CourseComponent';
@@ -11,9 +10,7 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuCompletedCoursesScreen = (props) => {
-
     const [loading, setLoading] = useState(false);
-    
     const [courses, setCourses] = useState([]);
 
     const handleResponseCourseResponse = (response) => {
@@ -24,7 +21,6 @@ const MenuCompletedCoursesScreen = (props) => {
             console.log("[Menu Completed Courses Screen] error", response.content().message);
         }
     }
-    
 
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Completed Courses screen] content: ", response.content())
@@ -45,15 +41,9 @@ const MenuCompletedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Completed Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, true, "student", handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', approval_state: true }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Completed Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props]); */
 
     useFocusEffect(
         useCallback(() => {
@@ -68,7 +58,7 @@ const MenuCompletedCoursesScreen = (props) => {
             {
                 loading ? 
                     <View style={{flex:1, justifyContent: 'center'}}>
-                        <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                        <ActivityIndicator color="lightblue" animating={loading} size="large" /> 
                     </View>
                 :
                     <>

@@ -16,8 +16,6 @@ const AnothersProfileScreen = (props) => {
     const [loading, setLoading] = useState(false);
     
     const [categories, setCategories] = useState([]);
-
-    const [updating, setUpdating] = useState(false);
     
     const [userData, setData] = useState({
         firstName: "Name",
@@ -33,7 +31,6 @@ const AnothersProfileScreen = (props) => {
         console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
-            console.log("LISTA DE CATEGORIAS FILTRADA: " ,userCategories)
             setCategories(userCategories);
         } else {
             console.log("[Anothers Profile Screen] error", response.content().message);
@@ -53,11 +50,6 @@ const AnothersProfileScreen = (props) => {
                 interests: response.content().interests,
                 rol: response.content().rol,
             });
-            // let tokenLS = await app.getToken();
-            // for(let id of response.content().interests){
-            //     console.log("[Anothers Profile screen] interests id:", id);
-            //     await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            // }
         } else {
             console.log("[Anothers Profile screen] error", response.content().message);
         }

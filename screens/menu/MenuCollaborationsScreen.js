@@ -54,7 +54,7 @@ const MenuCollaborationsScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Collaborations Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, undefined, "collaborator", handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'collaborator' }, handleResponseGetCoursesByUser);
         setLoading(false);
     }
 

@@ -99,7 +99,7 @@ const ProfileScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, undefined, undefined, handleGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };
 

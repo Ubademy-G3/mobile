@@ -43,8 +43,6 @@ const CourseScreen = (props) => {
                 centinela = centinela + 1;
             }*/
             setMedia(response.content().course_media);
-            console.log("MEDIA ACA");
-            console.log(media);
         } else {
             console.log("[ Course screen] error", response.content().message);
         }   
@@ -283,15 +281,12 @@ const CourseScreen = (props) => {
         }
     };
 
-    const getMediaUrlFromModule = (id) => {
+    const getMediaFromModule = (id) => {
         const m = media.filter((m) => {
             return m.module_id === id
         });
-        if (m[0]) {
-            return m[0].url;
-        } else {
-            return m;
-        }
+        
+        return m;
     };
 
     return (
@@ -400,7 +395,7 @@ const CourseScreen = (props) => {
                                                 <Text style={styles.moduleContent}>{item.content}</Text>
                                             </View>                          
                                         </View>
-                                        {getMediaUrlFromModule(item.id).map((media_item, media_key) => (
+                                        {getMediaFromModule(item.id).map((media_item, media_key) => (
                                             <View style={styles.containerVideo} key={media_item.id}>
                                                 <Video
                                                     ref={video}

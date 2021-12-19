@@ -1,38 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert } from 'react-native';
+import { Text, View, Button, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
-import { Video, AVPlaybackStatus } from 'expo-av';
+import { Video } from 'expo-av';
 import * as ImagePicker from "expo-image-picker";
-import { set } from 'react-native-reanimated';
 import { firebase } from '../firebase';
-import { SubscribeToCourseEndpoint } from '../communication/endpoints/SubscribeToCourseEndpoint';
+import { ActivityIndicator } from 'react-native-paper';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
 
 const EditModulesScreen = (props) => {
-    const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
-    
+    const param_course = props.route.params.course;
     const video = React.useRef(null);
-
     const [status, setStatus] = React.useState({});
-    
     const [loading, setLoading] = useState(false);
-
-    const [modules, setModules] = useState([]); 
-
-    const [modulesIds, setModulesIds] = useState([]);
-
+    const [modules, setModules] = useState(null);
+    const [media, setMedia] = useState(null);
+    //const [modulesIds, setModulesIds] = useState([]);
     const [updatingModules, setUpdatingModules] = useState(false);
-
-    const [course, setCourse] = useState({});
+    const [course, setCourse] = useState(param_course);
     
-    //const [mediaUrl, setMediaUrl] = useState(['http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4','https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/bbc1a3dc-f982-4cd7-ba6a-a6d6a593b754.mp4?alt=media&token=341a0345-88c7-4450-88e2-65c5e6704c61']);
-
     const handleApiResponseCreateModule = (response) => {
         console.log("[Edit Modules screen] create module: ", response.content())
         if (!response.hasError()) {
@@ -53,7 +44,7 @@ const EditModulesScreen = (props) => {
     const handleDeleteMedia = (response) => {
         console.log("[Edit Modules screen] delete media by id: ", response.content())
         if (!response.hasError()) {
-            setModulesIds(modulesIds);
+            setMedia(response.content().course_media);
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
@@ -62,7 +53,7 @@ const EditModulesScreen = (props) => {
     const handleGetMedia = async (response) => {
         console.log("[Edit Modules screen] get media by module: ", response.content())
         if (!response.hasError()) {
-            let centinela = 0;            
+            /*let centinela = 0;            
             for(let module of modules){                
                 if(module.id === response.content().module_id){
                     const newmodule = [...modules];
@@ -70,7 +61,10 @@ const EditModulesScreen = (props) => {
                     setModules(newmodule);
                 }
                 centinela = centinela + 1;
-            }            
+            }*/
+            console.log("RESPONSE:")
+            console.log(response.content().course_media)
+            setMedia(response.content().course_media);
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
@@ -78,16 +72,15 @@ const EditModulesScreen = (props) => {
 
     const handleCreateMedia = (response) => {
         console.log("[Edit Modules screen] create media by module: ", response.content())
-        if (!response.hasError()) {
-        } else {
+        if (response.hasError()) {
             console.log("[Edit Modules screen] error", response.content().message);
-        }   
+        }
     }    
 
-    const handleGetModule = async (response) => {
+    const handleGetModules = async (response) => {
         console.log("[Edit Modules screen] set module: ", response.content())
         if (!response.hasError()) {           
-            setModules(modules => [...modules, {
+            /*setModules(modules => [...modules, {
                 id: response.content().id,      
                 saved_module: true,
                 new_module: false,
@@ -96,14 +89,22 @@ const EditModulesScreen = (props) => {
                 media_url: [],
                 content: response.content().content
             }            
-            ]);
+            ]);*/
+            let mod = response.content().modules;
+            console.log(mod);
+            mod = mod.map(element => {
+                element.saved_module = true,
+                element.new_module = false;
+                return element;
+            });
+            setModules(mod);
             setUpdatingModules(true);                 
         } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
 
-    const funcionauxiliar = async () => {
+    /*const funcionauxiliar = async () => {
         let tokenLS = await app.getToken();
         for(let module of modules){
             if (module.media_url.length === 0){                 
@@ -111,17 +112,16 @@ const EditModulesScreen = (props) => {
                 
             }
         }
-    }
+    }*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         funcionauxiliar(); 
         setUpdatingModules(false);              
-    }, [updatingModules]);
+    }, [updatingModules]);*/
 
     const handleUpdateCourse = (response) => {
         console.log("[Edit Modules screen] update course: ", response.content())
         if (!response.hasError()) {
-        } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
@@ -129,7 +129,6 @@ const EditModulesScreen = (props) => {
     const handleApiResponseUpdateModule = (response) => {
         console.log("[Edit Modules screen] update module: ", response.content())
         if (!response.hasError()) {
-        } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
@@ -137,12 +136,11 @@ const EditModulesScreen = (props) => {
     const handleApiResponseDeleteModule = (response) => {
         console.log("[Edit Modules screen] delete module: ", response.content())
         if (!response.hasError()) {
-        } else {
             console.log("[Edit Modules screen] error", response.content().message);
         }   
     }
 
-    const handleGetCourseData = (response) => {
+    /*const handleGetCourseData = (response) => {
         console.log("[Edit Modules Screen] content: ", response.content())
         if (!response.hasError()) {
                setModulesIds(response.content().modules);
@@ -150,7 +148,7 @@ const EditModulesScreen = (props) => {
         } else {
             console.log("[Edit Modules Screen] error", response.content().message);
         }
-    }
+    }*/
 
     const handleSaveModule = async (key) => {
         //pegar al back y updeatear
@@ -163,7 +161,7 @@ const EditModulesScreen = (props) => {
                 title: _modules[key].title,
                 media_id: _modules[key].media_id,
                 content: _modules[key].content,
-            }, param_course_id, _modules[key].id, handleApiResponseUpdateModule); 
+            }, param_course.id, _modules[key].id, handleApiResponseUpdateModule); 
         setModules(_modules)
     }
 
@@ -175,7 +173,7 @@ const EditModulesScreen = (props) => {
                 title: "",
                 media_id: [],
                 content: "",
-            }, param_course_id, handleApiResponseCreateModule);        
+            }, param_course.id, handleApiResponseCreateModule);        
     }
 
     const editModule = (key) => {
@@ -199,7 +197,7 @@ const EditModulesScreen = (props) => {
     const deleteModule = async(key) => {
         let tokenLS = await app.getToken();
         //pegar al back y borrar
-        await app.apiClient().deleteModule({token: tokenLS}, param_course_id, modules[key].id, handleApiResponseDeleteModule);
+        await app.apiClient().deleteModule({token: tokenLS}, param_course.id, modules[key].id, handleApiResponseDeleteModule);
         const _modules = modules.filter((input,index) => index != key);
         setModules(_modules);
     } 
@@ -212,27 +210,31 @@ const EditModulesScreen = (props) => {
                 name: course.name,
                 description: course.description,
                 profile_picture: course.profile_picture,
-            }, param_course_id, handleUpdateCourse);
+            }, param_course.id, handleUpdateCourse);
     }
 
     const onRefresh = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         console.log("[Edit Modules] token:", tokenLS);
-        await app.apiClient().getCourseById({token: tokenLS}, param_course_id, handleGetCourseData);
+        await app.apiClient().getAllModules({ token: tokenLS }, param_course.id, handleGetModules);
+        console.log("MODULES SALE BIEN")
+        await app.apiClient().getAllMedia({ token: tokenLS }, param_course.id, handleGetMedia);
+        setLoading(false);
     };
 
-    const getAllModules = async () => {
+    /*const getAllModules = async () => {
         let tokenLS = await app.getToken();
         for (let module_id of modulesIds){
             await app.apiClient().getModuleById({token: tokenLS}, param_course_id, module_id, handleGetModule);          
         }
-    }
+    }*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         console.log("[Edit Modules screen] useEffect modulesIds");
         console.log("[Edit Modules] modules:", modulesIds);
         getAllModules();
-    }, [modulesIds]);    
+    }, [modulesIds]);*/
   
     useEffect(() => {
         console.log("[Edit Modules screen] entro a useEffect");
@@ -241,7 +243,7 @@ const EditModulesScreen = (props) => {
 
     const deleteMedia = async (id, module_key) => {
         let tokenLS = await app.getToken();
-        await app.apiClient().deleteMediaFromCourse({token: tokenLS}, param_course_id, id, handleDeleteMedia)
+        await app.apiClient().deleteMediaFromCourse({token: tokenLS}, param_course.id, id, handleDeleteMedia)
         const newmodule = [...modules];
         newmodule[module_key].media_url = [];
         setModules(newmodule);
@@ -273,7 +275,7 @@ const EditModulesScreen = (props) => {
             'Your video is uploading'
         );
 
-        try{
+        try {
             const response = await fetch(uploadUri);
             const blob = await response.blob();
             const task = firebase.default.storage().ref(filename);
@@ -281,7 +283,7 @@ const EditModulesScreen = (props) => {
             const newURL = await task.getDownloadURL();          
             console.log("NUEVO URL:", newURL);
             let tokenLS = await app.getToken();
-            await app.apiClient().addMedia({token: tokenLS, url: newURL, module_id: modules[key].id},param_course_id, handleCreateMedia)//crear media
+            await app.apiClient().addMedia({token: tokenLS, url: newURL, module_id: modules[key].id},param_course.id, handleCreateMedia)//crear media
             const newmodule = [...modules];
             newmodule[key].media_url = [];
             setModules(newmodule);
@@ -311,7 +313,7 @@ const EditModulesScreen = (props) => {
         let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
         console.log("filename:", filename);  
 
-        try{
+        try {
             const response = await fetch(uploadUri);
             const blob = await response.blob();
             const task = firebase.default.storage().ref(filename);
@@ -331,162 +333,182 @@ const EditModulesScreen = (props) => {
         }
     }
 
+    const getMediaFromModule = (id) => {
+        const m = media.filter((m) => {
+            return m.module_id === id
+        });
+        return m;
+    };
+
     return (
         <View style={styles.container}>
             <ScrollView>
-                <View style={styles.courseContainer}>
-                    <TouchableOpacity
-                        onPress={() => {choosePhotoFromLibrary()}}
-                        disabled={loading}
-                    >
-                        <Image source={{uri: course.profile_picture}} style={styles.titlesImage} />
-                    </TouchableOpacity>
-                    <View style={styles.inputContainer}>
-                        <Text style={styles.inputText}>Course Name</Text>
-                        <TextInput
-                            placeholder={course.name}
-                            onChangeText={text => setCourse({
-                                ...course,
-                                name: text,
-                            })}
-                            value={course.name}
-                            multiline={true}
-                            style={styles.inputCourse}
-                        />
-                        <Text style={styles.inputText}>Description</Text>
-                        <TextInput
-                            placeholder={course.description}
-                            onChangeText={text => setCourse({
-                                ...course,
-                                description: text,
-                            })}
-                            value={course.description}
-                            style={styles.inputCourse}
-                        />
-                    </View>
-                    <TouchableOpacity
-                        onPress={() => {handleSubmitEditCourse()}}
-                        style={styles.button}
-                        disabled={loading}
-                    >
-                        {
-                            loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
-                        }
-                    </TouchableOpacity>
-                </View>    
-                <Text style={styles.titlesTitle}>Edit units:</Text>
-                {modules.map((item, key) => (
+                {loading && (
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                )}
+                {!loading && modules && media && (
                     <>
-                    {item.saved_module === true && (
-                        <View style={styles.courseCardWrapper}>
+                        <View style={styles.courseContainer}>
                             <TouchableOpacity
-                                onPress = {()=> {editModule(key)}}
-                                style={styles.moduleWrapper}
+                                onPress={() => {choosePhotoFromLibrary()}}
+                                disabled={loading}
                             >
-                                <View style={styles.moduleView}>
-                                    <Text style={styles.examModule}>{item.title}</Text>
-                                </View>
-                                <MaterialIcons
-                                    name="edit"
-                                    size={20}
-                                    color={'black'}
-                                    style={styles.buttonEditIconRight}
+                                <Image source={{uri: param_course.profile_picture}} style={styles.titlesImage} />
+                            </TouchableOpacity>
+                            <View style={styles.inputContainer}>
+                                <Text style={styles.inputText}>Course Name</Text>
+                                <TextInput
+                                    placeholder={course.name}
+                                    onChangeText={text => setCourse({
+                                        ...course,
+                                        name: text,
+                                    })}
+                                    value={course.name}
+                                    multiline={true}
+                                    style={styles.inputCourse}
                                 />
+                                <Text style={styles.inputText}>Description</Text>
+                                <TextInput
+                                    placeholder={course.description}
+                                    onChangeText={text => setCourse({
+                                        ...course,
+                                        description: text,
+                                    })}
+                                    value={course.description}
+                                    style={styles.inputCourse}
+                                />
+                            </View>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitEditCourse()}}
+                                style={styles.button}
+                                disabled={loading}
+                            >
+                                {
+                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                                }
                             </TouchableOpacity>
                         </View>
-                    )}
-                    {item.saved_module === false && (
-                        <>
-                            <View style={styles.moduleContainer}>
-                                <View style={styles.inputContainer}>
-                                    <TextInput 
-                                        placeholder={"Enter Title"}
-                                        value={item.title} 
-                                        onChangeText={(text) => handleInputTitle(text,key)}
-                                        style={styles.inputTitle}
-                                    />
-                                    <TextInput 
-                                        placeholder={"Enter Description"}
-                                        multiline = {true}
-                                        value={item.module} 
-                                        onChangeText={(text) => handleInputDescription(text,key)}
-                                        style={styles.input}
-                                    />
-                                </View>
-                                <View style={styles.buttonsRightWrapper}>
-                                    <TouchableOpacity
-                                        onPress = {() => handleSaveModule(key)}
-                                        style={styles.buttonSaveIconRight}
-                                    >
-                                        <MaterialCommunityIcons
-                                            name="content-save"
-                                            size={20}
-                                            color={'black'}
-                                        />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                            onPress = {()=> {chooseVideoFromLibrary(key)}}
-                                            style={[styles.buttonSaveIconRight]}
-                                        >
-                                            <MaterialCommunityIcons
-                                                name="video-plus-outline"
-                                                size={20}
-                                                color={'black'}
-                                            />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity 
-                                        onPress = {()=> deleteModule(key)}
-                                        style={styles.buttonInputIcon}
-                                    >
-                                        <MaterialCommunityIcons
-                                            name="trash-can-outline"
-                                            size={20}
-                                            color={'black'}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                            {item.media_url.map((media_item,media_key) => (
-                                <View style={styles.containerVideo}>
-                                    <Video
-                                        ref={video}
-                                        style={styles.video}
-                                        source={{uri: media_item.url}}
-                                        resizeMode="contain"
-                                        useNativeControls={true}
-                                        shouldPlay={false}
-                                        onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                    />
-                                <View style={styles.buttons}>
-                                    <Button
-                                    title={"Delete"}
-                                    onPress={() => {deleteMedia(media_item.id, key)}}
-                                    />
+                        <View style={{marginLeft: 20}}>
+                            <Text style={styles.titlesTitle}>Edit units</Text>
+                            <>
+                                {modules.map((item, key) => (
+                                    <View key={item.id}>
+                                        {item.saved_module && (
+                                            <View style={styles.courseCardWrapper}>
+                                                <TouchableOpacity
+                                                    onPress = {()=> {editModule(key)}}
+                                                    style={styles.moduleWrapper}
+                                                >
+                                                    <View style={styles.moduleView}>
+                                                        <Text style={styles.examModule}>{item.title}</Text>
+                                                    </View>
+                                                    <MaterialIcons
+                                                        name="edit"
+                                                        size={20}
+                                                        color={'black'}
+                                                        style={styles.buttonEditIconRight}
+                                                    />
+                                                </TouchableOpacity>
+                                            </View>
+                                        )}
+                                        {!item.saved_module && (
+                                            <>
+                                                <View style={styles.moduleContainer}>
+                                                    <View style={styles.inputContainer}>
+                                                        <TextInput 
+                                                            placeholder={"Enter Title"}
+                                                            value={item.title} 
+                                                            onChangeText={(text) => handleInputTitle(text,key)}
+                                                            style={styles.inputTitle}
+                                                        />
+                                                        <TextInput
+                                                            placeholder={"Enter Description"}
+                                                            multiline = {true}
+                                                            value={item.module} 
+                                                            onChangeText={(text) => handleInputDescription(text,key)}
+                                                            style={styles.input}
+                                                        />
+                                                    </View>
+                                                    <View style={styles.buttonsRightWrapper}>
+                                                        <TouchableOpacity
+                                                            onPress = {() => handleSaveModule(key)}
+                                                            style={styles.buttonSaveIconRight}
+                                                        >
+                                                            <MaterialCommunityIcons
+                                                                name="content-save"
+                                                                size={20}
+                                                                color={'black'}
+                                                            />
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity
+                                                                onPress = {()=> {chooseVideoFromLibrary(key)}}
+                                                                style={[styles.buttonSaveIconRight]}
+                                                            >
+                                                                <MaterialCommunityIcons
+                                                                    name="video-plus-outline"
+                                                                    size={20}
+                                                                    color={'black'}
+                                                                />
+                                                        </TouchableOpacity>
+                                                        <TouchableOpacity 
+                                                            onPress = {()=> deleteModule(key)}
+                                                            style={styles.buttonInputIcon}
+                                                        >
+                                                            <MaterialCommunityIcons
+                                                                name="trash-can-outline"
+                                                                size={20}
+                                                                color={'black'}
+                                                            />
+                                                        </TouchableOpacity>
+                                                    </View>
+                                                </View>
+                                                {getMediaFromModule(item.id).map((media_item, media_key) => (
+                                                    <View style={styles.containerVideo}>
+                                                        {console.log("MEDIA ITEM")}
+                                                        {console.log(media_item)}
+                                                        <Video
+                                                            ref={video}
+                                                            style={styles.video}
+                                                            source={{uri: media_item.url}}
+                                                            resizeMode="contain"
+                                                            useNativeControls={true}
+                                                            shouldPlay={false}
+                                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                                        />
+                                                    <View style={styles.buttons}>
+                                                        <Button
+                                                            title={"Delete"}
+                                                            onPress={() => {deleteMedia(media_item.id, key)}}
+                                                        />
+                                                        </View>
+                                                    </View>
+                                                ))}
+                                            </>
+                                        )}
                                     </View>
+                                ))}
+                            </>
+                            <View style={[styles.container, {paddingTop: 0}]}>
+                                <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
+                                    <TouchableOpacity
+                                        onPress = {()=> {addModule()}}
+                                        style={styles.moduleWrapper}
+                                    >
+                                        <View style={styles.addModuleView}>
+                                            <Text style={styles.buttonText}>Add Unit</Text>
+                                            <Feather
+                                                name="plus"
+                                                size={20}
+                                                color={'white'}
+                                                style={styles.buttonEditIconRight}
+                                            />
+                                        </View>
+                                    </TouchableOpacity>
                                 </View>
-                            ))}
-                        </>
-                    )}
-                    </>
-                ))}
-                <View style={[styles.container, {paddingTop: 0}]}>
-                    <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
-                        <TouchableOpacity
-                            onPress = {()=> {addModule()}}
-                            style={styles.moduleWrapper}
-                        >
-                            <View style={styles.addModuleView}>
-                                <Text style={styles.buttonText}>Add Unit</Text>
-                                <Feather
-                                    name="plus"
-                                    size={20}
-                                    color={'white'}
-                                    style={styles.buttonEditIconRight}
-                                />
                             </View>
-                        </TouchableOpacity>
-                    </View>
-                </View>
+                        </View>
+                    </>
+                )}
             </ScrollView>
         </View>
       );

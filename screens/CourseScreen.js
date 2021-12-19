@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -22,7 +22,8 @@ const CourseScreen = (props) => {
     const [instructors, setInstructors] = useState([]);
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
     const [exams, setExams] = useState([]);
-    const [modules, setModules] = useState([]); 
+    const [modules, setModules] = useState(null); 
+    const [media, setMedia] = useState(null);
     const [updatingModules, setUpdatingModules] = useState(false);
     const [rol, setRol] = useState(null);
     const [subscriptionType, setSubscriptionType] = useState("");
@@ -30,26 +31,29 @@ const CourseScreen = (props) => {
     const [status, setStatus] = React.useState({});
 
     const handleGetMedia = async (response) => {
-        console.log("[Course screen] get media by module: ", response.content())
+        console.log("[Course screen] get media: ", response.content())
         if (!response.hasError()) {
-            let centinela = 0;            
-            for(let module of modules){                
-                if(module.id === response.content().module_id){
+            /*let centinela = 0;            
+            for (let module of modules){                
+                if (module.id === response.content().module_id){
                     const newmodule = [...modules];
                     newmodule[centinela].media_url = response.content().course_media;
                     setModules(newmodule);
                 }
                 centinela = centinela + 1;
-            }          
+            }*/
+            setMedia(response.content().course_media);
+            console.log("MEDIA ACA");
+            console.log(media);
         } else {
             console.log("[ Course screen] error", response.content().message);
         }   
     }
 
-    const handleGetModule = async (response) => {
+    const handleGetAllModules = async (response) => {
         console.log("[Course screen] set module: ", response.content())
         if (!response.hasError()) {           
-            setModules(modules => [...modules, {
+            /*setModules(modules => [...modules, {
                 id: response.content().id,      
                 saved_module: true,
                 new_module: false,
@@ -58,33 +62,35 @@ const CourseScreen = (props) => {
                 media_url: [],
                 content: response.content().content
             }            
-            ]);         
-            setUpdatingModules(true);                
+            ]);*/
+            setModules(response.content().modules);
+            setUpdatingModules(true);          
         } else {
             console.log("[Course screen] error", response.content().message);
         }   
     }
 
-    const funcionauxiliar = async () => {
+    /*const funcionauxiliar = async () => {
         let tokenLS = await app.getToken();          
-        for(let module of modules){           
+        for (let module of modules){           
             if (module.media_url.length === 0){
                 await app.apiClient().getMediaByModule({token: tokenLS}, item.id, module.id, handleGetMedia);             
             }
         }
-    }
+    }*/
 
-    const getAllModules = async () => {
+    /*const getAllModules = async () => {
         let tokenLS = await app.getToken();
-        for (let module_id of item.modules) {    
+        /*for (let module_id of item.modules) {    
             await app.apiClient().getModuleById({token: tokenLS}, item.id, module_id, handleGetModule);
         }
-    }
+        await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules)
+    }*/
 
-    useEffect(() => {
+    /*useEffect(() => {
         funcionauxiliar();
         setUpdatingModules(false);
-    }, [updatingModules]);
+    }, [updatingModules]);*/
 
     const removeElement = (arr, value) => {
         return arr.filter(function(ele) {
@@ -253,13 +259,15 @@ const CourseScreen = (props) => {
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, null, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
+        await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);
+        await app.apiClient().getAllMedia({token: tokenLS}, item.id, handleGetMedia);
         setLoading(false);
     };
   
-    useEffect(() => {
+    /*useEffect(() => {
         console.log("[Course screen] entro a useEffect GET ALL MODULES");
         getAllModules(); 
-    }, []);
+    }, []);*/
 
     useEffect(() => {
         console.log("[Course screen] entro a useEffect");
@@ -269,12 +277,22 @@ const CourseScreen = (props) => {
 
     const getNav = () => {
         if (rol === 'student') {
-            console.log("BIEN");
             return 'Exams';
         } else {
             return 'Course Exams';
         }
-    }
+    };
+
+    const getMediaUrlFromModule = (id) => {
+        const m = media.filter((m) => {
+            return m.module_id === id
+        });
+        if (m[0]) {
+            return m[0].url;
+        } else {
+            return m;
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -369,19 +387,20 @@ const CourseScreen = (props) => {
                                 </View>
                             </View>
                         </>
-                        {subscribed && (
-                            <>
+                        {subscribed && modules && media && (
+                            <View style={styles.studentListWrapper}>
+                                <Text style={styles.instructorsTitle}>Units</Text>
                                 {modules.map((item, key) => (
-                                    <View key={item.id}>                   
-                                        <View style={styles.courseCardWrapper}>                            
+                                    <View key={item.id}>            
+                                        <View style={styles.courseCardWrapper}>                         
                                             <View style={styles.moduleView}>
-                                                <Text style={styles.examModule}>{item.title}</Text>
+                                                <Text style={styles.moduleTitle}>{item.title}</Text>
                                             </View>
                                             <View style={styles.moduleView}>
-                                                <Text style={styles.examModule}>{item.content}</Text>
-                                            </View>                            
+                                                <Text style={styles.moduleContent}>{item.content}</Text>
+                                            </View>                          
                                         </View>
-                                        {item.media_url.map((media_item,media_key) => (
+                                        {getMediaUrlFromModule(item.id).map((media_item, media_key) => (
                                             <View style={styles.containerVideo} key={media_item.id}>
                                                 <Video
                                                     ref={video}
@@ -396,7 +415,7 @@ const CourseScreen = (props) => {
                                         ))} 
                                     </View>
                                 ))}
-                            </>
+                            </View>
                         )}
                         <View style={styles.studentListWrapper}>
                             <Text style={styles.instructorsTitle}>Instructors</Text>
@@ -462,7 +481,7 @@ const styles = new StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: "row",
-        paddingVertical:25,
+        paddingVertical: 25,
         paddingHorizontal: 15,
     },
     containerVideo: {
@@ -631,6 +650,30 @@ const styles = new StyleSheet.create({
         fontWeight: '700',
         fontSize: 16,
     },
+    courseCardWrapper: {
+        backgroundColor: 'white',
+        width: 320,
+        borderRadius: 25,
+        paddingVertical: 8,
+        paddingLeft: 20,
+        marginTop: 10,
+        flexDirection: 'column',
+        shadowColor: 'black',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2, 
+    },
+    moduleContent: {
+        fontSize: 16
+    },
+    moduleTitle: {
+        fontWeight: '600',
+        fontSize: 18
+    }
 });
 
 export default CourseScreen;

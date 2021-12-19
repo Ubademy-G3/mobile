@@ -45,6 +45,8 @@ import { GetMediaByModuleEndpoint } from "../endpoints/GetMediaByModuleEndpoint.
 import { UpdateCourseEndpoint } from "../endpoints/UpdateCourseEndpoint.js";
 import { GetSolvedExamsByUserEndpoint } from "../endpoints/GetSolvedExamsByUserEndpoint";
 import { GetSolvedExamsByCourseEndpoint } from "../endpoints/GetSolvedExamsByCourseEndpoint";
+import { GetAllModulesByCourseIdEndpoint } from "../endpoints/GetAllModulesByCourseIdEndpoint";
+import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseIdEndpoint";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -424,6 +426,22 @@ class ApiClient {
     getSolvedExamsByCourse(data, id, params, onResponse) {
         return this._requester.call({
             endpoint: new GetSolvedExamsByCourseEndpoint(id, params),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllModules(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllModulesByCourseIdEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllMedia(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllMediaByCourseIdEndpoint(id),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         })

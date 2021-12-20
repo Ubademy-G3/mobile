@@ -14,10 +14,9 @@ const AnothersProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
-    
     const [categories, setCategories] = useState([]);
-    
     const [userData, setData] = useState({
+        id: 0,
         firstName: "Name",
         lastName: "Last name",
         location: "",
@@ -26,6 +25,7 @@ const AnothersProfileScreen = (props) => {
         interests: [],
         rol: "",
     });
+    const [myId, setMyId] = useState(0);
 
     const handleGetCategories = (response) => {
         console.log("[Anothers Profile Screen] categories content: ", response.content())
@@ -71,6 +71,8 @@ const AnothersProfileScreen = (props) => {
         console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        setMyId(idLS);
         console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
         setLoading(false);
@@ -136,13 +138,15 @@ const AnothersProfileScreen = (props) => {
                     </>
                 )}
             </ScrollView>
-            <View style={styles.buttonWrapper}>
-                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
-                    <View style={styles.favoriteWrapper}>
-                        <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
-                    </View>
-                </TouchableOpacity> 
-            </View>
+            {myId != param_id &&(
+                <View style={styles.buttonWrapper}>
+                    <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
+                        <View style={styles.favoriteWrapper}>
+                            <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                        </View>
+                    </TouchableOpacity> 
+                </View>
+            )}
         </View>
     )
 }

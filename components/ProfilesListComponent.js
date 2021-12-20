@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
       paddingTop: 15,
       paddingLeft: 20,
       marginTop: 10,
+      marginBottom: 5,
       flexDirection: 'column',
       shadowColor: 'black',
       shadowOffset: {

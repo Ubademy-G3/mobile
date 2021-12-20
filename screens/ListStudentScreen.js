@@ -19,29 +19,28 @@ const ListStudentScreen = (props) => {
   const [loading, setLoading] = useState(false); 
   const [studentsData, setStudentsData] = useState([]);
   const [filtersVisible, setFiltersVisible] = useState(false);
-  const [loadedData, setLoadedData] = useState(false);
 
-  const handleApiResponseProfile = (response) => {
-    console.log("[ListStudent Screen] content: ", response.content())
+  const handleGetProfileFromList = (response) => {
+    console.log("[List Student Screen] content: ", response.content())
     if (!response.hasError()) {
-      setStudentsData(studentsData => [...studentsData, response.content()]);
+      setStudentsData(response.content());
     } else {
-      console.log("[ListStudent Screen] error", response.content().message);
+      console.log("[List Student Screen] error", response.content().message);
     }
   }
-  
+
   const handleGetAllUsersInCourse = async (response) => {
-    console.log("[ListStudent Screen] content: ", response.content())
-    if (!response.hasError()) {
-      let tokenLS = await app.getToken();
-      setLoadedData(false);
-      for (let student of response.content().users) {
-        await app.apiClient().getProfile({ token: tokenLS }, student.user_id, handleApiResponseProfile);
+      console.log("[List Student Screen] get all users content: ", response.content())
+      if (!response.hasError()) {
+          const colaboratorsIds = [];
+          for(let user of response.content().users){
+            colaboratorsIds.push(user.user_id)
+          }
+          let tokenLS = await app.getToken();
+          await app.apiClient().getAllUsersFromList({token: tokenLS}, colaboratorsIds, handleGetProfileFromList); 
+      } else {
+          console.log("[List Student Screen] error", response.content().message);
       }
-      setLoadedData(true);
-    } else {
-      console.log("[ListStudent Screen] error", response.content().message);
-    }
   }
 
   const onRefresh = async () => {
@@ -95,7 +94,7 @@ const ListStudentScreen = (props) => {
       {loading && (
         <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
       )}
-      {!loading && view_as === 'student' && studentsData.length > 0 && loadedData && (
+      {!loading && view_as === 'student' && studentsData.length > 0 && (
         <>
           {studentsData.map(item => (
             <ProfilesListComponent 
@@ -105,7 +104,7 @@ const ListStudentScreen = (props) => {
           ))}
         </>
       )}
-      {!loading && view_as !== 'student' && loadedData && (
+      {!loading && view_as !== 'student' && (
         <>
           {studentsData.length === 0 ? (
             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>

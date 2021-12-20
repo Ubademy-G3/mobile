@@ -4,6 +4,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import ProfilesListComponent from "../components/ProfilesListComponent";
+import StarRating from 'react-native-star-rating';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -13,7 +14,7 @@ const EditCourseScreen = (props) => {
 
     const [loading, setLoading] = useState(false);
 
-    const [rating, setRating] = useState(0);
+    const [rating, setRating] = useState({});
 
     const [rol, setRol] = useState("");
 
@@ -28,7 +29,7 @@ const EditCourseScreen = (props) => {
     const handleResponseGetCourseRating = (response) => {
         console.log("[Edit Course screen] get rating: ", response.content())
         if (!response.hasError()) {
-            setRating(response.content().rating);
+            setRating(response.content());
         } else {
             console.log("[Edit Course screen] error", response.content().message);
         }        
@@ -43,22 +44,24 @@ const EditCourseScreen = (props) => {
         }        
     }
 
-    const handleApiResponseProfile = (response) => {
+    const handleGetProfileFromList = (response) => {
         console.log("[Edit Course Screen] content: ", response.content())
         if (!response.hasError()) {
-                setCollaboratorsData(collaboratorsData => [...collaboratorsData, response.content()]);
+                setCollaboratorsData(response.content());
         } else {
             console.log("[Edit Course Screen] error", response.content().message);
         }
     }
 
     const handleGetAllUsersInCourse = async (response) => {
-        console.log("[Edit Course Screen] content: ", response.content())
+        console.log("[Edit Course Screen] get all users content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let student of response.content().users){
-              await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
+            const colaboratorsIds = [];
+            for(let user of response.content().users){
+              colaboratorsIds.push(user.user_id)
             }
+            let tokenLS = await app.getToken();
+            await app.apiClient().getAllUsersFromList({token: tokenLS}, colaboratorsIds, handleGetProfileFromList); 
         } else {
             console.log("[Edit Course Screen] error", response.content().message);
         }
@@ -136,6 +139,22 @@ const EditCourseScreen = (props) => {
         }        
     }
 
+    const handleSubmitRemoveCollaborator = () => {
+        if (removeCollaborator){
+            setRemoveCollaborator(false);
+        } else {
+            setRemoveCollaborator(true);
+        }
+    }
+
+    const handleSubmitAddCollaborator = () => {
+        if (addCollaborator){
+            setAddCollaborator(false);
+        } else {
+            setAddCollaborator(true);
+        }
+    }
+
     const addNewCollaborator = async () => {
         let tokenLS = await app.getToken();
         await app.apiClient().getUsersByEmail({token: tokenLS}, email, handleResponseGetUsersByEmailSubscribe);
@@ -174,18 +193,76 @@ const EditCourseScreen = (props) => {
                     </View>
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{item.name}</Text>
-                        <View style={styles.titlesRating}>
-                            <MaterialCommunityIcons
-                                name="star"
-                                size={18}
-                                color={'black'}
+                        <View style={{ display:'flex', flexDirection: 'row' }}>
+                            <StarRating
+                                disabled={true}
+                                maxStars={5}
+                                rating={rating.rating}
+                                containerStyle={{ width: '30%'}}
+                                starSize={20}
+                                fullStarColor='gold'
                             />
-                            <Text style={styles.rating}>{rating}</Text>
+                            <Text style={{ position: 'absolute', left: 100, top: 0, fontSize: 16 }}>{`(${rating.amount})`}</Text>
                         </View>
                     </View>
                 </View>
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{item.description}</Text>
+                </View>
+                <View style={styles.buttonsWrapper}>
+                    {rol === "instructor" && (
+                        <>
+                        <View style={styles.buttonsContainer}>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitAddCollaborator()}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="account-plus-outline"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitRemoveCollaborator()}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="account-remove-outline"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {props.navigation.navigate('Edit Modules', {
+                                    course: item,
+                                    })}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="pencil"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {props.navigation.navigate('Course Metrics', {
+                                    id: item.id,
+                                    })}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="chart-bar"
+                                    size={25}
+                                    color={'black'}
+                                />
+                            </TouchableOpacity>
+                        </View>
+                        </>
+                    )}
                 </View>
                 {addCollaborator && (
                     <>
@@ -233,98 +310,12 @@ const EditCourseScreen = (props) => {
                     </View>
                     </>
                 )}
-                <View style={styles.buttonsWrapper}>
-                    {rol === "instructor" && (
-                        <>
-                        <View style={styles.buttonsContainer}>
-                            {!addCollaborator && (
-                                <TouchableOpacity
-                                    onPress={() => {setAddCollaborator(true)}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="account-plus-outline"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                    {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
-                                </TouchableOpacity>
-                            )}
-                            {!removeCollaborator && (
-                                <TouchableOpacity
-                                    onPress={() => {setRemoveCollaborator(true)}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="account-remove-outline"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                    {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
-                                </TouchableOpacity>
-                            )}
-                            <TouchableOpacity
-                                onPress={() => {props.navigation.navigate('Edit Modules', {
-                                    course: item,
-                                    })}}
-                                style={styles.buttonIcon}
-                            >
-                                <MaterialCommunityIcons
-                                    name="pencil"
-                                    size={25}
-                                    color={'black'}
-                                />
-                                {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => {props.navigation.navigate('Course Metrics', {
-                                    id: item.id,
-                                    })}}
-                                style={styles.buttonIcon}
-                            >
-                                <MaterialCommunityIcons
-                                    name="chart-bar"
-                                    size={25}
-                                    color={'black'}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        {/* <TouchableOpacity
-                            onPress={() => {props.navigation.navigate('Edit Exam', {
-                                id: item.id,
-                                })}}
-                            style={styles.button}
-                        >
-                            <Text style={styles.buttonText}>Edit Exams</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            onPress={() => {props.navigation.navigate('Create New Exam', {
-                                id: item.id,
-                                })}}
-                            style={styles.button}
-                        >
-                            <Text style={styles.buttonText}>Create New Exam</Text>
-                        </TouchableOpacity> */}
-                        </>
+                <View style={{paddingHorizontal: 5}}>
+                    <Text style={styles.collaboratorTitle}>Collaborators:</Text>
+                    {collaboratorsData.length === 0 && (
+                        <Text style={styles.collaboratorText}>This course doesn't have any collaborators add one to see them here.</Text>
                     )}
-                    <TouchableOpacity
-                        onPress={() => {}}
-                        style={styles.button}
-                    >
-                        <Text style={styles.buttonText}>Grade Exams</Text>
-                    </TouchableOpacity>
                 </View>
-                <View style={styles.examsList}>
-                    <TouchableOpacity
-                        onPress={() => {props.navigation.navigate('List Edit Exams', {
-                            course_id : item.id,
-                        })}}
-                        style={[styles.fadedButton]}
-                    >
-                        <Text style={styles.buttonFadedText}>Exams</Text>
-                    </TouchableOpacity>
-                </View>
-                <Text>Collaborators:</Text>
                 <View style={styles.cardWrapper}>
                     {collaboratorsData.map(item => (
                         <ProfilesListComponent 
@@ -340,13 +331,9 @@ const EditCourseScreen = (props) => {
 const styles = new StyleSheet.create({
     container: {
         flex: 1,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        //paddingVertical: 10,
     },
     description: {
         fontSize: 16,
@@ -355,10 +342,6 @@ const styles = new StyleSheet.create({
         flexDirection: "row",
         paddingVertical:25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     titlesImage: {
         width: 80,
@@ -369,7 +352,6 @@ const styles = new StyleSheet.create({
         paddingHorizontal: 20,
     },
     titleWrapper: {
-        //paddingVertical:25,
         paddingHorizontal: 10,
         flexDirection: "column"
     },
@@ -461,6 +443,18 @@ const styles = new StyleSheet.create({
         //padding: 15,
         borderRadius: 10,
         //alignItems: 'center',
+    },
+    collaboratorTitle:{
+        fontSize: 16,
+        color: 'black',
+        fontWeight: "bold",
+        marginTop: 10,
+    },
+    collaboratorText: {
+        marginTop: 15,
+        fontWeight: '300',
+        fontSize: 16,
+        paddingBottom: 5,
     },
 });
 

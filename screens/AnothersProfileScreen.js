@@ -14,12 +14,9 @@ const AnothersProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
-    
     const [categories, setCategories] = useState([]);
-
-    const [updating, setUpdating] = useState(false);
-    
     const [userData, setData] = useState({
+        id: 0,
         firstName: "Name",
         lastName: "Last name",
         location: "",
@@ -28,12 +25,12 @@ const AnothersProfileScreen = (props) => {
         interests: [],
         rol: "",
     });
+    const [myId, setMyId] = useState(0);
 
     const handleGetCategories = (response) => {
         console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
-            console.log("LISTA DE CATEGORIAS FILTRADA: " ,userCategories)
             setCategories(userCategories);
         } else {
             console.log("[Anothers Profile Screen] error", response.content().message);
@@ -53,11 +50,6 @@ const AnothersProfileScreen = (props) => {
                 interests: response.content().interests,
                 rol: response.content().rol,
             });
-            // let tokenLS = await app.getToken();
-            // for(let id of response.content().interests){
-            //     console.log("[Anothers Profile screen] interests id:", id);
-            //     await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            // }
         } else {
             console.log("[Anothers Profile screen] error", response.content().message);
         }
@@ -79,6 +71,8 @@ const AnothersProfileScreen = (props) => {
         console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        setMyId(idLS);
         console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
         setLoading(false);
@@ -144,13 +138,15 @@ const AnothersProfileScreen = (props) => {
                     </>
                 )}
             </ScrollView>
-            <View style={styles.buttonWrapper}>
-                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
-                    <View style={styles.favoriteWrapper}>
-                        <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
-                    </View>
-                </TouchableOpacity> 
-            </View>
+            {myId != param_id &&(
+                <View style={styles.buttonWrapper}>
+                    <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
+                        <View style={styles.favoriteWrapper}>
+                            <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                        </View>
+                    </TouchableOpacity> 
+                </View>
+            )}
         </View>
     )
 }

@@ -19,7 +19,15 @@ const ProfileScreen = (props) => {
     
     const [courses, setCourses] = useState([]);  
     
-    const [userData, setData] = useState(null);
+    const [userData, setData] = useState({
+        firstName: "Name",
+        lastName: "Last name",
+        location: "",
+        profilePictureUrl: "../assets/images/profilePic.jpg",
+        description: "",
+        interests: [],
+        rol: "",
+    });
 
     const [categories, setCategories] = useState([]);
 
@@ -34,7 +42,7 @@ const ProfileScreen = (props) => {
         }
     }
 
-    const handleFavoriteCourseResponse = (response) => {
+    /* const handleFavoriteCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
         if (!response.hasError()) {
             console.log(response.content())
@@ -42,12 +50,22 @@ const ProfileScreen = (props) => {
         } else {
             console.log("[Profile Screen] error", response.content().message);
         }
+    } */
+
+    const handleGetFavoriteCourses = (response) => {
+        console.log("[Menu Favorite Courses Screen] content: ", response.content())
+        if (!response.hasError()) {
+            setFavCourses(response.content().courses);
+        } else {
+            console.log("[Menu Favorite Courses Screen] error", response.content().message);
+        }
     }
     
-    const handleResponseGetCategory = (response) => {
+    const handleGetCategories = (response) => {
         console.log("[Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
-            setCategories(categories => [...categories, response.content()]);
+            const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
+            setCategories(userCategories);
         } else {
             console.log("[Profile Screen] error", response.content().message);
         }
@@ -79,26 +97,30 @@ const ProfileScreen = (props) => {
                 favoriteCourses: response.content().favoriteCourses,
                 rol: response.content().rol,
             });
-            let tokenLS = await app.getToken();
-            for (let id of response.content().interests) {
-                console.log("[Profile screen] interests id:", id);
-                await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            }
-            await Promise.all(
-                response.content().favoriteCourses.map(async (courseId) => {
-                    return await app.apiClient().getCourseById({ token: tokenLS }, courseId, handleFavoriteCourseResponse);
-                })
-            )
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
     }
+
+    const onRefreshCategories = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+    }
+
+    useEffect(() => {
+        if (userData.interests.length > 0) {
+            console.log("[Anothers Profile screen] entro a updating categories"); 
+            onRefreshCategories();            
+        }
+    }, [userData]);
     
     const onRefresh = async () => {
         console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
+        await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };
@@ -153,7 +175,9 @@ const ProfileScreen = (props) => {
                         </View>
                         <View style={styles.descriptionWrapper}>
                             <Text style={styles.locationTitle}>{userData.rol.charAt(0).toUpperCase()+userData.rol.slice(1)}</Text>
-                            <Text style={styles.description}>{userData.description}</Text>
+                            {userData.description != "" &&(
+                                <Text style={styles.description}>{userData.description}</Text>
+                            )}
                         </View>
                         {userData.rol === "student" && (
                             <>

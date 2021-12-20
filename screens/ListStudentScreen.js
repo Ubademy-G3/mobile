@@ -80,11 +80,13 @@ const handleGetAllUsersInCourse = async (response) => {
           /> */}
         </>
       )}
+      <ScrollView>
       {studentsData.map(item => (
         <ProfilesListComponent 
         item={item}
         navigation={props.navigation}/>
       ))}
+      </ScrollView>
     </View>
   );
 }

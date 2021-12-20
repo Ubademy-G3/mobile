@@ -313,12 +313,12 @@ const CourseScreen = (props) => {
                                         disabled={true}
                                         maxStars={5}
                                         rating={rating.rating}
-                                        containerStyle={{ width: '30%'}}
+                                        containerStyle={{ width: 115}}
                                         starSize={20}
                                         fullStarColor='gold'
                                     />
-                                    <Text style={{ marginLeft: 10, fontSize: 16 }}>{`(${rating.amount})`}</Text>
-                                    {subscribed && (
+                                    <Text style={{ position: 'absolute', left: 120, fontSize: 16 }}>{`(${rating.amount})`}</Text>
+                                    {subscribed && rol === "student" && (
                                         <>
                                         <View style={{position: 'absolute', left: 180, right: 0, top: -12, bottom: 0}}>
                                         <ProgressCircle

@@ -13,7 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const subscriptions = ["free", "platinum", "gold"];
+const subscriptions = ["free", "gold", "platinum"];
 const levels = ["easy", "medium", "hard"];
 
 const MenuCreateNewCourseScreen = (props) => {

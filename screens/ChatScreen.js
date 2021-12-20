@@ -1,29 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { firebase } from '../firebase';
 import { app } from '../app/app';
 import image from "../assets/images/profilePic.jpg"
+import { useFocusEffect } from '@react-navigation/native';
 
 const db = firebase.default.firestore();
 
 const ChatScreen = (props) => {
-    const [users, setUsers] = useState(null);
+    const [users, setUsers] = useState([]);
 
-    const handleApiResponseProfile = (response) => {
+    const[loading, setLoading] = useState(false);
+
+    const handleGetProfileFromList = (response) => {
+        console.log("[Chat screen] Get Profiles From List", response.content());
         if (!response.hasError()) {
-            const userData = {
-                id: response.content().id,
-                firstName: response.content().firstName,
-                lastName: response.content().lastName,
-                profilePicture: response.content().profilePictureUrl
-            }
-            return userData;
+            setUsers(response.content());
         } else {
             console.log("[Chat screen] error", response.content().message);
         }
     }
 
     const getUsers = async () => {
+        setLoading(true);
         const id = await app.getId();
         db.collection('users').doc(id).collection('messages').onSnapshot((snapshot) => {
             const userData = [];
@@ -37,39 +36,28 @@ const ChatScreen = (props) => {
                 }
             });
             getProfiles(usersIds);
-        })
+            console.log("USER IDS list: ", usersIds);
+        });
+        setLoading(false);
     }
 
     const getProfiles = async (ids) => {
         const token = await app.getToken();
-        const u = [];
-        for (let id of ids) {
-            let add = true;
-            if (users) {
-                users.forEach(user => {
-                    if (user.id === id) {
-                        add = false
-                    }
-                });
-            }
-
-            if (add) {
-                const a = await app.apiClient().getProfile({ id: id, token: token }, id, handleApiResponseProfile);
-                u.push(a);
-            }
-        }
-        setUsers(u)
+        await app.apiClient().getAllUsersFromList({token: token}, ids,handleGetProfileFromList);
     }
 
-    useEffect(() => {
-        getUsers();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            getUsers();
+            console.log("USERS LENGHT", users, users.length);
+        }, [])
+    );
 
     const RenderCard = ({ item }) => {
         return (
             <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: item.id, firstName: item.firstName, lastName: item.lastName })}>
                 <View style={styles.mycard}>
-                    <Image source={item.profilePicture ? { uri: item.profilePicture } : image} style={styles.img} />
+                    <Image source={item.profilePictureUrl ? { uri: item.profilePictureUrl } : image} style={styles.img} />
                     <View>
                         <Text style={styles.text}>
                             {`${item.firstName} ${item.lastName}`}
@@ -81,17 +69,29 @@ const ChatScreen = (props) => {
     }
     
     return (
-        <>
-        {users && (
-            <View style={{ flex:1 }}>
-                <FlatList 
-                    data={users}
-                    renderItem={({ item }) => { return <RenderCard item={item} /> }}
-                    keyExtractor={(item) => item.id}
-                />
-            </View>
-        )}
-        </>
+        <View style={{ flex:1 }}>
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                </View>
+            :
+                <>
+                {users && (
+                    <View style={{ flex:1 }}>
+                        <FlatList 
+                            data={users}
+                            renderItem={({ item }) => { return <RenderCard item={item} /> }}
+                            keyExtractor={(item) => item.id}
+                        />
+                    </View>
+                )}
+                {users.lenght === 0 && (
+                    <Text style={styles.courseText}>Start a hat with someone to see your chats here.</Text>
+                )}
+                </>
+            }
+        </View>
     )
 }
 
@@ -129,6 +129,13 @@ const styles = StyleSheet.create({
         right: 0,
         bottom: 0,
         backgroundColor:"white"
+    },
+    courseText: {
+        marginTop: 15,
+        marginLeft: 10,
+        fontWeight: '300',
+        fontSize: 16,
+        paddingBottom: 5,
     },
 })
 

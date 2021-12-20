@@ -1,13 +1,15 @@
-import React, {Component, useEffect, useState, useCallback} from 'react';
+import React, { Component, useEffect, useState, useCallback, useRef } from 'react';
 import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
-import {app} from '../app/app';
+import { app } from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
+import { ScrollView } from 'react-native-gesture-handler';
 
-const LoginScreen = (props) => {
+const LoginScreen = (props) => {                   
     const [data, setData] = useState({
         email: '',
-        password: ''
+        password: '',
+        loginType: "not-google",
     });
 
     const [googleData, setGoogleData] = useState({
@@ -23,23 +25,23 @@ const LoginScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
-    
     const [login, setLogin] = useState(false);
-
-    const [signupGoogle, setsignupGoogle] = useState(false);
+    const [restorePassword, setRestorePassword] = useState(false);
+    //const [signupGoogle, setsignupGoogle] = useState(false);
+    const mounted = useRef(false);
 
     const handleApiResponseLogin = async (response) => {
         console.log("[Login screen] entro a handle api response login")
         console.log("[Login screen] has errors: ", response.hasError())
         console.log("[Login screen] error message: ", response.content().message)
         if (response.hasError()) {
-            console.log("SIGNUPGOOGLE", signupGoogle);
+            //console.log("SIGNUPGOOGLE", signupGoogle);
             if (response.content().message === "User not found" &&
-            signupGoogle === true){
+            data.loginType === "google"){
                 props.navigation.replace('Signup', {
                     email: googleData.email, 
                     password: googleData.password, 
-                    google: signupGoogle,
+                    google: true,
                     firstName: googleData.firstName,
                     lastName: googleData.lastName});
             }            
@@ -51,17 +53,35 @@ const LoginScreen = (props) => {
                 console.log("[Login screen] error massage: ", response.content().message)
             
                 Alert.alert(
-                "Error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              );
+                    "Error:",
+                    response.content().message,
+                    [
+                    { text: "OK", onPress: () => {} }
+                    ]
+                );
             }
         } else {
-            console.log("[Login screen] response: ", response.content())
-            console.log("[Login screen] id: ", response.content().id)
-            console.log("[Login screen] token: ", response.content().token)
+            console.log("[Login screen] response: ", response.content());
+            console.log("[Login screen] id: ", response.content().id);
+            console.log("[Login screen] token: ", response.content().token);
+            if (response.content().subscriptionState === "about_to_expire") {
+                Alert.alert(
+                    "Reminder:",
+                    "Your subscription is going to expire in 5 days, remember to renew it.",
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                );
+            } else if (response.content().subscriptionState === "expired") {
+                //funcion que updeatea la subscripcion a free?
+                Alert.alert(
+                    "Attention:",
+                    "Your subscription expired, your subscription is now free.",
+                    [
+                      { text: "OK", onPress: () => {} }
+                    ]
+                );
+            }
             await app.loginUser(response.content().token, response.content().id);
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
@@ -119,28 +139,28 @@ const LoginScreen = (props) => {
         }
     }
 
-    /*const handleSubmitLogin = async (loginData) => {
-        console.log("[Login screen] entro a submit login")
-        setLoading(true);
-        await app.apiClient().login(loginData, handleApiResponseLogin);
-        setLoading(false);
-        console.log("[Login screen] termino submit login")
-    }*/
-
     const handleSubmitSignUp = () => {
         console.log("[Login screen] entro a submit sign up")
-        props.navigation.navigate('Signup', {email: data.email, password: data.password, google: signupGoogle})
+        props.navigation.navigate('Signup', {email: data.email, password: data.password, google: false})
         console.log("[Login screen] termino submit sign up")
     }
 
-    const handleSubmitForgotPassword = async () => {
+    const handleSubmitForgotPassword = () => {
+        setRestorePassword(true);
+    }
+
+    const handleSubmitDontRestore = () => {
+        setRestorePassword(false);
+    }
+
+    const handleSubmitRestorePassword = async () => {
         console.log("[Login screen] entro a submit forgot password")
         await app.apiClient().resetPassword({email: data.email}, handleApiResponseForgotPassword);
         console.log("[Login screen] termino forgot password")
     }
 
     const callback = useCallback(async () => {
-        if (signupGoogle === true){
+        if (data.loginType === "google" && mounted.current) {
             const response = await handleGoogleLogin();
             console.log("response google:", response);
             console.log("response google id:", response.user.id);
@@ -149,107 +169,140 @@ const LoginScreen = (props) => {
                 password: response.user.id,
                 firstName: response.user.givenName,
                 lastName: response.user.familyName});
-            setData({email: response.user.email,
+            setData({...data, email: response.user.email,
                 password: response.user.id})
         }
-      }, [signupGoogle])
+      }, [data.loginType])
 
     const callbackLogin = useCallback(async () => {
-        if (login === true) {
+        if (login === true && mounted.current) {
             console.log("[Login screen] entro a submit login");
             setLoading(true);
             await app.apiClient().login(data, handleApiResponseLogin);
-            setLoading(false);
-            console.log("[Login screen] termino submit login");
-            setLogin(false);
+            if (mounted.current){
+                setLoading(false);
+                console.log("[Login screen] termino submit login");
+                setLogin(false);
+            }
         }
     }, [login])
     
     useEffect(() => {
+        mounted.current = true;
         callback()
+        return () => {
+            mounted.current = false;
+        }
     }, [callback])
 
     useEffect(() => {
-        if (signupGoogle === true){
-            //handleSubmitLogin(data);
+        console.log("ENTRO A USE EFFECT DATA.EMAIL")
+        if (data.loginType === "google") {
             setLogin(true);
         }
-    }, [data])
+    }, [data.email])
 
     
     useEffect(() => {
-        callbackLogin()
+        mounted.current = true;
+        callbackLogin();
+        return () => {
+            mounted.current = false;
+        }
     }, [callbackLogin])
 
     return (
         <View style={styles.container}>
-            {/*<View style={styles.headerContainer}>*/}
-                    <SafeAreaView>
-                        <View style={styles.headerWrapper}>
-                            <Image
-                            source={require("../assets/images/logo.png")}
-                            style={styles.logoImage}
+            <SafeAreaView>
+                <View style={styles.headerWrapper}>
+                    <Image
+                    source={require("../assets/images/logo.png")}
+                    style={styles.logoImage}
+                    />
+                </View>
+            </SafeAreaView>
+            <ScrollView>
+                <KeyboardAvoidingView
+                style={styles.containerText}
+                behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <View style={styles.inputContainer}>
+                        <TextInput
+                            placeholder="Email"
+                            onChangeText={text => setData({
+                                ...data,
+                                email: text,
+                            })}
+                            value={data.email}
+                            style={styles.input}
+                        />
+                        {!restorePassword && (
+                            <TextInput
+                                placeholder="Password"
+                                onChangeText={text => setData({
+                                    ...data,
+                                    password: text,
+                                })}
+                                value={data.password}
+                                style={styles.input}
+                                secureTextEntry
                             />
-                        </View>
-                    </SafeAreaView>
-            {/*</View>*/}
-            <KeyboardAvoidingView
-            style={styles.containerText}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            >
-                <View style={styles.inputContainer}>
-                    <TextInput
-                        placeholder="Email"
-                        onChangeText={text => setData({
-                            ...data,
-                            email: text,
-                        })}
-                        value={data.email}
-                        style={styles.input}
-                    />
-                    <TextInput
-                        placeholder="Password"
-                        onChangeText={text => setData({
-                            ...data,
-                            password: text,
-                        })}
-                        value={data.password}
-                        style={styles.input}
-                        secureTextEntry
-                    />
-                </View>
-                <View style={styles.buttonContainer}>
-                    <TouchableOpacity
-                        onPress={() => {setLogin(true)}}
-                        style={styles.button}
-                        //error={errorData.showError}
-                        disabled={loading}
-                    >
-                        {
-                            loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
-                        }
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {handleSubmitSignUp()}}
-                        style={[styles.button, styles.buttonOutlined]}
-                    >
-                        <Text style={styles.buttonOutlineText}>Sign Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        onPress={() => {
-                            setsignupGoogle(true);
-                        }}
-                        style={styles.button}>
-                        <Text style={styles.buttonText}>Login with Google</Text>
-                    </TouchableOpacity> 
-                    <TouchableOpacity
-                        onPress={() => {handleSubmitForgotPassword()}}
-                        style={[styles.fadedButton]}
-                    >
-                        <Text style={styles.buttonFadedText}>Forgot password?</Text>
-                    </TouchableOpacity>
-                </View>
-            </KeyboardAvoidingView>
+                        )}
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        {!restorePassword && (
+                            <>
+                            <TouchableOpacity
+                                onPress={() => {setLogin(true)}}
+                                style={styles.button}
+                                //error={errorData.showError}
+                                disabled={loading}
+                            >
+                                {
+                                    loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Login</Text>
+                                }
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitSignUp()}}
+                                style={[styles.button, styles.buttonOutlined]}
+                            >
+                                <Text style={styles.buttonOutlineText}>Sign Up</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {
+                                    //setsignupGoogle(true);
+                                    setData({...data, loginType: "google"});
+                                }}
+                                style={styles.button}>
+                                <Text style={styles.buttonText}>Login with Google</Text>
+                            </TouchableOpacity> 
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitForgotPassword()}}
+                                style={[styles.fadedButton]}
+                            >
+                                <Text style={styles.buttonFadedText}>Forgot password?</Text>
+                            </TouchableOpacity>
+                            </>
+                        )}
+                        {restorePassword && (
+                            <>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitRestorePassword()}}
+                                style={styles.button}
+                            >
+                                <Text style={styles.buttonText}>Restore password</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitDontRestore()}}
+                                style={[styles.fadedButton]}
+                            >
+                                <Text style={styles.buttonFadedText}>Go back</Text>
+                            </TouchableOpacity>
+                            </>
+                        )}
+                    </View>
+                </KeyboardAvoidingView>
+            </ScrollView>
         </View>
     );
 }
@@ -261,6 +314,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     containerText: {
+        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: 30
@@ -269,9 +323,10 @@ const styles = StyleSheet.create({
         flex: 2,
     },
     headerWrapper: {
-        paddingTop: 5,
+        paddingTop: 40,
         justifyContent: 'center',
         alignItems: 'center',
+        paddingBottom: 40,
     },
     logoImage: {
         width: 155,

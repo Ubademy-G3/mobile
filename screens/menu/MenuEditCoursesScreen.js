@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
 import CourseComponent from "../../components/CourseComponent"
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -55,64 +56,54 @@ const MenuEditCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Edit Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, undefined, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {}, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         setCourses([]);
         console.log("[Menu Edit Courses screen] entro a useEffect");
         onRefresh();
-    }, [props]);
+    }, [props.navigate]); */
+
+    useFocusEffect(
+        useCallback(() => {
+            setCourses([]);
+            onRefresh();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
-            {courses.length === 0 && (
-                <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
-            )}
-            {courses.map((item) => (
-                <TouchableOpacity
-                key={item.id}
-                onPress={() =>
-                    props.navigation.navigate('Edit Course', {
-                    item: item,
-                    })
-                }>
-                    <View
-                        style={[
-                        styles.courseCardWrapper,
-                        {
-                            marginTop: item.id == 1 ? 10 : 20,
-                        },
-                        ]}>
-                        <View>
-                            <View style={styles.courseCardTop}>
-                                <View>
-                                    <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                </View>
-                                <View style={styles.courseTitleWrapper}>
-                                    <Text style={styles.courseTitlesTitle}>
-                                        {item.name}
-                                    </Text>
-                                    <View style={styles.courseTitlesRating}>
-                                        <MaterialCommunityIcons
-                                        name="star"
-                                        size={20}
-                                        color={'black'}
-                                        />
-                                        <Text style={styles.rating}>{rating}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                            <View style={styles.courseDescriptionWrapper}>
-                                <Text style={styles.courseTitleDescription}>
-                                {item.description}
-                                </Text>
-                            </View> 
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                </View>
+            :
+            <>
+                <ScrollView>
+                    {courses.length === 0 && (
+                        <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
+                    )}
+                    {courses.map((item) => (
+                        <View style={styles.coursesCardWrapper} key={item.id}>
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => {
+                                props.navigation.navigate('Edit Course', {item: item});
+                                }}
+                            >
+                                <CourseComponent 
+                                item={item}
+                                key={item.id}
+                                />
+                            </TouchableOpacity>
                         </View>
-                    </View>
-                </TouchableOpacity>
-            ))}
+                    ))}
+                </ScrollView>
+            </>
+            }
         </View>
     )
 }
@@ -141,7 +132,7 @@ const styles = StyleSheet.create({
         paddingBottom: 5,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
     },
     courseCardWrapper: {
         backgroundColor: 'white',

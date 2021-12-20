@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
 import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CourseComponent from '../../components/CourseComponent';
 import { app } from '../../app/app';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -43,30 +44,54 @@ const MenuSubscribedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Subscribed Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, false, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 
-    useEffect(() => {
+    /* useEffect(() => {
         setCourses([]);
         console.log("[Menu Subscribed Courses screen] entro a useEffect");
         onRefresh();
-    }, [props]);
+    }, [props]); */
+
+    useFocusEffect(
+        useCallback(() => {
+            setCourses([]);
+            onRefresh();
+        }, [])
+    );
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.coursesCardWrapper}>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Subscribe to courses to see your courses here.</Text>
-                    )}
-                    {courses.map((item) => (
-                        <CourseComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
+            {
+            loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
-            </ScrollView>
+            :
+                <>
+                <ScrollView>
+                    <View style={styles.coursesCardWrapper}>
+                        {courses.length === 0 && (
+                            <Text style={styles.courseText}>Subscribe to courses to see your courses here.</Text>
+                        )}
+                        {courses.map((item) => (
+                            <TouchableOpacity
+                                key={item.id}
+                                onPress={() => {
+                                props.navigation.navigate('Course Screen', {item: item});
+                                }}
+                            >
+                                <CourseComponent 
+                                item={item}
+                                key={item.id}
+                                />
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                </ScrollView>
+                </>
+            }
         </View>
     )
 }
@@ -76,7 +101,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
+        paddingHorizontal: 15,
     },
     courseText: {
         marginTop: 15,

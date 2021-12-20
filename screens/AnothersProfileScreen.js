@@ -14,22 +14,24 @@ const AnothersProfileScreen = (props) => {
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
     
     const [loading, setLoading] = useState(false);
-    
     const [categories, setCategories] = useState([]);
-    
     const [userData, setData] = useState({
+        id: 0,
         firstName: "Name",
         lastName: "Last name",
         location: "",
-        profilePicture: "../assets/images/profilePic.jpg",
+        profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
         interests: [],
+        rol: "",
     });
+    const [myId, setMyId] = useState(0);
 
-    const handleResponseGetCategory = (response) => {
+    const handleGetCategories = (response) => {
         console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
-            setCategories(categories => [...categories, response.content()]);
+            const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
+            setCategories(userCategories);
         } else {
             console.log("[Anothers Profile Screen] error", response.content().message);
         }
@@ -45,25 +47,34 @@ const AnothersProfileScreen = (props) => {
                 location: response.content().location,
                 profilePicture: response.content().profilePictureUrl,
                 description: response.content().description,
-                interests: response.content().interests
+                interests: response.content().interests,
+                rol: response.content().rol,
             });
-            let tokenLS = await app.getToken();
-            for(let id of response.content().interests){
-                console.log("[Anothers Profile screen] interests id:", id);
-                await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            }
         } else {
             console.log("[Anothers Profile screen] error", response.content().message);
         }
     }
+
+    const onRefreshCategories = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+    }
+    
+    useEffect(() => {
+        if (userData.interests.length > 0) {
+            console.log("[Anothers Profile screen] entro a updating categories"); 
+            onRefreshCategories();            
+        }
+    }, [userData]);
     
     const onRefresh = async () => {
         console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        setMyId(idLS);
         console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        //await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, handleGetCoursesByUser);
         setLoading(false);
     };
 
@@ -106,30 +117,36 @@ const AnothersProfileScreen = (props) => {
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
-                <View style={styles.locationWrapper}>
-                    <Text style={styles.locationTitle}>Location:</Text>
-                    <Text style={styles.location}>{userData.location}</Text>
-                </View>
-                <View style={styles.categoriesWrapper}>
-                    <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
-                    <View style={styles.categoriesListWrapper}>
-                        <FlatList  
-                            data={categories}
-                            renderItem={renderCategoryItem}
-                            keyExtractor={(item) => item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
+                {userData.rol === "student" && (
+                    <>
+                    <View style={styles.locationWrapper}>
+                        <Text style={styles.locationTitle}>Location:</Text>
+                        <Text style={styles.location}>{userData.location}</Text>
                     </View>
-                </View>
+                    <View style={styles.categoriesWrapper}>
+                        <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
+                        <View style={styles.categoriesListWrapper}>
+                            <FlatList  
+                                data={categories}
+                                renderItem={renderCategoryItem}
+                                keyExtractor={(item) => item.id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </View>
+                    </View>
+                    </>
+                )}
             </ScrollView>
-            <View style={styles.buttonWrapper}>
-                <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
-                    <View style={styles.favoriteWrapper}>
-                        <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
-                    </View>
-                </TouchableOpacity> 
-            </View>
+            {myId != param_id &&(
+                <View style={styles.buttonWrapper}>
+                    <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
+                        <View style={styles.favoriteWrapper}>
+                            <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                        </View>
+                    </TouchableOpacity> 
+                </View>
+            )}
         </View>
     )
 }

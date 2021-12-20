@@ -1,7 +1,8 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, Alert, FlatList } from 'react-native';
-import Feather from 'react-native-vector-icons/Feather'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
 
@@ -9,7 +10,10 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const ProfileScreen = (props) => {
+    const mounted = useRef(false);
     const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
+
+    console.log("PROFILE ID: ",param_id);
     
     const [loading, setLoading] = useState(false);
     
@@ -19,12 +23,15 @@ const ProfileScreen = (props) => {
         firstName: "Name",
         lastName: "Last name",
         location: "",
-        profilePicture: "",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
-        coursesHistory: [],
+        profilePictureUrl: "../assets/images/profilePic.jpg",
+        description: "",
+        interests: [],
+        rol: "",
     });
 
     const [categories, setCategories] = useState([]);
+
+    const [favCourses, setFavCourses] = useState([]);
 
     const handleCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
@@ -34,11 +41,31 @@ const ProfileScreen = (props) => {
             console.log("[Profile Screen] error", response.content().message);
         }
     }
+
+    /* const handleFavoriteCourseResponse = (response) => {
+        console.log("[Profile Screen] content: ", response.content())
+        if (!response.hasError()) {
+            console.log(response.content())
+            setFavCourses(courses => [...courses, response.content()]);
+        } else {
+            console.log("[Profile Screen] error", response.content().message);
+        }
+    } */
+
+    const handleGetFavoriteCourses = (response) => {
+        console.log("[Menu Favorite Courses Screen] content: ", response.content())
+        if (!response.hasError()) {
+            setFavCourses(response.content().courses);
+        } else {
+            console.log("[Menu Favorite Courses Screen] error", response.content().message);
+        }
+    }
     
-    const handleResponseGetCategory = (response) => {
+    const handleGetCategories = (response) => {
         console.log("[Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
-            setCategories(categories => [...categories, response.content()]);
+            const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
+            setCategories(userCategories);
         } else {
             console.log("[Profile Screen] error", response.content().message);
         }
@@ -64,96 +91,155 @@ const ProfileScreen = (props) => {
                 firstName: response.content().firstName,
                 lastName: response.content().lastName,
                 location: response.content().location,
-                profilePicture: response.content().profilePictureUrl,
+                profilePictureUrl: response.content().profilePictureUrl,
                 description: response.content().description,
                 interests: response.content().interests,
+                favoriteCourses: response.content().favoriteCourses,
+                rol: response.content().rol,
             });
-            let tokenLS = await app.getToken();
-            for(let id of response.content().interests){
-                console.log("[Profile screen] interests id:", id);
-                await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            }
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
     }
+
+    const onRefreshCategories = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+    }
+
+    useEffect(() => {
+        if (userData.interests.length > 0) {
+            console.log("[Anothers Profile screen] entro a updating categories"); 
+            onRefreshCategories();            
+        }
+    }, [userData]);
     
     const onRefresh = async () => {
         console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        //console.log("[Profile screen] token:",tokenLS);
-        await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, param_id, undefined, handleGetCoursesByUser);
+        let idLS = await app.getId();
+        await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
+        await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };
 
     useEffect(() => {
+        mounted.current = true;
         setCourses([]);
+        setFavCourses([]);
         setCategories([]);
-        //console.log("[Profile screen] entro a useEffect"); 
-        //console.log("[Profile screen] param id:", param_id);
-        //console.log("[Profile screen] params: ", props.route.params)
         onRefresh();
+        return() => {
+            mounted.current = false;
+        }
     }, [param_id, props]);
 
     const renderCategoryItem = ({ item }) => {
         return (
             <View
-            key={item.id}
-            style={[
-            styles.categoryItemWrapper,
-            {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 0 ? 20 : 0,
-            },
-            ]}>
-              {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+              key={item.id}
+              style={[
+                styles.categoryItemWrapper,
+                {
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 0 ? 20 : 0,
+                },
+              ]}>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
     };
 
     return (
-        <View style={styles.container}>             
-            <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={{uri: userData.profilePicture}} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
-                    </View>
-                    
+        <View style={styles.container}>
+            {
+                loading ? 
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
-                
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
-                <View style={styles.categoriesWrapper}>
-                    <Text style={styles.categoriesText}>Your interests</Text>
-                    <View style={styles.categoriesListWrapper}>
-                        <FlatList  
-                            data={categories}
-                            renderItem={renderCategoryItem}
-                            keyExtractor={(item) => item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />
-                    </View>
-                </View>
-                <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Your courses</Text>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
-                    )}
-                    {courses.map(item => (
-                        <CourseComponent 
-                        item={item}
-                        navigation={props.navigation}/>
-                    ))}
-                </View>
-            </ScrollView>
+                :
+                <>
+                {userData && (
+                    <ScrollView>
+                        <View style={styles.titlesWrapper}>
+                            <View>
+                                <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                            </View>
+                            <View>
+                                <View style={styles.titleWrapper}>
+                                    <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
+                                </View>
+                            </View>
+                        </View>
+                        <View style={styles.descriptionWrapper}>
+                            <Text style={styles.locationTitle}>{userData.rol.charAt(0).toUpperCase()+userData.rol.slice(1)}</Text>
+                            {userData.description != "" &&(
+                                <Text style={styles.description}>{userData.description}</Text>
+                            )}
+                        </View>
+                        {userData.rol === "student" && (
+                            <>
+                            <View style={styles.locationWrapper}>
+                                <Text style={styles.locationTitle}>Location:</Text>
+                                <Text style={styles.location}>{userData.location}</Text>
+                            </View>
+                            <View style={styles.categoriesWrapper}>
+                                <Text style={styles.coursesTitle}>Your interests</Text>
+                                <View style={styles.categoriesListWrapper}>
+                                    <FlatList  
+                                        data={categories}
+                                        renderItem={renderCategoryItem}
+                                        keyExtractor={(item) => item.id}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    />
+                                </View>
+                            </View>
+                            </>
+                        )}
+                        <View style={styles.coursesCardWrapper}>
+                            <Text style={styles.coursesTitle}>Your courses</Text>
+                            {courses.length === 0 && (
+                                <Text style={styles.courseText}>Subscribe to/complete courses to see your courses here.</Text>
+                            )}
+                            {courses.map(item => (
+                                <TouchableOpacity
+                                    key={item.id}
+                                    onPress={() => {
+                                    props.navigation.navigate('Course Screen', {item: item});
+                                    }}
+                                >
+                                    <CourseComponent 
+                                    item={item}
+                                    key={item.id}
+                                    />
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+                        {userData.rol === "student" && (
+                            <View style={styles.coursesCardWrapper}>
+                                <Text style={styles.coursesTitle}>Favorite courses</Text>
+                                {favCourses.map(item => (
+                                    <TouchableOpacity
+                                        key={item.id}
+                                        onPress={() => {
+                                        props.navigation.navigate('Course Screen', {item: item});
+                                        }}
+                                    >
+                                        <CourseComponent 
+                                        item={item}
+                                        key={item.id}
+                                        />
+                                    </TouchableOpacity>
+                                ))}
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
+                </>
+            }
         </View>
     )
 }
@@ -177,7 +263,7 @@ const styles = StyleSheet.create({
         borderRadius: 50,
     },
     titleWrapper: {
-        paddingVertical:35,
+        paddingTop:35,
         paddingHorizontal: 10,
         flex: 1, 
         flexWrap: 'wrap',
@@ -205,12 +291,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     coursesCardWrapper: {
-        paddingHorizontal: 20,
-      },
-      coursesTitle: {
+        paddingHorizontal: 15,
+    },
+    coursesTitle: {
         fontSize: 20,
-      },
-      courseCardWrapper: {
+        marginTop: 10,
+        fontWeight: "bold",
+    },
+    courseCardWrapper: {
         backgroundColor: 'white',
         borderRadius: 25,
         paddingTop: 20,
@@ -307,8 +395,8 @@ const styles = StyleSheet.create({
     },
     categoriesWrapper: {
         //marginTop: 10,
-        paddingTop: 20,
-        paddingLeft: 20,
+        paddingTop: 10,
+        //paddingLeft: 20,
         paddingVertical: 5,
         paddingHorizontal: 15,
     },
@@ -318,7 +406,7 @@ const styles = StyleSheet.create({
     },
     categoriesListWrapper: {
         paddingTop: 15,
-        paddingBottom: 20,
+        paddingBottom: 5,
         flexDirection: "row",
     },
     categoryItemWrapper: {
@@ -346,6 +434,26 @@ const styles = StyleSheet.create({
         fontSize: 14,
         marginTop: 5,
         marginBottom: 5
+    },
+    locationWrapper:{
+        paddingHorizontal: 15,
+        flexDirection: "row",
+        // paddingVertical: 10,
+        paddingBottom: 10,
+        //marginTop: 5,
+    },
+    location: {
+        fontSize: 16,
+    },
+    locationTitle: {
+        fontWeight: '500',
+        fontSize: 16,
+        marginRight: 5,
+    },
+    rolTitle: {
+        fontWeight: '400',
+        fontSize: 16,
+        marginRight: 5,
     },
 })
 

@@ -1,30 +1,42 @@
-import {Endpoint} from "./Endpoint.js";
+import { Endpoint } from "./Endpoint.js";
+
+function serializeQuery(params, prefix) {
+    const query = Object.keys(params).map((key) => {
+      const value  = params[key];
+
+      if (params.constructor === Array)
+        key = `${prefix}`;
+      else if (params.constructor === Object)
+        key = (prefix ? `${prefix}[${key}]` : key);
+  
+      if (typeof value === 'object')
+        return serializeQuery(value, key);
+      else
+        return `${key}=${encodeURIComponent(value)}`;
+    });
+  
+    return [].concat.apply([], query).join('&');
+}
+
 
 export class GetAllCoursesByUserEndpoint extends Endpoint {
-    /*constructor(props) {
-        super(props);
-        console.log("entro al constructor:", props);
-        this._id = props;
-        console.log("salgo del constructor:", this._id);
-    }
-
-    url() {
-        return `/users/${this._id}/courses`
-    }*/
-    constructor(userId, aprobalState) {
-        super(userId, aprobalState);
-        console.log("entro al constructor:", userId, aprobalState);
+    constructor(userId, query) {
+        super(userId, query);
+        console.log("entro al constructor:", userId, query);
         this._user_id = userId;
-        this._aprobal_state = aprobalState;
-        console.log("salgo del constructor:", this._user_id, this._aprobal_state);
+        this._query = query;
+        console.log("salgo del constructor:", this._user_id, this._query);
     }
     url() {
-        if(this._aprobal_state === undefined) return `/users/${this._user_id}/courses`;
-        return `/users/${this._user_id}/courses?aprobal_state=${this._aprobal_state}`
+        let url = `/users/${this._user_id}/courses`;
+        const params = serializeQuery(this._query);
+        if (params.length > 0) {
+            url = url.concat(`?${params}`);
+        }
+        console.log("URL")
+        console.log(url)
+        return url;
     }
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
 
     method() {
         return 'GET'

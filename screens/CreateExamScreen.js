@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert } from 'react-native';
+import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { app } from '../app/app';
 import Feather from 'react-native-vector-icons/Feather'
 import NumberPlease from "react-native-number-please";
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 
 const CreateExamScreen = (props) => {
 
@@ -15,7 +17,7 @@ const CreateExamScreen = (props) => {
 
     const [nameSaved, setNameSaved] = useState(false);
 
-    const [questionSaved, setQuestionSaved] = useState(false);
+    const [questionSaved, setQuestionSaved] = useState(true);
     
     const [questionMC, setQuestionMC] = useState("");
 
@@ -27,8 +29,8 @@ const CreateExamScreen = (props) => {
     
     const valueNumbers = [{ id: "points", min: 1, max: 100 }];*/
 
-    const [inputs, setInputs] = useState([{
-        key: '', 
+    const [inputs, setInputs] = useState([/*{
+        id: "", 
         question: "",
         question_saved: false,
         is_written: false,
@@ -37,40 +39,108 @@ const CreateExamScreen = (props) => {
         question_type: "",
         options: [],
         correct: 0,
-        value: 1,
-    }]);
+        value: 1, 
+    }*/]);
 
     const [exam, setExam] = useState({
         id: "",
         name: "",
         course_id: "",
-        active: "",
+        state: "draft",
+        max_score: 0,
+        has_multiple_choice: false,
+        has_written: false,
+        has_media: false,
+        max_attempts: 1,
+        approval_score: 0,
     });
 
     //const [showButtons, setShowButtons] = useState(true);
 
-    const handleApiResponseCreateExam = (response) => {
-        console.log("[Create Exam screen] content: ", response.content())
+    const handleResponseUpdateExam = (response) => {
+        console.log("[Create Exam screen] update: ", response.content())
         if (!response.hasError()) {
             setExam(response.content());
-            setNameSaved(true);
-            console.log("[Create Exam screen] courses: ", exam);
+            console.log("[Create Exam screen] update exam: ", exam);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
+    const handleApiResponseCreateExam = (response) => {
+        console.log("[Create Exam screen] exam: ", response.content())
+        if (!response.hasError()) {
+            setExam({
+                id: response.content().id,
+                name: response.content().name,
+                course_id: response.content().course_id,
+                state: response.content().state,
+                max_score: 0,
+                has_multiple_choice: false,
+                has_written: false,
+                has_media: false,
+                max_attempts: response.content().max_attempts,
+                approval_score: 0,
+            });
+            setNameSaved(true);
+            console.log("[Create Exam screen] create exam: ", exam);
+            console.log("[Create Exam screen] INPUTS: ", inputs);
+        } else {
+            console.log("[Create Exam screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseUpdateQuestion = (response) => {
+        console.log("[Create Exam screen] update: ", response.content())
+        if (!response.hasError()) {
+            console.log("[Create Exam screen] update question: ", exam);
+        } else {
+            console.log("[Create Exam screen] error", response.content().message);
+        }
+    }
+
+    const handleApiResponseDeleteQuestion = (response) => {
+        console.log("[Create Exam screen] delete question: ", response.content())
+        if (!response.hasError()) {
+        } else {
+            console.log("[Create Exam screen] error", response.content().message);
+        }        
+    }
+
     const handleApiResponseCreateQuestion = (response) => {
         console.log("[Create Exam screen] content: ", response.content())
         if (!response.hasError()) {
+            setInputs(inputs => [...inputs, {
+                id: response.content().id,
+                question_saved: false,
+                correct: response.content().correct,
+                exam_id: response.content().exam_id,
+                id: response.content().id,
+                options: response.content().options,
+                question: response.content().question,
+                question_type: response.content().question_type,
+                value: response.content().value,
+            }]);
             console.log("[Create Exam screen] response sucessfull");
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
-    const addHandler = () => {
-        const _inputs = [...inputs];
+    const addHandler = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().createQuestion(
+            {
+                token: tokenLS, 
+                exam_id: exam.id,
+                id: 0,
+                question: "",
+                question_type: "written",
+                options: [],
+                correct: 0,
+                value: 1,
+            }, exam.id, handleApiResponseCreateQuestion);
+        /* const _inputs = [...inputs];
         _inputs.push({
             key: '',
             question: "",
@@ -83,15 +153,13 @@ const CreateExamScreen = (props) => {
             correct: 0,
             value: 1,
         });
-        setInputs(_inputs);
+        setInputs(_inputs); */
         setQuestionSaved(false);
     }
     
-    const deleteHandler = (key) => {
-        const _inputs2 = [...inputs];
-        if (_inputs2[key].question_saved){
-            //borrarla en el back tambien
-        }
+    const deleteHandler = async (key) => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().deleteQuestion({token: tokenLS}, exam.id, inputs[key].id, handleApiResponseDeleteQuestion);
         const _inputs = inputs.filter((input,index) => index != key);
         setInputs(_inputs);
         setQuestionSaved(true);
@@ -100,21 +168,31 @@ const CreateExamScreen = (props) => {
     const inputHandler = (text, key) => {
         const _inputs = [...inputs];
         _inputs[key].question = text;
-        _inputs[key].key   = key;
+        //_inputs[key].key = key;
         setInputs(_inputs);
-        
+        setQuestionSaved(false);
+    }
+
+    const handleSubmitEditQuestion = (key) => {
+        const _inputs = [...inputs];
+        _inputs[key].question_saved = false;
+        setFinishedMC(false);
+        setInputs(_inputs);
     }
 
     const handleMultipleChoicePressed = (key) => {
         const _inputs = [...inputs];
-        _inputs[key].is_multiple_choice = true;
+        //_inputs[key].is_multiple_choice = true;
         _inputs[key].question_type = "multiple_choice";
+        setFinishedMC(false);
         setInputs(_inputs);
     }
 
     const handleDevelopPressed = (key) => {
         const _inputs = [...inputs];
-        _inputs[key].is_written = true;
+        setFinishedMC(false);
+        setQuestionMC("");
+        _inputs[key].options = [];
         _inputs[key].question_type = "written";
         setInputs(_inputs);
     }
@@ -129,25 +207,36 @@ const CreateExamScreen = (props) => {
                 course_id: param_course_id,
                 creator_id: idLS,
             }, handleApiResponseCreateExam);
+        
     }
 
     const handleSaveQuestion = async (key) => {
         //llamar al back y guardar la pregunta
-        let tokenLS = await app.getToken();
-        await app.apiClient().createQuestion(
+        /* await app.apiClient().createQuestion(
             {
                 token: tokenLS, 
                 exam_id: exam.id,
                 question: inputs[key].question,
                 question_type: inputs[key].question_type,
-                /*is_written: inputs[key].is_written,
-                is_media: inputs[key].is_media,*/
                 options: inputs[key].options,
                 correct: inputs[key].correct,
                 value: inputs[key].value,
-            }, exam.id, handleApiResponseCreateQuestion);
-        const _inputs = [...inputs];
+            }, exam.id, handleApiResponseCreateQuestion); */
+        const _inputs = [...inputs]; 
         _inputs[key].question_saved = true;
+        let tokenLS = await app.getToken();
+        await app.apiClient().updateQuestion(
+        {
+            token: tokenLS, 
+            question: inputs[key].question,
+            question_type: inputs[key].question_type,
+            options: inputs[key].options,
+            correct: inputs[key].correct,
+            value: inputs[key].value,
+        }, 
+        exam.id, inputs[key].id, handleApiResponseUpdateQuestion);
+        var total_score = exam.max_score + +_inputs[key].value;
+        setExam({...exam, max_score: total_score});
         setInputs(_inputs);
         setQuestionSaved(true);
     }
@@ -171,6 +260,10 @@ const CreateExamScreen = (props) => {
         console.log("change value: ",value);
         setInputs(_inputs);
     }
+    
+    const handleSubmitApprovalScore = (value) => {
+        setExam({...exam, approval_score: value});
+    }
 
     const setCorrect = (key, idx) => {
         const _inputs = [...inputs];
@@ -178,7 +271,23 @@ const CreateExamScreen = (props) => {
         setInputs(_inputs);
     }
 
-    const saveExam = () => {
+    const saveExam = async () => {
+        let tokenLS = await app.getToken();
+        /* var total_score = 0
+        for (let question of inputs) {
+            console.log("total scrore", total_score);
+            total_score = total_score + +question.value;
+        }
+        console.log("total scrore final", total_score); */
+        await app.apiClient().updateExam(
+            {
+                token: tokenLS,
+                name: exam.name,
+                max_score: exam.max_score,
+                max_attempts: exam.max_attempts,
+                approval_score: exam.approval_score,
+
+            }, exam.id, handleResponseUpdateExam)
         /*Alert.alert(
             "Exam saved.",
             [
@@ -188,9 +297,17 @@ const CreateExamScreen = (props) => {
         props.navigation.goBack();
     }
 
+    /* useEffect(() => {
+        setInputs([]);
+    }, []); */
+
     return (
         <View style={styles.container}>
             <ScrollView style={styles.inputsContainer}>
+                <KeyboardAvoidingView
+                    style={styles.containerWrapper}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                > 
                 { !nameSaved && (
                     <View style={styles.nameWrapper}>
                         <TextInput 
@@ -212,18 +329,31 @@ const CreateExamScreen = (props) => {
                 )}
                 { nameSaved && (
                     <>
+                    <Text style={[styles.textAnswer, {color:'#87ceeb', marginTop: 5},]}>Maximum points: {exam.max_score}</Text>
+                    <Text style={styles.textAnswer}>Points needed to approve:</Text>
+                    <TextInput 
+                        placeholder={"Points needed to approve"}
+                        value={exam.approval_score} 
+                        onChangeText={(text) => handleSubmitApprovalScore(text.replace(/[^0-9]/g, ''))}
+                        style={[styles.input,{marginBottom:10}]}
+                    />
                     {inputs.map((input, key)=>(
                         <>
                             { !input.question_saved && (
                                 <>
                                     <View style={styles.inputContainer}>
-                                        <TextInput 
-                                            placeholder={"Enter Question"}
-                                            multiline = {true}
-                                            value={input.question} 
-                                            onChangeText={(text)=>inputHandler(text,key)}
-                                            style={styles.input}
-                                        />
+                                        {/* <KeyboardAvoidingView
+                                            style={styles.container}
+                                            behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                        > */}
+                                            <TextInput 
+                                                placeholder={"Enter Question"}
+                                                multiline = {true}
+                                                value={input.question} 
+                                                onChangeText={(text)=>inputHandler(text,key)}
+                                                style={styles.input}
+                                            />
+                                        {/* </KeyboardAvoidingView> */}
                                         <View style={styles.buttonsRightWrapper}>
                                             <TouchableOpacity
                                                 onPress = {()=> {handleSaveQuestion(key)}}
@@ -268,55 +398,66 @@ const CreateExamScreen = (props) => {
                                         />
                                     </View> */}
                                     <Text style={styles.textAnswer}>Points:</Text>
-                                    <TextInput 
+                                    {/* <KeyboardAvoidingView
+                                        style={styles.container}
+                                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                    > */}
+                                        <TextInput 
                                             placeholder={"Points assigned to this question"}
                                             value={input.value} 
                                             onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
                                             style={[styles.input,{marginBottom:10}]}
                                         />
+                                    {/* </KeyboardAvoidingView> */}
                                     <Text style={styles.textAnswer}>Answer</Text>
-                                    {!(input.is_multiple_choice || input.is_written )&& (
-                                        <View style={styles.buttonInputWrapper}>
-                                            <TouchableOpacity
-                                                onPress = {()=> {handleMultipleChoicePressed(key)}}
-                                                style={styles.buttonInputIcon}
-                                            >
-                                                {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
-                                                <MaterialCommunityIcons
-                                                    name="format-list-numbered"
-                                                    size={20}
-                                                    color={'black'}
-                                                />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity
-                                                onPress = {()=> {handleDevelopPressed(key)}}
-                                                style={styles.buttonInputIcon}
-                                            >
-                                            {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
-                                                <MaterialCommunityIcons
-                                                    name="text"
-                                                    size={20}
-                                                    color={'black'}
-                                                />
-                                            </TouchableOpacity>
-                                        </View>
-                                    )}
-                                    {input.is_written && (
+                                    <View style={styles.buttonInputWrapper}>
+                                        <TouchableOpacity
+                                            onPress = {()=> {handleMultipleChoicePressed(key)}}
+                                            style={[styles.buttonInputIcon,{
+                                                backgroundColor: input.question_type === "multiple_choice" ? "green" : "white"
+                                            }]}
+                                        >
+                                            {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
+                                            <MaterialCommunityIcons
+                                                name="format-list-numbered"
+                                                size={20}
+                                                color={'black'}
+                                            />
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            onPress = {()=> {handleDevelopPressed(key)}}
+                                            style={[styles.buttonInputIcon,{
+                                                backgroundColor: input.question_type === "written" ? "green" : "white"
+                                            }]}
+                                        >
+                                        {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
+                                            <MaterialCommunityIcons
+                                                name="text"
+                                                size={20}
+                                                color={'black'}
+                                            />
+                                        </TouchableOpacity>
+                                    </View>
+                                    {input.question_type === "written" && (
                                         <Text style={styles.choiceText}>The answer will be a free text response.</Text>
                                     )}
-                                    {(input.is_multiple_choice && (!finishedMC)) && (
+                                    {(input.question_type === "multiple_choice" && (!finishedMC)) && (
                                         <>
                                             <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
                                             <Text style={styles.choiceText}>Fill the multiple answers:</Text>
                                             <View style={styles.wrapperOptionsInChoice}>
-                                                <TextInput 
-                                                placeholder={"Enter Option"}
-                                                multiline = {true}
-                                                value={questionMC} 
-                                                onChangeText={(text)=>setQuestionMC(text)}
-                                                style={styles.input}
-                                                />
-                                                {/*<View style={styles.buttonsRightWrapper}>*/}
+                                                {/* <KeyboardAvoidingView
+                                                    style={styles.container}
+                                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                                > */}
+                                                    <TextInput 
+                                                    placeholder={"Enter Option"}
+                                                    multiline = {true}
+                                                    value={questionMC} 
+                                                    onChangeText={(text)=>setQuestionMC(text)}
+                                                    style={styles.input}
+                                                    />
+                                                {/* </KeyboardAvoidingView> */}
                                                 <TouchableOpacity
                                                     onPress = {()=> {handleMultipleChoiceOption(key)}}
                                                     style={styles.buttonSaveIconRight}
@@ -348,7 +489,7 @@ const CreateExamScreen = (props) => {
                                             </View>
                                         </>
                                     )}
-                                    {(input.is_multiple_choice && (finishedMC)) && (
+                                    {(input.question_type === "multiple_choice" && (finishedMC)) && (
                                         <>
                                             <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
                                             <SelectDropdown
@@ -369,17 +510,52 @@ const CreateExamScreen = (props) => {
                             )}
                             { input.question_saved && (
                                 <>
-                                    <Text style={styles.choiceText}>Question {key} saved: {input.question} </Text>
+                                <View style={styles.courseCardWrapper}>
+                                    <TouchableOpacity
+                                        onPress = {()=> {handleSubmitEditQuestion(key)}}
+                                        style={styles.questionWrapper}
+                                    >
+                                        <View style={styles.questionView}>
+                                            <Text numberOfLines={1} style={styles.examQuestion}>{input.question}</Text>
+                                        </View>
+                                        <MaterialIcons
+                                            name="edit"
+                                            size={20}
+                                            color={'black'}
+                                            style={styles.buttonEditIconRight}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
                                 </>
                             )}
                         </>
                     ))}
+                    <View style={[styles.container, {paddingTop: 0}]}>
+                        <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
+                            <TouchableOpacity
+                                onPress = {()=> {addHandler()}}
+                                disabled={!questionSaved}
+                                style={styles.questionWrapper}
+                            >
+                                <View style={styles.addQuestionView}>
+                                    <Text style={styles.buttonText}>Add Question</Text>
+                                    <Feather
+                                        name="plus"
+                                        size={20}
+                                        color={'white'}
+                                        style={styles.buttonEditIconRight}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     </>
                 )}
+                </KeyboardAvoidingView>
             </ScrollView>
             { nameSaved && (
                 <View style={styles.buttonWrapper}>
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         onPress={() => {addHandler()}}
                         disabled={!questionSaved}
                         style={[styles.button, 
@@ -390,7 +566,7 @@ const CreateExamScreen = (props) => {
                         ]}
                     >
                         <Text style={styles.buttonText}>Add Question</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                     <TouchableOpacity
                         onPress={() => {saveExam()}}
                         style={[styles.button,{backgroundColor:`#87ceeb`}]}
@@ -406,13 +582,18 @@ const CreateExamScreen = (props) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 15,
-        
+        padding: 15, 
+    },
+    containerWrapper: {
+        flex: 1,
     },
     numberPicker: {
         width: 50,
         height: 5,
         marginLeft: 10,
+    },
+    addQuestionView: {
+        flexDirection: 'row',
     },
     buttonWrapper: {
         alignItems: 'center',
@@ -559,6 +740,69 @@ const styles = StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+    },
+    courseCardWrapper: {
+        backgroundColor: 'white',
+        width: 320,
+        borderRadius: 25,
+        paddingVertical: 8,
+        paddingLeft: 20,
+        marginTop: 10,
+        flexDirection: 'row',
+        shadowColor: 'black',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2, 
+    },
+    questionWrapper: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    examQuestion: {
+        color:'black',
+        fontWeight: '400',
+        fontSize: 16,
+        marginTop:5,
+        width:250,
+    },
+    questionView: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    buttonEditIconRight: {
+        marginLeft: 10,
+    },
+    stateCardWrapper: {
+        backgroundColor: '#87ceeb',
+        width: 200,
+        borderRadius: 25,
+        paddingVertical: 8,
+        //paddingLeft: 20,
+        marginBottom: 5,
+        marginTop: 10,
+        shadowColor: 'black',
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,  
+    },
+    examDescritpionWrapper: {
+        //marginTop:5,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    examDescription: {
+        color:'black',
+        fontWeight: '400',
+        fontSize: 16,
+        //marginTop:5,
     },
 })
 

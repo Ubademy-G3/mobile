@@ -1,5 +1,5 @@
-import {Endpoint} from "./Endpoint.js";
-import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
+import { Endpoint } from "./Endpoint.js";
+import { GetProfileSuccessful } from "../responses/profiles/GetProfileSuccessful.js";
 
 export class GetProfileEndpoint extends Endpoint {
     constructor(props) {

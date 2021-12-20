@@ -1,5 +1,5 @@
 import React, {Component, useEffect, useState, useCallback} from 'react';
-import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
 import image from "../assets/images/profilePic.jpg";
 
 const ProfilesListComponent = ({ item, navigation }) => {
@@ -21,7 +21,7 @@ const ProfilesListComponent = ({ item, navigation }) => {
         ]}>
           {/*<View>*/}
           <View style={styles.profilesTitleWrapper}>
-            <Image source={image} style={styles.profilesCardImage} />
+            <Image source={{uri: item.profilePictureUrl}} style={styles.profilesCardImage} />
           {/*</View>*/}
             <Text style={styles.profilesTitle}>{item.firstName} {item.lastName}</Text>  
           </View>
@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
       paddingTop: 15,
       paddingLeft: 20,
       marginTop: 10,
+      marginBottom: 5,
       flexDirection: 'column',
       shadowColor: 'black',
       shadowOffset: {

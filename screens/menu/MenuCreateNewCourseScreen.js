@@ -60,7 +60,7 @@ const MenuCreateNewCourseScreen = (props) => {
             console.log("NUEVO URL:", newURL);
             setData({
                 ...courseData,
-                profilePictureUrl: newURL,
+                profile_picture: newURL,
             })
             Alert.alert(
                 'Image Uploaded',
@@ -197,10 +197,17 @@ const MenuCreateNewCourseScreen = (props) => {
                 >
                     <TouchableOpacity
                         onPress={() => {choosePhotoFromLibrary()}}
-                        /*style={styles.button}*/
                         disabled={loading}
                     >
-                        <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                        <View style={{ display:'flex', flexDirection: 'row' }}>
+                            <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
+                            <MaterialCommunityIcons
+                                name="pencil"
+                                size={25}
+                                color={'black'}
+                                style={{position: 'absolute', right: -8, bottom: 5,}}
+                            />
+                        </View>
                     </TouchableOpacity>
                     <View style={styles.inputContainer}>
                         <Text style={styles.inputText}>Course Name</Text>

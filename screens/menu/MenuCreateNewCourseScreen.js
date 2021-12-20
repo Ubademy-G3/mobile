@@ -202,10 +202,10 @@ const MenuCreateNewCourseScreen = (props) => {
                         <View style={{ display:'flex', flexDirection: 'row' }}>
                             <Image source={{uri: courseData.profile_picture}} style={styles.logoImage} />
                             <MaterialCommunityIcons
-                                name="pencil"
+                                name="camera-outline"
                                 size={25}
-                                color={'black'}
-                                style={{position: 'absolute', right: -8, bottom: 5,}}
+                                color={'grey'}
+                                style={{position: 'absolute', right: -8, bottom: 0,}}
                             />
                         </View>
                     </TouchableOpacity>

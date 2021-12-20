@@ -184,7 +184,16 @@ const MenuEditProfileScreen = (props) => {
                                 /*style={styles.button}*/
                                 disabled={loading}
                             >
-                                <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                                <View style={{ display:'flex', flexDirection: 'row' }}>
+                                    <Image source={{uri: userData.profilePictureUrl}} style={styles.titlesImage} />
+                                    <MaterialCommunityIcons
+                                        name="camera-outline"
+                                        size={25}
+                                        color={'grey'}
+                                        style={{position: 'absolute', right: -8, bottom: 0,}}
+                                    />
+                                </View>
+                                
                             </TouchableOpacity>
                             <View style={styles.inputContainer}>
                                 <Text style={styles.inputText}>First Name</Text>

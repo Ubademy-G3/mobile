@@ -42,13 +42,22 @@ const ProfileScreen = (props) => {
         }
     }
 
-    const handleFavoriteCourseResponse = (response) => {
+    /* const handleFavoriteCourseResponse = (response) => {
         console.log("[Profile Screen] content: ", response.content())
         if (!response.hasError()) {
             console.log(response.content())
             setFavCourses(courses => [...courses, response.content()]);
         } else {
             console.log("[Profile Screen] error", response.content().message);
+        }
+    } */
+
+    const handleGetFavoriteCourses = (response) => {
+        console.log("[Menu Favorite Courses Screen] content: ", response.content())
+        if (!response.hasError()) {
+            setFavCourses(response.content().courses);
+        } else {
+            console.log("[Menu Favorite Courses Screen] error", response.content().message);
         }
     }
     
@@ -88,16 +97,6 @@ const ProfileScreen = (props) => {
                 favoriteCourses: response.content().favoriteCourses,
                 rol: response.content().rol,
             });
-            // let tokenLS = await app.getToken();
-            // for (let id of response.content().interests) {
-            //     console.log("[Profile screen] interests id:", id);
-            //     await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            // }
-            await Promise.all(
-                response.content().favoriteCourses.map(async (courseId) => {
-                    return await app.apiClient().getCourseById({ token: tokenLS }, courseId, handleFavoriteCourseResponse);
-                })
-            )
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -119,7 +118,9 @@ const ProfileScreen = (props) => {
         console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
+        await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };

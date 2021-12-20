@@ -16,17 +16,26 @@ const MenuFavoriteCoursesScreen = (props) => {
     
     const [loading, setLoading] = useState(false);
 
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Subscribed Courses Screen] content: ", response.content())
+    /* const handleResponseCourseResponse = (response) => {
+        console.log("[Menu Favorite Courses Screen] content: ", response.content())
         if (!response.hasError()) {
                setCourses(courses => [...courses, response.content()]);
         } else {
-            console.log("[Menu Subscribed Courses Screen] error", response.content().message);
+            console.log("[Menu Favorite Courses Screen] error", response.content().message);
+        }
+    } */
+
+    const handleGetFavoriteCourses = (response) => {
+        console.log("[Menu Favorite Courses Screen] content: ", response.content())
+        if (!response.hasError()) {
+               setCourses(response.content().courses);
+        } else {
+            console.log("[Menu Favorite Courses Screen] error", response.content().message);
         }
     }
 
-    const handleApiResponseGetProfile = async (response) => {
-        console.log("[Menu Subscribed Courses screen] content: ", response.content())
+    /* const handleApiResponseGetProfile = async (response) => {
+        console.log("[Menu Favorite Courses screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let id of response.content().favoriteCourses){
@@ -34,7 +43,7 @@ const MenuFavoriteCoursesScreen = (props) => {
             }
             console.log("[Profile screen] error", response.content().message);
         }
-    }
+    } */
 
     const onRefresh = async () => {
         console.log("[Menu Favorite Courses screen] entro a onRefresh"); 
@@ -42,7 +51,8 @@ const MenuFavoriteCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Favorite Courses screen] token:",tokenLS);
-        await app.apiClient().getProfile({token: tokenLS}, idLS, handleApiResponseGetProfile);
+        /* await app.apiClient().getProfile({token: tokenLS}, idLS, handleApiResponseGetProfile); */
+        await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
         console.log("[Menu Favorite Courses screen] id:", idLS);
         setLoading(false);
     };

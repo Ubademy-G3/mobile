@@ -493,24 +493,26 @@ const EditExamScreen = (props) => {
                         </>
                     )}
                 </View>
-                <View style={[styles.container, {paddingTop: 0}]}>
-                    <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
-                        <TouchableOpacity
-                            onPress = {()=> {addQuestion()}}
-                            style={styles.questionWrapper}
-                        >
-                            <View style={styles.addQuestionView}>
-                                <Text style={styles.buttonText}>Add Question</Text>
-                                <Feather
-                                    name="plus"
-                                    size={20}
-                                    color={'white'}
-                                    style={styles.buttonEditIconRight}
-                                />
-                            </View>
-                        </TouchableOpacity>
+                {selectedExam.state === "draft" && (
+                    <View style={[styles.container, {paddingTop: 0}]}>
+                        <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
+                            <TouchableOpacity
+                                onPress = {()=> {addQuestion()}}
+                                style={styles.questionWrapper}
+                            >
+                                <View style={styles.addQuestionView}>
+                                    <Text style={styles.buttonText}>Add Question</Text>
+                                    <Feather
+                                        name="plus"
+                                        size={20}
+                                        color={'white'}
+                                        style={styles.buttonEditIconRight}
+                                    />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
+                )}
                 </>
             </ScrollView>
             <View style={styles.buttonWrapper}>

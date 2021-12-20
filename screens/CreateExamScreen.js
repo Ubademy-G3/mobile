@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput, Alert, KeyboardAvoidingView } from 'react-native';
-import SelectDropdown from 'react-native-select-dropdown'
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import React, { useState } from 'react';
+import { Text, View, TouchableOpacity, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
+import SelectDropdown from 'react-native-select-dropdown';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { app } from '../app/app';
-import Feather from 'react-native-vector-icons/Feather'
-import NumberPlease from "react-native-number-please";
+import Feather from 'react-native-vector-icons/Feather';
+import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -14,13 +14,10 @@ MaterialIcons.loadFont();
 const CreateExamScreen = (props) => {
 
     const param_course_id = props.route.params ? props.route.params.id : 'defaultID';
-
+    const [modalVisible, setModalVisible] = useState(false);
     const [nameSaved, setNameSaved] = useState(false);
-
     const [questionSaved, setQuestionSaved] = useState(true);
-    
     const [questionMC, setQuestionMC] = useState("");
-
     const [finishedMC, setFinishedMC] = useState(false);
 
     /*const initialValues = [{ id: "points", value: 1 }];
@@ -288,13 +285,14 @@ const CreateExamScreen = (props) => {
                 approval_score: exam.approval_score,
 
             }, exam.id, handleResponseUpdateExam)
+        setModalVisible(true);
+        console.log("SET MODAL TRUE");
         /*Alert.alert(
             "Exam saved.",
             [
               { text: "OK", onPress: () => {} }
             ]
         );*/
-        props.navigation.goBack();
     }
 
     /* useEffect(() => {
@@ -303,6 +301,39 @@ const CreateExamScreen = (props) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                    setModalVisible(!modalVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Success:</Text>
+                            </View>
+                            <Text style={styles.modalText}>Exam saved!</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                props.navigation.goBack(); 
+                                setModalVisible(!modalVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <ScrollView style={styles.inputsContainer}>
                 <KeyboardAvoidingView
                     style={styles.containerWrapper}
@@ -530,11 +561,12 @@ const CreateExamScreen = (props) => {
                             )}
                         </>
                     ))}
+                    {questionSaved && (
                     <View style={[styles.container, {paddingTop: 0}]}>
                         <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
                             <TouchableOpacity
                                 onPress = {()=> {addHandler()}}
-                                disabled={!questionSaved}
+                                //disabled={!questionSaved}
                                 style={styles.questionWrapper}
                             >
                                 <View style={styles.addQuestionView}>
@@ -549,6 +581,7 @@ const CreateExamScreen = (props) => {
                             </TouchableOpacity>
                         </View>
                     </View>
+                    )}
                     </>
                 )}
                 </KeyboardAvoidingView>
@@ -804,6 +837,39 @@ const styles = StyleSheet.create({
         fontSize: 16,
         //marginTop:5,
     },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#9acd32",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    }
 })
 
 export default CreateExamScreen;

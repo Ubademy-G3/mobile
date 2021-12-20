@@ -5,32 +5,29 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 MaterialCommunityIcons.loadFont();
 
 const data = {
-    state: [
+    progress: [
         {
             id: '0',
-            name: 'Draft',
+            name: '0%',
+            value: '0',
             isChecked: false
         },
         {
             id: '1',
-            name: 'Active',
+            name: '25%',
+            value: '25',
             isChecked: false
         },
         {
             id: '2',
-            name: 'Inactive',
-            isChecked: false
-        }
-    ],
-    graded: [
-        {
-            id: '0',
-            name: 'Graded',
+            name: '50%',
+            value: '50',
             isChecked: false
         },
         {
-            id: '1',
-            name: 'Not yet graded',
+            id: '3',
+            name: '75%',
+            value: '75',
             isChecked: false
         }
     ],
@@ -38,61 +35,49 @@ const data = {
         {
             id: '0',
             name: 'Passed',
+            value: true,
             isChecked: false
         },
         {
             id: '1',
-            name: 'Failed',
+            name: 'Not approved',
+            value: false,
             isChecked: false
         }
     ]
 }
 
-const ExamsFilterComponent = (props) => {
-    const type = props.type;
-    const [state, setState] = useState(data.state);
-    const [graded, setGraded] = useState(data.graded);
+const UsersFilterComponent = (props) => {
+    const [progress, setProgress] = useState(data.progress);
     const [approved, setApproved] = useState(data.approval);
 
     const cleanFilters = () => {
-        setGraded(data.graded);
         setApproved(data.approval);
-        setState(data.state);
+        setProgress(data.progress);
     }
 
     const setFilter = () => {
         const query = {
-          state: state,
-          graded: graded,
+          progress: progress,
           approved: approved
         };
         cleanFilters();
-        props.updateExams(query);
+        props.updateUsers(query);
     };
 
-    const addGraded = (item) => {
-        for (let i = 0; i < graded.length; i++) {
-            if (graded[i].isChecked === true && graded[i].id !== item.id) {
+    const addProgress = (item) => {
+        for (let i = 0; i < progress.length; i++) {
+            if (progress[i].isChecked === true && progress[i].id !== item.id) {
                 return;
             }
         }
-        let temp = graded.map((g) => {
-            if (item.id === g.id) {
-              return { ...g, isChecked: !g.isChecked };
-            }
-            return g;
-          });
-        setGraded(temp);
-    }
-
-    const addState = (item) => {
-        let temp = state.map((s) => {
+        let temp = progress.map((s) => {
             if (item.id === s.id) {
               return { ...s, isChecked: !s.isChecked };
             }
             return s;
           });
-        setState(temp);
+        setProgress(temp);
     }
 
     const addApproved = (item) => {
@@ -110,26 +95,14 @@ const ExamsFilterComponent = (props) => {
         setApproved(temp);
     }
 
-    const renderStateItem = ({ item }) => {
+    const renderProgressItem = ({ item }) => {
         return (
             <View style={styles.listItem}>
               <CheckBox
                 value={item.isChecked}
-                onValueChange={() => { addState(item); }}
+                onValueChange={() => { addProgress(item); }}
               />
               <Text>{item.name}</Text>
-            </View>
-        );
-    };
-
-    const renderGradedItem = ({ item }) => {
-        return (
-            <View style={styles.listItem}>
-              <CheckBox
-                value={item.isChecked}
-                onValueChange={() => { addGraded(item); }}
-              />
-              <Text>{item.name}</Text>            
             </View>
         );
     };
@@ -149,36 +122,24 @@ const ExamsFilterComponent = (props) => {
     return (
         <View style={styles.container}>
             <View style={styles.dialog}>
-                {type && type === 'template' && (
+                <>
                     <View>
-                        <Text style={styles.title}>State</Text>
+                        <Text style={styles.title}>{`Progress \ngreater than`}</Text>
                         <FlatList
-                            data={state}
-                            renderItem={renderStateItem}
+                            data={progress}
+                            renderItem={renderProgressItem}
                             keyExtractor={(item) => item.id}
                         />
                     </View>
-                )}
-                {type && type === 'solved' && (
-                    <>
-                        <View>
-                            <Text style={styles.title}>Graded</Text>
-                            <FlatList
-                                data={graded}
-                                renderItem={renderGradedItem}
-                                keyExtractor={(item) => item.id}
-                            />
-                        </View>
-                        <View>
-                            <Text style={styles.title}>Approval</Text>
-                            <FlatList
-                                data={approved}
-                                renderItem={renderApprovedItem}
-                                keyExtractor={(item) => item.id}
-                            />
-                        </View>
-                    </>
-                )}
+                    <View>
+                        <Text style={styles.title}>{`Approval\n`}</Text>
+                        <FlatList
+                            data={approved}
+                            renderItem={renderApprovedItem}
+                            keyExtractor={(item) => item.id}
+                        />
+                    </View>
+                </>
             </View>
             <TouchableOpacity
                 onPress={() => { setFilter() }}
@@ -232,4 +193,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default ExamsFilterComponent;
+export default UsersFilterComponent;

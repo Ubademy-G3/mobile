@@ -1,49 +1,57 @@
-import {app} from '../app/app';
+import { app } from '../app/app';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, Image, TextInput, FlatList, TouchableOpacity, ScrollView } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import ProfilesListComponent from '../components/ProfilesListComponent';
-import MultiSelect from 'react-native-multiple-select';
+import { ActivityIndicator } from 'react-native-paper';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Feather from 'react-native-vector-icons/Feather';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import UsersFilterComponent from '../components/UsersFilterComponent';
 
-const categories = [""]
+Feather.loadFont();
+MaterialCommunityIcons.loadFont();
+MaterialIcons.loadFont();
 
 const ListStudentScreen = (props) => {
-
-  const param_id = props.route.params ? props.route.params.course_id: '';
-
-  const param_filter = props.route.params ? props.route.params.filter: '';
+  const param_id = props.route.params.course_id;
+  const view_as = props.route.params.rol;
 
   const [loading, setLoading] = useState(false); 
-
   const [studentsData, setStudentsData] = useState([]);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [loadedData, setLoadedData] = useState(false);
 
   const handleApiResponseProfile = (response) => {
-      console.log("[ListStudent Screen] content: ", response.content())
-      if (!response.hasError()) {
-              setStudentsData(studentsData => [...studentsData, response.content()]);
-      } else {
-          console.log("[ListStudent Screen] error", response.content().message);
-      }
+    console.log("[ListStudent Screen] content: ", response.content())
+    if (!response.hasError()) {
+      console.log("RESPONSE PROFILE")
+      setStudentsData(studentsData => [...studentsData, response.content()]);
+    } else {
+      console.log("[ListStudent Screen] error", response.content().message);
+    }
   }
   
   const handleGetAllUsersInCourse = async (response) => {
-      console.log("[ListStudent Screen] content: ", response.content())
-      if (!response.hasError()) {
-          let tokenLS = await app.getToken();
-          for(let student of response.content().users){
-            await app.apiClient().getProfile({token: tokenLS}, student.user_id, handleApiResponseProfile);
-          }
-      } else {
-          console.log("[ListStudent Screen] error", response.content().message);
+    console.log("[ListStudent Screen] content: ", response.content())
+    if (!response.hasError()) {
+      let tokenLS = await app.getToken();
+      setLoadedData(false);
+      for (let student of response.content().users) {
+        await app.apiClient().getProfile({ token: tokenLS }, student.user_id, handleApiResponseProfile);
       }
+      setLoadedData(true);
+    } else {
+      console.log("[ListStudent Screen] error", response.content().message);
+    }
   }
 
   const onRefresh = async () => {
-      console.log("[Student screen] entro a onRefresh"); 
-      setLoading(true);
-      let tokenLS = await app.getToken();
-      console.log("[Student screen] token:", tokenLS); 
-      await app.apiClient().getAllUsersInCourse({token: tokenLS}, param_id, { user_type: 'student' }, handleGetAllUsersInCourse);
-      setLoading(false);
+    console.log("[Student screen] entro a onRefresh"); 
+    setLoading(true);
+    let tokenLS = await app.getToken();
+    console.log("[Student screen] token:", tokenLS); 
+    await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'student' }, handleGetAllUsersInCourse);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -51,39 +59,74 @@ const ListStudentScreen = (props) => {
       onRefresh();
   }, []);
 
+  const filterUsers = async (query) => {
+    setLoading(true);
+    /*let templateFilters = {
+        state: []
+    };
+    if (query.state) {
+        const state = query.state.filter((s) => s.isChecked);
+        if (state.length > 0) {
+            state.forEach((st) => {
+                if (st.isChecked) {
+                    templateFilters.state.push(st.name.toLowerCase());
+                }
+            })
+        }
+    }
+    const idLS = await app.getId();
+    const tokenLS = await app.getToken();
+    await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, templateFilters, handleResponseGetAllExams);
+    */setLoading(false);
+  }
+
   return (
-    <View style={styles.cardWrapper}>
-      {param_filter && (
+    <ScrollView style={styles.cardWrapper}>
+      {loading && (
+        <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+      )}
+      {!loading && view_as === 'student' && studentsData.length > 0 && loadedData && (
         <>
-          {/* <MultiSelect
-            hideTags
-            items={categories}
-            uniqueKey="id"
-            onSelectedItemsChange={onSelectedItemsChange}
-            selectedItems={selectedItems}
-            selectText="Search students with filter"
-            searchInputPlaceholderText="Select some filters..."
-            onChangeInput={(text) => console.log(text)}
-            tagRemoveIconColor="#CCC"
-            tagBorderColor="#CCC"
-            tagTextColor="#CCC"
-            selectedItemTextColor="#CCC"
-            selectedItemIconColor="#CCC"
-            itemTextColor="#000"
-            displayKey="name"
-            styleMainWrapper={styles.inputMultiSelect}
-            searchInputStyle={{color: '#CCC'}}
-            submitButtonColor="#48d22b"
-            submitButtonText="Submit"
-          /> */}
+          {studentsData.map(item => (
+            <ProfilesListComponent 
+              item={item}
+              navigation={props.navigation}
+            />
+          ))}
         </>
       )}
-      {studentsData.map(item => (
-        <ProfilesListComponent 
-        item={item}
-        navigation={props.navigation}/>
-      ))}
-    </View>
+      {!loading && view_as !== 'student' && loadedData && (
+        <>
+          {studentsData.length === 0 ? (
+            <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+              <Text style={styles.examsText}>Oops.. could not find any students in this course</Text>
+            </View>
+          ) : (
+            <>
+              <View>
+                <TouchableOpacity
+                    onPress={() => { setFiltersVisible(!filtersVisible) }}
+                    style={{ display:'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10, marginTop: 10 }}
+                >
+                    <Feather name="filter" color={"#444"} size={18} />
+                    <Text>Filters</Text>
+                </TouchableOpacity>
+              </View>
+              {filtersVisible && (
+                  <UsersFilterComponent updateUsers={filterUsers} />
+              )}
+              {studentsData.map(item => (
+                <ProfilesListComponent 
+                  item={item}
+                  navigation={props.navigation}
+                />
+              ))}
+            </>
+          )}
+        </>
+      )}
+    </ScrollView>
   );
 }
 

@@ -81,6 +81,9 @@ const handleGetAllUsersInCourse = async (response) => {
         </>
       )}
       <ScrollView>
+      {studentsData.length === 0 && (
+          <Text style={styles.listText}>This course doesn't have students.</Text>
+      )}
       {studentsData.map(item => (
         <ProfilesListComponent 
         item={item}
@@ -98,6 +101,13 @@ const styles = StyleSheet.create({
   cardWrapper: {
     paddingHorizontal: 20,
   },
+  listText: {
+    marginTop: 15,
+    fontWeight: '300',
+    fontSize: 16,
+    paddingBottom: 5,
+    marginLeft: 5,
+},
   profilesCardWrapper: {
     backgroundColor: 'white',
     borderRadius: 25,

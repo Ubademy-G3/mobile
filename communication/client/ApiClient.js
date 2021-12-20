@@ -50,6 +50,7 @@ import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseI
 import { UpdateUserFromCourseEndpoint } from "../endpoints/UpdateUserFromCourseEndpoint.js";
 import { GetAllUsersFromListEndpoint } from "../endpoints/GetAllUsersFromListEndpoint";
 import { GetFavoriteCoursesByUserEndpoint } from "../endpoints/GetFavoriteCoursesByUserEndpoint.js";
+import { GetSolvedExamsByUserFromCourseEndpoint } from "../endpoints/GetSolvedExamsByUserFromCourseEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -437,6 +438,14 @@ class ApiClient {
     getSolvedExamsByUser(data, id, params, onResponse) {
         return this._requester.call({
             endpoint: new GetSolvedExamsByUserEndpoint(id, params),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getSolvedExamsByUserFromCourse(data, courseId, userId, params, onResponse) {
+        return this._requester.call({
+            endpoint: new GetSolvedExamsByUserFromCourseEndpoint(courseId, userId, params),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         })

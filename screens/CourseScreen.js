@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -115,7 +115,7 @@ const CourseScreen = (props) => {
             if(response.content().message === "Can't subscribe user because of subscription type") {
                 Alert.alert(
                     "Subscription error:",
-                    `You can't subscribe to a ${item.subscription_type} course with subscription type: ${subscriptionType}`,
+                    `You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`,
                     [
                       { text: "OK", onPress: () => {} }
                     ]

@@ -8,10 +8,13 @@ import { Video } from 'expo-av';
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from '../firebase';
 import { ActivityIndicator } from 'react-native-paper';
+import SelectDropdown from 'react-native-select-dropdown';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
+
+const levels = ["easy", "medium", "hard"];
 
 const EditModulesScreen = (props) => {
     const param_course = props.route.params.course;
@@ -210,6 +213,10 @@ const EditModulesScreen = (props) => {
                 name: course.name,
                 description: course.description,
                 profile_picture: course.profile_picture,
+                location: course.location,
+                duration: course.duration,
+                lenguage: course.lenguage,
+                level: course.level,
             }, param_course.id, handleUpdateCourse);
     }
 
@@ -220,6 +227,7 @@ const EditModulesScreen = (props) => {
         await app.apiClient().getAllModules({ token: tokenLS }, param_course.id, handleGetModules);
         console.log("MODULES SALE BIEN")
         await app.apiClient().getAllMedia({ token: tokenLS }, param_course.id, handleGetMedia);
+        console.log("COURSESS", course);
         setLoading(false);
     };
 
@@ -353,7 +361,15 @@ const EditModulesScreen = (props) => {
                                 onPress={() => {choosePhotoFromLibrary()}}
                                 disabled={loading}
                             >
-                                <Image source={{uri: param_course.profile_picture}} style={styles.titlesImage} />
+                                <View style={{ display:'flex', flexDirection: 'row' }}>
+                                    <Image source={{uri: param_course.profile_picture}} style={styles.titlesImage} />
+                                    <MaterialCommunityIcons
+                                        name="camera-outline"
+                                        size={25}
+                                        color={'grey'}
+                                        style={{position: 'absolute', right: -8, bottom: 0,}}
+                                    />
+                                </View>
                             </TouchableOpacity>
                             <View style={styles.inputContainer}>
                                 <Text style={styles.inputText}>Course Name</Text>
@@ -376,6 +392,53 @@ const EditModulesScreen = (props) => {
                                     })}
                                     value={course.description}
                                     style={styles.inputCourse}
+                                />
+                                <Text style={styles.inputText}>Location</Text>
+                                <TextInput
+                                    placeholder={course.location}
+                                    onChangeText={text => setCourse({
+                                        ...course,
+                                        location: text,
+                                    })}
+                                    value={course.location}
+                                    style={styles.inputCourse}
+                                />
+                                <Text style={styles.inputText}>Duration</Text>
+                                <TextInput
+                                    placeholder={`${course.duration}`}
+                                    onChangeText={text => setCourse({
+                                        ...course,
+                                        duration: text.replace(/[^0-9]/g, ''),
+                                    })}
+                                    value={`${course.duration}`}
+                                    style={styles.inputCourse}
+                                />
+                                <Text style={styles.inputText}>Language</Text>
+                                <TextInput
+                                    placeholder={course.language}
+                                    onChangeText={text => setCourse({
+                                        ...course,
+                                        language: text,
+                                    })}
+                                    value={course.language}
+                                    style={styles.inputCourse}
+                                />
+                                <Text style={styles.inputText}>Level</Text>
+                                <SelectDropdown
+                                    data={levels}
+                                    onSelect={(selectedItem, index) => setCourse({
+                                        ...course,
+                                        level: selectedItem,
+                                    })}
+                                    value={course.level}
+                                    defaultButtonText={"Select a level type"}
+                                    buttonStyle={styles.buttonDropdown}
+                                    buttonTextStyle={styles.textDropdown}
+                                    renderDropdownIcon={() => {
+                                        return (
+                                        <Feather name="chevron-down" color={"#444"} size={18} />
+                                        );
+                                    }}
                                 />
                             </View>
                             <TouchableOpacity

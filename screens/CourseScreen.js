@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal, Pressable } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -17,6 +17,7 @@ MaterialIcons.loadFont();
 const CourseScreen = (props) => {
     const { item } = props.route.params;
     const [loading, setLoading] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
     const [subscribed, setSubscribed] = useState(false);
     const [favorited, setFavorited] = useState(false);
     const [rating, setRating] = useState({});
@@ -113,13 +114,14 @@ const CourseScreen = (props) => {
             setSubscribed(true);
         } else {
             if(response.content().message === "Can't subscribe user because of subscription type") {
-                Alert.alert(
+                setModalVisible(true);
+                /* Alert.alert(
                     "Subscription error:",
-                    `You can't subscribe to a ${item.subscription_type} course with subscription type: ${subscriptionType}`,
+                    `You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`,
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             }
             console.log("[Course screen] error", response.content().message);
         }
@@ -294,6 +296,38 @@ const CourseScreen = (props) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                    /* Alert.alert("Modal has been closed."); */
+                    setModalVisible(!modalVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Subscription error:</Text>
+                            </View>
+                            <Text style={styles.modalText}>You can't subscribe to a {item.subscription_type} course with subscription type {subscriptionType}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalVisible(!modalVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <ScrollView>
                 {loading && (
                     <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
@@ -337,12 +371,13 @@ const CourseScreen = (props) => {
                                 </View>
                             </View>
                         </View>
-                        {/* <View
+                        <View
                             style={{
                                 borderBottomColor: 'grey',
                                 borderBottomWidth: 0.5,
+                                marginBottom: 5
                             }}
-                        /> */}
+                        />
                         {!subscribed && (
                             <TouchableOpacity
                                 onPress={() => {
@@ -351,9 +386,10 @@ const CourseScreen = (props) => {
                                     filter: false,
                                     view_as: rol
                                 });}}
-                                style={[styles.fadedButton]}
+                                style={{flexDirection: 'row', alignItems: 'center'}}
                             >
-                                <Text style={styles.buttonFadedText}>Student List</Text>
+                                <Image source={require("../assets/images/studentsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                                <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Students</Text>
                             </TouchableOpacity>
                         )}
                         {subscribed && (
@@ -687,6 +723,45 @@ const styles = new StyleSheet.create({
     moduleTitle: {
         fontWeight: '600',
         fontSize: 18
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     }
 });
 

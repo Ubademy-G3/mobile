@@ -1,6 +1,5 @@
-import React, {Component, useEffect, useState, useCallback} from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
+import React, { useEffect, useState } from 'react';
+import { Image, StyleSheet, Text,View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../app/app';

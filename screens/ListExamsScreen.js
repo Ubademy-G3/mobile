@@ -42,7 +42,7 @@ const ListExamsScreen = (props) => {
                     {!loading && (
                         <View style={styles.coursesCardWrapper}>
                             {exams.length === 0 && (
-                                <Text style={styles.examsText}>This course doesn't have exams</Text>
+                                <Text style={styles.examsText}>This course doesn't have exams.</Text>
                             )}
                             {exams.map(item_exam => (
                                 <View key={item_exam.id}>
@@ -82,7 +82,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    courseText: {
+    examsText: {
         marginTop: 15,
         fontWeight: '300',
         fontSize: 16,

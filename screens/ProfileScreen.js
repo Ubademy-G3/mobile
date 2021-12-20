@@ -20,8 +20,8 @@ const ProfileScreen = (props) => {
     const [courses, setCourses] = useState([]);  
     
     const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
+        firstName: "",
+        lastName: "",
         location: "",
         profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "",
@@ -63,13 +63,12 @@ const ProfileScreen = (props) => {
     }
 
     const handleGetCoursesByUser = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
+        console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let course of response.content().courses){
                 await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
             }
-            //console.log("[Profile screen] response: ", courses);
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -88,11 +87,6 @@ const ProfileScreen = (props) => {
                 favoriteCourses: response.content().favoriteCourses,
                 rol: response.content().rol,
             });
-            // let tokenLS = await app.getToken();
-            // for (let id of response.content().interests) {
-            //     console.log("[Profile screen] interests id:", id);
-            //     await app.apiClient().getCategoryById({token: tokenLS}, id, handleResponseGetCategory);
-            // }
             await Promise.all(
                 response.content().favoriteCourses.map(async (courseId) => {
                     return await app.apiClient().getCourseById({ token: tokenLS }, courseId, handleFavoriteCourseResponse);
@@ -113,6 +107,9 @@ const ProfileScreen = (props) => {
             console.log("[Anothers Profile screen] entro a updating categories"); 
             onRefreshCategories();            
         }
+        if(userData.rol !== ""){
+            await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
+        }
     }, [userData]);
     
     const onRefresh = async () => {
@@ -120,7 +117,6 @@ const ProfileScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };
 

@@ -14,7 +14,7 @@ MaterialIcons.loadFont();
 
 const ListStudentScreen = (props) => {
   const param_id = props.route.params.course_id;
-  const view_as = props.route.params.rol;
+  const view_as = props.route.params.view_as;
 
   const [loading, setLoading] = useState(false); 
   const [studentsData, setStudentsData] = useState([]);
@@ -24,7 +24,6 @@ const ListStudentScreen = (props) => {
   const handleApiResponseProfile = (response) => {
     console.log("[ListStudent Screen] content: ", response.content())
     if (!response.hasError()) {
-      console.log("RESPONSE PROFILE")
       setStudentsData(studentsData => [...studentsData, response.content()]);
     } else {
       console.log("[ListStudent Screen] error", response.content().message);
@@ -56,28 +55,39 @@ const ListStudentScreen = (props) => {
 
   useEffect(() => {
       console.log("[Student screen] entro a useEffect");
+      setStudentsData([]);
       onRefresh();
   }, []);
 
   const filterUsers = async (query) => {
     setLoading(true);
-    /*let templateFilters = {
-        state: []
+    let filters = {
+        user_type: 'student'
     };
-    if (query.state) {
-        const state = query.state.filter((s) => s.isChecked);
-        if (state.length > 0) {
-            state.forEach((st) => {
+    if (query.approved) {
+        const approved = query.approved.filter((s) => s.isChecked);
+        if (approved.length > 0) {
+            approved.forEach((st) => {
                 if (st.isChecked) {
-                    templateFilters.state.push(st.name.toLowerCase());
+                  filters.approval_state = st.value;
                 }
             })
         }
     }
-    const idLS = await app.getId();
+    if (query.progress) {
+      const progress = query.progress.filter((s) => s.isChecked);
+      if (progress.length > 0) {
+        progress.forEach((st) => {
+            if (st.isChecked) {
+              filters.progress = st.value;
+            }
+        })
+      }
+    }
     const tokenLS = await app.getToken();
-    await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, templateFilters, handleResponseGetAllExams);
-    */setLoading(false);
+    setStudentsData([]);
+    await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, filters, handleGetAllUsersInCourse);
+    setLoading(false);
   }
 
   return (

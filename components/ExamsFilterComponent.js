@@ -24,24 +24,24 @@ const data = {
     ],
     graded: [
         {
-            id: 0,
+            id: '0',
             name: 'Graded',
             isChecked: false
         },
         {
-            id: 1,
+            id: '1',
             name: 'Not yet graded',
             isChecked: false
         }
     ],
     approval: [
         {
-            id: 0,
+            id: '0',
             name: 'Passed',
             isChecked: false
         },
         {
-            id: 1,
+            id: '1',
             name: 'Failed',
             isChecked: false
         }

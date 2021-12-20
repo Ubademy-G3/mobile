@@ -8,22 +8,26 @@ const data = {
     progress: [
         {
             id: '0',
-            name: '0-25%',
+            name: '0%',
+            value: '0',
             isChecked: false
         },
         {
             id: '1',
-            name: '25-50%',
+            name: '25%',
+            value: '25',
             isChecked: false
         },
         {
             id: '2',
-            name: '50-75%',
+            name: '50%',
+            value: '50',
             isChecked: false
         },
         {
             id: '3',
-            name: '75-100%',
+            name: '75%',
+            value: '75',
             isChecked: false
         }
     ],
@@ -31,11 +35,13 @@ const data = {
         {
             id: '0',
             name: 'Passed',
+            value: true,
             isChecked: false
         },
         {
             id: '1',
-            name: 'Failed',
+            name: 'Not approved',
+            value: false,
             isChecked: false
         }
     ]
@@ -65,7 +71,7 @@ const UsersFilterComponent = (props) => {
                 return;
             }
         }
-        let temp = state.map((s) => {
+        let temp = progress.map((s) => {
             if (item.id === s.id) {
               return { ...s, isChecked: !s.isChecked };
             }
@@ -118,7 +124,7 @@ const UsersFilterComponent = (props) => {
             <View style={styles.dialog}>
                 <>
                     <View>
-                        <Text style={styles.title}>Progress</Text>
+                        <Text style={styles.title}>{`Progress \ngreater than`}</Text>
                         <FlatList
                             data={progress}
                             renderItem={renderProgressItem}
@@ -126,7 +132,7 @@ const UsersFilterComponent = (props) => {
                         />
                     </View>
                     <View>
-                        <Text style={styles.title}>Approval</Text>
+                        <Text style={styles.title}>{`Approval\n`}</Text>
                         <FlatList
                             data={approved}
                             renderItem={renderApprovedItem}

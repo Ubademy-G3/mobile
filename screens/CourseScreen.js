@@ -337,12 +337,13 @@ const CourseScreen = (props) => {
                                 </View>
                             </View>
                         </View>
-                        {/* <View
+                        <View
                             style={{
                                 borderBottomColor: 'grey',
                                 borderBottomWidth: 0.5,
+                                marginBottom: 5
                             }}
-                        /> */}
+                        />
                         {!subscribed && (
                             <TouchableOpacity
                                 onPress={() => {
@@ -351,9 +352,10 @@ const CourseScreen = (props) => {
                                     filter: false,
                                     view_as: rol
                                 });}}
-                                style={[styles.fadedButton]}
+                                style={{flexDirection: 'row', alignItems: 'center'}}
                             >
-                                <Text style={styles.buttonFadedText}>Student List</Text>
+                                <Image source={require("../assets/images/studentsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                                <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Students</Text>
                             </TouchableOpacity>
                         )}
                         {subscribed && (

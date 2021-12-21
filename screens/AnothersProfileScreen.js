@@ -17,11 +17,11 @@ const AnothersProfileScreen = (props) => {
     const [categories, setCategories] = useState([]);
     const [userData, setData] = useState({
         id: 0,
-        firstName: "Name",
-        lastName: "Last name",
+        firstName: "",
+        lastName: "",
         location: "",
         profilePictureUrl: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        description: "",
         interests: [],
         rol: "",
     });

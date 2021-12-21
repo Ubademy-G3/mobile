@@ -49,6 +49,7 @@ import { GetAllModulesByCourseIdEndpoint } from "../endpoints/GetAllModulesByCou
 import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseIdEndpoint";
 import { UpdateUserFromCourseEndpoint } from "../endpoints/UpdateUserFromCourseEndpoint.js";
 import { GetAllUsersFromListEndpoint } from "../endpoints/GetAllUsersFromListEndpoint";
+import { GetAllCoursesFromListEndpoint } from "../endpoints/GetAllCoursesFromListEndpoint";
 import { GetFavoriteCoursesByUserEndpoint } from "../endpoints/GetFavoriteCoursesByUserEndpoint.js";
 import { GetSolvedExamsByUserFromCourseEndpoint } from "../endpoints/GetSolvedExamsByUserFromCourseEndpoint.js";
 
@@ -478,6 +479,14 @@ class ApiClient {
     getAllUsersFromList(data, ids, onResponse) {
         return this._requester.call({
             endpoint: new GetAllUsersFromListEndpoint(ids),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllCoursesFromList(data, ids, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesFromListEndpoint(ids),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         })

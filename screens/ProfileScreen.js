@@ -20,8 +20,8 @@ const ProfileScreen = (props) => {
     const [courses, setCourses] = useState([]);  
     
     const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
+        firstName: "",
+        lastName: "",
         location: "",
         profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "",
@@ -32,25 +32,6 @@ const ProfileScreen = (props) => {
     const [categories, setCategories] = useState([]);
 
     const [favCourses, setFavCourses] = useState([]);
-
-    const handleCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    }
-
-    /* const handleFavoriteCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
-        if (!response.hasError()) {
-            console.log(response.content())
-            setFavCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    } */
 
     const handleGetFavoriteCourses = (response) => {
         console.log("[Menu Favorite Courses Screen] content: ", response.content())
@@ -71,14 +52,24 @@ const ProfileScreen = (props) => {
         }
     }
 
+    const handleGetCoursesFromList = (response) => {
+        console.log("[Profile Screen] get courses from list: ", response.content())
+        if (!response.hasError()) {
+            setCourses(response.content().courses);
+        } else {
+            console.log("[Profile Screen] error", response.content().message);
+        }
+    }
+
     const handleGetCoursesByUser = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
+        console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
+            const courses_list = [];
+            for (let course of response.content().courses){
+                courses_list.push(course.course_id);
             }
-            //console.log("[Profile screen] response: ", courses);
+            await app.apiClient().getAllCoursesFromList({token: tokenLS}, courses_list, handleGetCoursesFromList)
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -107,11 +98,20 @@ const ProfileScreen = (props) => {
         await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
     }
 
+    const auxGetCourses = async () => {
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {user_type: userData.rol}, handleGetCoursesByUser);
+    }
+
     useEffect(() => {
         if (userData.interests.length > 0) {
             console.log("[Anothers Profile screen] entro a updating categories"); 
             onRefreshCategories();            
         }
+        if(userData.rol !== ""){
+            auxGetCourses();
+        }
+        setLoading(false);
     }, [userData]);
     
     const onRefresh = async () => {
@@ -121,8 +121,7 @@ const ProfileScreen = (props) => {
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
-        setLoading(false);
+        
     };
 
     useEffect(() => {

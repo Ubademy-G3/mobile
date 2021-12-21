@@ -9,6 +9,7 @@ class Requester {
 
     call({endpoint, onResponse, data = undefined}) {
         let has_error = false;
+        let status_error = 0;
         const request = this._buildRequest(endpoint, data);
         let url = endpoint.url();
         /*if (endpoint.method() === 'GET' && data) {
@@ -23,13 +24,14 @@ class Requester {
                 if (!((result.status === 200) || (result.status === 201))) {
                     console.log("[function] entro a status error: ", has_error);
                     has_error = true;
+                    status_error = result.status;
                     console.log("[function] dalgo de status error: ", has_error);
                 }
                 return result.json();
             })
             .then(jsonResponse => {
                 return onResponse(
-                    this._buildResponse(jsonResponse, endpoint, has_error));
+                    this._buildResponse(jsonResponse, endpoint, has_error, status_error));
             })
             /***
              * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
@@ -60,9 +62,10 @@ class Requester {
         return requestOptions;
     }
 
-    _buildResponse(jsonResponse, endpoint, has_error) {
+    _buildResponse(jsonResponse, endpoint, has_error, status_error) {
         console.log("mensaje crudo:", jsonResponse);
         jsonResponse.error = has_error;
+        jsonResponse.status = status_error;
         let endpointResponse;
         const availableResponsesForEndpoint = endpoint.responses();
         for (let responseType of availableResponsesForEndpoint) {

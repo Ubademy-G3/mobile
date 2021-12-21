@@ -1,13 +1,15 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import MultiSelect from 'react-native-multiple-select';
 import { ScrollView } from 'react-native-gesture-handler';
 
 Feather.loadFont();
+MaterialCommunityIcons.loadFont();
 
 const rols = ["student", "instructor"];
 // const subscriptions = ["free", "platinum", "gold"];
@@ -41,13 +43,14 @@ const SignupScreen = (props) => {
         messageError: '',
         showError: false,
     });
-
     const [loading, setLoading] = useState(false);
-
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState({
+        title: "",
+        body: "",
+    });
     const [selectInterets, setSelectInterets] = useState(false);
-
     const [categories, setCategories] = useState([]);
-
     const [selectedItems, setSelectedItems] = useState([]);
 
     const handleApiResponseGetCategories = (response) => {
@@ -62,14 +65,16 @@ const SignupScreen = (props) => {
     const handleApiResponseLogin = async (response) => {
         console.log("[Signup screen] entro a handle api response:", response.content());
         if (response.hasError()) {
-            console.log("[Signup screen] error")
-            Alert.alert(
+            console.log("[Signup screen] error");
+            setModalErrorText({ title: "Login error:", body: response.content().message});
+            setModalErrorVisible(true);
+            /* Alert.alert(
                 "Login error:",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-              );
+              ); */
         } else {
             await app.loginUser(response.content().token, response.content().id);
             console.log("[Signup screen] token: ", response.content().token);
@@ -114,13 +119,15 @@ const SignupScreen = (props) => {
             });
             console.log("[Signup screen] error")
             console.log("[Signup screen] show error: ", errorData.showError);
-            Alert.alert(
+            setModalErrorText({ title: "Signup error:", body: response.content().message});
+            setModalErrorVisible(true);
+            /* Alert.alert(
                 "Signup error:",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-              );
+              ); */
         } else {
             console.log("[Signup screen] done signup")
             setError({
@@ -228,6 +235,37 @@ const SignupScreen = (props) => {
     
     return (
         <View>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>{modalErrorText.title}</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText.body}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <SafeAreaView>
                 <View style={styles.headerWrapper}>
                     <Image
@@ -449,6 +487,49 @@ const styles = StyleSheet.create({
         fontSize: 16,
         //paddingVertical: 5,
         paddingTop:10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 })
 

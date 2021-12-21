@@ -3,7 +3,7 @@ import {Endpoint} from "./Endpoint.js";
 
 export class GetAllCoursesEndpoint extends Endpoint {
     url() {
-        return `/courses`
+        return `/courses/rated`
     }
 
     /*ownResponses() {

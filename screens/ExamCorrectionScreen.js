@@ -85,7 +85,7 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        console.log("[Exam Correction screen] get solved exams: ", response.content())
+        console.log("[Exam Correction screen] get profile: ", response.content())
         if (!response.hasError()) {
             setUsername(`${response.content().firstName} ${response.content().lastName}`);
         } else {
@@ -204,7 +204,7 @@ const ExamCorrectionScreen = (props) => {
         let tokenLS = await app.getToken();
         await app.apiClient().updateSolution({token: tokenLS, graded: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
         setSolution({...solution, graded: true});
-        await app.apiClient().getSolvedExamsByUserFromCourse({token: tokenLS}, solution.user_id, solution.course_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
+        await app.apiClient().getSolvedExamsByUserFromCourse({token: tokenLS}, solution.course_id, solution.user_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
     }
 
     const getQuestions = async () => {

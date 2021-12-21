@@ -1,5 +1,5 @@
 import React, { Component, useEffect, useState, useCallback, useRef } from 'react';
-import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
+import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
 import { app } from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
@@ -25,9 +25,12 @@ const LoginScreen = (props) => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState("");
+    const [modalAttentionVisible, setModalAttentionVisible] = useState(false);
+    const [modalAttentionText, setModalAttentionText] = useState("");
     const [login, setLogin] = useState(false);
     const [restorePassword, setRestorePassword] = useState(false);
-    //const [signupGoogle, setsignupGoogle] = useState(false);
     const mounted = useRef(false);
 
     const handleApiResponseLogin = async (response) => {
@@ -35,7 +38,6 @@ const LoginScreen = (props) => {
         console.log("[Login screen] has errors: ", response.hasError())
         console.log("[Login screen] error message: ", response.content().message)
         if (response.hasError()) {
-            //console.log("SIGNUPGOOGLE", signupGoogle);
             if (response.content().message === "User not found" &&
             data.loginType === "google"){
                 props.navigation.replace('Signup', {
@@ -50,37 +52,38 @@ const LoginScreen = (props) => {
                     messageError: response.content().message,
                     showError: true,
                 });
-                console.log("[Login screen] error massage: ", response.content().message)
-            
-                Alert.alert(
+                console.log("[Login screen] error message: ", response.content().message);
+                setModalErrorText(response.content().message);
+                /* Alert.alert(
                     "Error:",
                     response.content().message,
                     [
                     { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             }
         } else {
             console.log("[Login screen] response: ", response.content());
             console.log("[Login screen] id: ", response.content().id);
             console.log("[Login screen] token: ", response.content().token);
             if (response.content().subscriptionState === "about_to_expire") {
-                Alert.alert(
+                setModalAttentionText("Your subscription is going to expire in 5 days, remember to renew it.");
+                /* Alert.alert(
                     "Reminder:",
                     "Your subscription is going to expire in 5 days, remember to renew it.",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             } else if (response.content().subscriptionState === "expired") {
-                //funcion que updeatea la subscripcion a free?
-                Alert.alert(
+                setModalAttentionText("Your subscription expired, your subscription is now free.");
+                /* Alert.alert(
                     "Attention:",
                     "Your subscription expired, your subscription is now free.",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             }
             await app.loginUser(response.content().token, response.content().id);
             props.navigation.replace('TabNavigator', {
@@ -119,23 +122,25 @@ const LoginScreen = (props) => {
                 messageError: response.content().message,
                 showError: true,
             });
-            console.log("[Login screen] error message: ", response.content().message)
-            Alert.alert(
+            console.log("[Login screen] error message: ", response.content().message);
+            setModalErrorText(response.content().message);
+            /* Alert.alert(
                 "Error:",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-              );
+              ); */
         } else {
             console.log("[Login screen] response: ", response.content())
-            Alert.alert(
+            setModalErrorText("An email has been sent to your account.");
+            /* Alert.alert(
                 "Attention:",
                 "An email has been sent to your account.",
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-              );
+              ); */
         }
     }
 
@@ -196,13 +201,23 @@ const LoginScreen = (props) => {
     }, [callback])
 
     useEffect(() => {
-        console.log("ENTRO A USE EFFECT DATA.EMAIL")
         if (data.loginType === "google") {
             setLogin(true);
         }
     }, [data.email])
 
-    
+    useEffect(() => {
+        if (modalErrorText !== "") {
+            setModalErrorVisible(true);
+        }
+    }, [modalErrorText])
+
+    useEffect(() => {
+        if (modalAttentionText !== "") {
+            setModalAttentionVisible(true);
+        }
+    }, [modalAttentionText])
+
     useEffect(() => {
         mounted.current = true;
         callbackLogin();
@@ -213,6 +228,68 @@ const LoginScreen = (props) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Login Error:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalAttentionVisible}
+                    onRequestClose={() => {
+                    setModalAttentionVisible(!modalAttentionVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="alert-circle-outline"
+                                    size={30}
+                                    color={"#87ceeb"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Attention:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalAttentionText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonAttention]}
+                            onPress={() => setModalAttentionVisible(!modalAttentionVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <SafeAreaView>
                 <View style={styles.headerWrapper}>
                     <Image
@@ -385,6 +462,42 @@ const styles = StyleSheet.create({
         fontSize: 16,
         //textDecorationLine: 'underline',
     },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    }
 })
 
 export default LoginScreen;

@@ -77,7 +77,7 @@ const LoginScreen = (props) => {
             console.log("[Login screen] id: ", response.content().id);
             console.log("[Login screen] token: ", response.content().token);
             if (response.content().subscriptionState === "about_to_expire") {
-                setModalAttentionText("Your subscription is going to expire in 5 days, remember to renew it.");
+                setModalAttentionText("Your subscription is about to expire, remember to renew it.");
                 setModalAttentionVisible(true);
                 setToken(response.content().token);
                 setId(response.content().id);

@@ -300,8 +300,8 @@ const CreateExamScreen = (props) => {
     }, []); */
 
     return (
-        <View style={styles.container}>
-            <View style={styles.centeredView}>
+        <View style={styles.centeredView}>
+            {modalVisible && (
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -333,7 +333,7 @@ const CreateExamScreen = (props) => {
                         </View>
                     </View>
                 </Modal>
-            </View>
+            )}
             <ScrollView style={styles.inputsContainer}>
                 <KeyboardAvoidingView
                     style={styles.containerWrapper}
@@ -869,7 +869,12 @@ const styles = StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    }
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
 })
 
 export default CreateExamScreen;

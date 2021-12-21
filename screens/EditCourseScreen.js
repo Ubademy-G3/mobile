@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, TextInput } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, Pressable, TextInput } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
@@ -13,15 +13,13 @@ const EditCourseScreen = (props) => {
     const { item } = props.route.params;
 
     const [loading, setLoading] = useState(false);
-
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
     const [rating, setRating] = useState({});
-
     const [rol, setRol] = useState("");
-
     const [addCollaborator, setAddCollaborator] = useState(false);
-
     const [removeCollaborator, setRemoveCollaborator] = useState(false);
-
     const [collaboratorsData, setCollaboratorsData] = useState([]);
 
     const [email, setEmail] = useState("");
@@ -70,22 +68,25 @@ const EditCourseScreen = (props) => {
     const handleResponseSubscribeToCourse = (response) => {
         console.log("[Edit Course screen] subscribe to course: ", response.content())
         if (!response.hasError()) {
-            Alert.alert(
+            setModalSuccessVisible(true);
+            /* Alert.alert(
                 "Successful:",
                 "Collaborator's updated in course",
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-            );
+            ); */
         } else {
             if (response.content().message == "Course already acquired by this user") {
-                Alert.alert(
+                setModalErrorText("User is subscribe to this course. Unable to make this user a collaborator");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error: User is subscribe to this course",
                     "Unable to make this user a collaborator",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             }
             console.log("[Edit Course screen] error", response.content().message);
         }        
@@ -102,13 +103,15 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert(
+                setModalErrorText("Unable to find a user with given email");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                )
+                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -126,13 +129,15 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, response.content()[0].id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert(
+                setModalErrorText("Unable to find a user with given email");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                )
+                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -185,179 +190,209 @@ const EditCourseScreen = (props) => {
     }, [addCollaborator,removeCollaborator]);
 
     return (
-        <>
-            <View style={styles.centeredView}>
-                    <Modal
-                        animationType="slide"
-                        transparent={true}
-                        visible={modalVisible}
-                        onRequestClose={() => {
-                        setModalVisible(!modalVisible);
-                        }}
-                    >
-                        <View style={styles.centeredView}>
-                            <View style={styles.modalView}>
-                                <View style={{ display:'flex', flexDirection: 'row' }}>
-                                    <MaterialCommunityIcons
-                                        name="close-circle-outline"
-                                        size={30}
-                                        color={"#ff6347"}
-                                        style={{ position: 'absolute', top: -6, left: -35}}
-                                    />
-                                    <Text style={styles.modalText}>Subscription error:</Text>
-                                </View>
-                                <Text style={styles.modalText}>You can't subscribe to a {item.subscription_type} course with subscription type {subscriptionType}</Text>
-                                <Pressable
-                                style={[styles.buttonModal, styles.buttonClose]}
-                                onPress={() => setModalVisible(!modalVisible)}
-                                >
-                                    <Text style={styles.textStyle}>Ok</Text>
-                                </Pressable>
-                            </View>
-                        </View>
-                    </Modal>
-                </View>
-            <View style={styles.container}>
-                <ScrollView>
-                    <View style={styles.titlesWrapper}>
-                        <View>
-                            <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
-                        </View>
-                        <View style={styles.titleWrapper}>
-                            <Text style={styles.titlesTitle}>{item.name}</Text>
+        <View style={styles.centeredView}>
+            {modalSuccessVisible || modalErrorVisible && (
+                <>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
-                                <StarRating
-                                    disabled={true}
-                                    maxStars={5}
-                                    rating={rating.rating}
-                                    containerStyle={{ width: '30%'}}
-                                    starSize={20}
-                                    fullStarColor='gold'
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
                                 />
-                                <Text style={{ position: 'absolute', left: 100, top: 0, fontSize: 16 }}>{`(${rating.amount})`}</Text>
+                                <Text style={styles.modalText}>Error:</Text>
                             </View>
-                        </View>
-                    </View>
-                    <View style={styles.descriptionWrapper}>
-                        <Text style={styles.description}>{item.description}</Text>
-                    </View>
-                    <View style={styles.buttonsWrapper}>
-                        {rol === "instructor" && (
-                            <>
-                            <View style={styles.buttonsContainer}>
-                                <TouchableOpacity
-                                    onPress={() => {handleSubmitAddCollaborator()}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="account-plus-outline"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                    {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {handleSubmitRemoveCollaborator()}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="account-remove-outline"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                    {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {props.navigation.navigate('Edit Modules', {
-                                        course: item,
-                                        })}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="pencil"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                    {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={() => {props.navigation.navigate('Course Metrics', {
-                                        id: item.id,
-                                        })}}
-                                    style={styles.buttonIcon}
-                                >
-                                    <MaterialCommunityIcons
-                                        name="chart-bar"
-                                        size={25}
-                                        color={'black'}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-                            </>
-                        )}
-                    </View>
-                    {addCollaborator && (
-                        <>
-                        <View style={styles.searchWrapper}>
-                            <Feather name="search" size={16}/>
-                            <View style={styles.search}>
-                                <TextInput 
-                                placeholder="Search collaborator by email"
-                                onChangeText={text => {setEmail(text)}}
-                                //value={}
-                                style={styles.searchText}
-                                />
-                            </View>              
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity
-                                onPress={() => {addNewCollaborator()}}
-                                style={styles.button}
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
                             >
-                                <Text style={styles.buttonText}>Search</Text>
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Success:</Text>
+                            </View>
+                            <Text style={styles.modalText}>Collaborator's updated in course</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </>
+            )}
+            <ScrollView>
+                <View style={styles.titlesWrapper}>
+                    <View>
+                        <Image source={{uri: item.profile_picture}} style={styles.titlesImage} />
+                    </View>
+                    <View style={styles.titleWrapper}>
+                        <Text style={styles.titlesTitle}>{item.name}</Text>
+                        <View style={{ display:'flex', flexDirection: 'row' }}>
+                            <StarRating
+                                disabled={true}
+                                maxStars={5}
+                                rating={rating.rating}
+                                containerStyle={{ width: '30%'}}
+                                starSize={20}
+                                fullStarColor='gold'
+                            />
+                            <Text style={{ position: 'absolute', left: 100, top: 0, fontSize: 16 }}>{`(${rating.amount})`}</Text>
+                        </View>
+                    </View>
+                </View>
+                <View style={styles.descriptionWrapper}>
+                    <Text style={styles.description}>{item.description}</Text>
+                </View>
+                <View style={styles.buttonsWrapper}>
+                    {rol === "instructor" && (
+                        <>
+                        <View style={styles.buttonsContainer}>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitAddCollaborator()}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="account-plus-outline"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {handleSubmitRemoveCollaborator()}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="account-remove-outline"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {props.navigation.navigate('Edit Modules', {
+                                    course: item,
+                                    })}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="pencil"
+                                    size={25}
+                                    color={'black'}
+                                />
+                                {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => {props.navigation.navigate('Course Metrics', {
+                                    id: item.id,
+                                    })}}
+                                style={styles.buttonIcon}
+                            >
+                                <MaterialCommunityIcons
+                                    name="chart-bar"
+                                    size={25}
+                                    color={'black'}
+                                />
                             </TouchableOpacity>
                         </View>
                         </>
                     )}
-                    {removeCollaborator && (
-                        <>
-                        <View style={styles.searchWrapper}>
-                            <Feather name="search" size={16}/>
-                            <View style={styles.search}>
-                                <TextInput 
-                                placeholder="Search collaborator by email"
-                                onChangeText={text => {setEmail(text)}}
-                                //value={}
-                                style={styles.searchText}
-                                />
-                            </View>              
-                        </View>
-                        <View style={styles.buttonContainer}>
-                            <TouchableOpacity
-                                onPress={() => {removeNewCollaborator()}}
-                                style={styles.button}
-                            >
-                                <Text style={styles.buttonText}>Search</Text>
-                            </TouchableOpacity>
-                        </View>
-                        </>
+                </View>
+                {addCollaborator && (
+                    <>
+                    <View style={styles.searchWrapper}>
+                        <Feather name="search" size={16}/>
+                        <View style={styles.search}>
+                            <TextInput 
+                            placeholder="Search collaborator by email"
+                            onChangeText={text => {setEmail(text)}}
+                            //value={}
+                            style={styles.searchText}
+                            />
+                        </View>              
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            onPress={() => {addNewCollaborator()}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Search</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </>
+                )}
+                {removeCollaborator && (
+                    <>
+                    <View style={styles.searchWrapper}>
+                        <Feather name="search" size={16}/>
+                        <View style={styles.search}>
+                            <TextInput 
+                            placeholder="Search collaborator by email"
+                            onChangeText={text => {setEmail(text)}}
+                            //value={}
+                            style={styles.searchText}
+                            />
+                        </View>              
+                    </View>
+                    <View style={styles.buttonContainer}>
+                        <TouchableOpacity
+                            onPress={() => {removeNewCollaborator()}}
+                            style={styles.button}
+                        >
+                            <Text style={styles.buttonText}>Search</Text>
+                        </TouchableOpacity>
+                    </View>
+                    </>
+                )}
+                <View style={{paddingHorizontal: 5}}>
+                    <Text style={styles.collaboratorTitle}>Collaborators:</Text>
+                    {collaboratorsData.length === 0 && (
+                        <Text style={styles.collaboratorText}>This course doesn't have any collaborators add one to see them here.</Text>
                     )}
-                    <View style={{paddingHorizontal: 5}}>
-                        <Text style={styles.collaboratorTitle}>Collaborators:</Text>
-                        {collaboratorsData.length === 0 && (
-                            <Text style={styles.collaboratorText}>This course doesn't have any collaborators add one to see them here.</Text>
-                        )}
-                    </View>
-                    <View style={styles.cardWrapper}>
-                        {collaboratorsData.map(item => (
-                            <ProfilesListComponent 
-                            item={item}
-                            navigation={props.navigation}/>
-                        ))}
-                    </View>
-                </ScrollView>
-            </View>
-        </>
+                </View>
+                <View style={styles.cardWrapper}>
+                    {collaboratorsData.map(item => (
+                        <ProfilesListComponent 
+                        item={item}
+                        navigation={props.navigation}/>
+                    ))}
+                </View>
+            </ScrollView>
+        </View>
       );
 };
 
@@ -488,6 +523,50 @@ const styles = new StyleSheet.create({
         fontWeight: '300',
         fontSize: 16,
         paddingBottom: 5,
+    },
+    centeredView: {
+        flex: 1,
+        //flexDirection: 'column',
+        justifyContent: "center",
+        alignItems: "center",
+        //marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 });
 

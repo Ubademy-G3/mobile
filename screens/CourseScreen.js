@@ -295,8 +295,9 @@ const CourseScreen = (props) => {
     };
 
     return (
-        <View style={styles.container}>
-            <View style={styles.centeredView}>
+        <View style={styles.centeredView}>
+            {modalVisible && (
+                <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -305,7 +306,7 @@ const CourseScreen = (props) => {
                     setModalVisible(!modalVisible);
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
                         <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
                                 <MaterialCommunityIcons
@@ -326,7 +327,8 @@ const CourseScreen = (props) => {
                         </View>
                     </View>
                 </Modal>
-            </View>
+                </View>
+            )}
             <ScrollView>
                 {loading && (
                     <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
@@ -466,7 +468,7 @@ const CourseScreen = (props) => {
                                 ))}
                             </View>
                         )}
-                        <View style={styles.studentListWrapper}>
+                        {/* <View style={styles.studentListWrapper}>
                             <Text style={styles.instructorsTitle}>Instructors</Text>
                             {instructors.map(item => (
                                 <ProfilesListComponent 
@@ -474,7 +476,19 @@ const CourseScreen = (props) => {
                                 navigation={props.navigation}
                                 key={item.id}/>
                             ))}
-                        </View>
+                        </View> */}
+                        <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('Collaborators List', {
+                                course_id: item.id,
+                                filter: false,
+                                view_as: rol
+                            });}}
+                            style={{flexDirection: 'row', alignItems: 'center'}}
+                        >
+                            <Image source={require("../assets/images/studentsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                            <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
+                        </TouchableOpacity>
                     </>
                 )}
             </ScrollView>
@@ -725,8 +739,6 @@ const styles = new StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
         //marginTop: 22
     },
     modalView: {

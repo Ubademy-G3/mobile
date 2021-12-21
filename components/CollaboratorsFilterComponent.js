@@ -1,63 +1,80 @@
 import React, { useState } from 'react';
-import { StyleSheet, CheckBox, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Checkbox } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 
 const data = {
-    state: [
+    progress: [
         {
             id: '0',
-            name: 'Draft',
+            name: '10 exams',
+            value: '10',
             isChecked: false
         },
         {
             id: '1',
-            name: 'Active',
+            name: '20 exams',
+            value: '20',
             isChecked: false
         },
         {
             id: '2',
-            name: 'Inactive',
+            name: '40 exams',
+            value: '40',
+            isChecked: false
+        },
+        {
+            id: '3',
+            name: '80 exams',
+            value: '80',
             isChecked: false
         }
     ],
 }
 
 const CollaboratorsFilterComponent = (props) => {
-    const type = props.type;
-    const [state, setState] = useState(data.state);
+    const [progress, setProgress] = useState(data.progress);
 
     const cleanFilters = () => {
-        setState(data.state);
+        setProgress(data.progress);
     }
 
     const setFilter = () => {
         const query = {
-          state: state,
+          progress: progress,
         };
         cleanFilters();
-        props.updateExams(query);
+        props.updateUsers(query);
     };
 
-    const addState = (item) => {
-        let temp = state.map((s) => {
+    const addProgress = (item) => {
+        for (let i = 0; i < progress.length; i++) {
+            if (progress[i].isChecked === true && progress[i].id !== item.id) {
+                return;
+            }
+        }
+        let temp = progress.map((s) => {
             if (item.id === s.id) {
               return { ...s, isChecked: !s.isChecked };
             }
             return s;
           });
-        setState(temp);
+        setProgress(temp);
     }
 
-
-    const renderStateItem = ({ item }) => {
+    const renderProgressItem = ({ item }) => {
         return (
             <View style={styles.listItem}>
-              <CheckBox
+              {/* <CheckBox
                 value={item.isChecked}
-                onValueChange={() => { addState(item); }}
-              />
+                onValueChange={() => { addProgress(item); }}
+              /> */}
+            <Checkbox
+                status={item.isChecked}
+                onPress={() => { addProgress(item); }}
+            />
               <Text>{item.name}</Text>
             </View>
         );
@@ -66,12 +83,11 @@ const CollaboratorsFilterComponent = (props) => {
     return (
         <View style={styles.container}>
             <View style={styles.dialog}>
-                
                 <View>
-                    <Text style={styles.title}>State</Text>
+                    <Text style={styles.title}>{`The amount of exams graded is \ngreater than`}</Text>
                     <FlatList
-                        data={state}
-                        renderItem={renderStateItem}
+                        data={progress}
+                        renderItem={renderProgressItem}
                         keyExtractor={(item) => item.id}
                     />
                 </View>

@@ -21,25 +21,25 @@ const HomeScreen = (props) => {
   const [indexCarousel, setIndexCarousel] = React.useState(0);
   const [filtered, setFiltered] = useState(false);
 
-  const handleGetRating = (response) => {
+  /*const handleGetRating = (response) => {
     if (!response.hasError()) {
         return response.content();
     } else {
         console.log("[Home screen] error", response.content().message);
     }
-  }
+  }*/
 
   const handleGetAllCourses = async (response) => {
     if (!response.hasError()) {
-        const tokenLS = await app.getToken();
+        //const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        courses = await Promise.all(
+        /*courses = await Promise.all(
           courses.map(async (course) => {
             const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
             course.rating = rating;
             return course;
           })
-        );
+        );*/
         setCourses(courses);
     } else {
         console.log("[Home screen] error", response.content().message);
@@ -48,15 +48,16 @@ const HomeScreen = (props) => {
 
   const handleSearchCourses = async (response) => {
     if (!response.hasError()) {
-        const tokenLS = await app.getToken();
+        //const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        courses = await Promise.all(
+        /*courses = await Promise.all(
           courses.map(async (course) => {
             const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
             course.rating = rating;
             return course;
           })
-        );
+        );*/
+        console.log(courses);
         setCourses(courses);
     } else {
         console.log("[Search by subscription screen] error", response.content().message);
@@ -64,12 +65,12 @@ const HomeScreen = (props) => {
   }
 
   const onRefresh = async () => {
-      console.log("[Home screen] entro a onRefresh");
-      setLoading(true);
-      let tokenLS = await app.getToken();
-      console.log("[Home screen] token:", tokenLS);
-      app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
-      setLoading(false);
+    console.log("[Home screen] entro a onRefresh");
+    setLoading(true);
+    let tokenLS = await app.getToken();
+    console.log("[Home screen] token:", tokenLS);
+    app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
+    setLoading(false);
   };
 
   /* useEffect(() => {
@@ -84,7 +85,7 @@ const HomeScreen = (props) => {
   );
 
   const getBestRatedCourses = () => {
-    const bestRated = courses.filter((course) => course.rating.rating >= 4);
+    const bestRated = courses.filter((course) => course.rating_avg >= 4);
     return bestRated.slice(0, 10);
   }
 
@@ -140,17 +141,17 @@ const HomeScreen = (props) => {
             <Text style={styles.courseTitle}>{item.name}</Text>
             <Text numberOfLines={2}>{item.description}</Text>
             <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
+              <Text style={{ color: 'gold' }}>{item.rating_avg}</Text>
               <StarRating
                 disabled={true}
                 maxStars={5}
-                rating={item.rating.rating}
+                rating={item.rating_avg}
                 containerStyle={{ width: '40%', marginLeft: 5 }}
                 //starStyle={{ color: 'gold' }}
                 starSize={20}
                 fullStarColor='gold'
               />
-              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
+              <Text style={{ marginLeft: 5 }}>{`(${item.rating_amount})`}</Text>
             </View>
             <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
           </View>
@@ -178,17 +179,17 @@ const HomeScreen = (props) => {
             <Text style={styles.courseTitle}>{item.name}</Text>
             <Text numberOfLines={2}>{item.description}</Text>
             <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
+              <Text style={{ color: 'gold' }}>{item.rating_avg}</Text>
               <StarRating
                 disabled={true}
                 maxStars={5}
-                rating={item.rating.rating}
+                rating={item.rating_avg}
                 containerStyle={{ width: '40%', marginLeft: 5 }}
                 //starStyle={{ color: 'gold' }}
                 starSize={20}
                 fullStarColor='gold'
               />
-              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
+              <Text style={{ marginLeft: 5 }}>{`(${item.rating_amount})`}</Text>
             </View>
             <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
           </View>

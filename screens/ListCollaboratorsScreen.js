@@ -12,25 +12,25 @@ Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 MaterialIcons.loadFont();
 
-const ListStudentScreen = (props) => {
+const ListCollaboratorsScreen = (props) => {
   const param_id = props.route.params.course_id;
   const view_as = props.route.params.view_as;
 
   const [loading, setLoading] = useState(false); 
-  const [studentsData, setStudentsData] = useState([]);
+  const [collaboratorsData, SetCollaboratorsData] = useState([]);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const handleGetProfileFromList = (response) => {
-    console.log("[List Student Screen] content: ", response.content())
+    console.log("[List Collaborators Screen] content: ", response.content())
     if (!response.hasError()) {
-      setStudentsData(response.content());
+      SetCollaboratorsData(response.content());
     } else {
-      console.log("[List Student Screen] error", response.content().message);
+      console.log("[List Collaborators Screen] error", response.content().message);
     }
   }
 
   const handleGetAllUsersInCourse = async (response) => {
-      console.log("[List Student Screen] get all users content: ", response.content())
+      console.log("[List Collaborators Screen] get all users content: ", response.content())
       if (!response.hasError()) {
           const colaboratorsIds = [];
           for(let user of response.content().users){
@@ -39,7 +39,7 @@ const ListStudentScreen = (props) => {
           let tokenLS = await app.getToken();
           await app.apiClient().getAllUsersFromList({token: tokenLS}, colaboratorsIds, handleGetProfileFromList); 
       } else {
-          console.log("[List Student Screen] error", response.content().message);
+          console.log("[List Collaborators Screen] error", response.content().message);
       }
   }
 
@@ -54,7 +54,7 @@ const ListStudentScreen = (props) => {
 
   useEffect(() => {
       console.log("[Student screen] entro a useEffect");
-      setStudentsData([]);
+      SetCollaboratorsData([]);
       onRefresh();
   }, []);
 
@@ -84,7 +84,7 @@ const ListStudentScreen = (props) => {
       }
     }
     const tokenLS = await app.getToken();
-    setStudentsData([]);
+    SetCollaboratorsData([]);
     await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, filters, handleGetAllUsersInCourse);
     setLoading(false);
   }
@@ -94,9 +94,9 @@ const ListStudentScreen = (props) => {
       {loading && (
         <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
       )}
-      {!loading && view_as === 'student' && studentsData.length > 0 && (
+      {!loading && view_as === 'student' && collaboratorsData.length > 0 && (
         <>
-          {studentsData.map(item => (
+          {collaboratorsData.map(item => (
             <ProfilesListComponent 
               item={item}
               navigation={props.navigation}
@@ -106,7 +106,7 @@ const ListStudentScreen = (props) => {
       )}
       {!loading && view_as !== 'student' && (
         <>
-          {studentsData.length === 0 ? (
+          {collaboratorsData.length === 0 ? (
             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
               <Text style={styles.examsText}>Oops.. could not find any students in this course</Text>
@@ -125,7 +125,7 @@ const ListStudentScreen = (props) => {
               {filtersVisible && (
                   <UsersFilterComponent updateUsers={filterUsers} />
               )}
-              {studentsData.map(item => (
+              {collaboratorsData.map(item => (
                 <ProfilesListComponent 
                   item={item}
                   navigation={props.navigation}
@@ -135,10 +135,10 @@ const ListStudentScreen = (props) => {
           )}
         </>
       )}
-      {/* {studentsData.length === 0 && (
+      {/* {collaboratorsData.length === 0 && (
           <Text style={styles.listText}>This course doesn't have students.</Text>
       )}
-      {studentsData.map(item => (
+      {collaboratorsData.map(item => (
         <ProfilesListComponent 
         item={item}
         navigation={props.navigation}/>
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   },
 })
 
-export default ListStudentScreen;
+export default ListCollaboratorsScreen;
 
 
 

@@ -156,6 +156,17 @@ const MenuScreen = (props) => {
                                 label="Wallet"
                                 onPress={() => { props.navigation.navigate('Wallet') }}
                             />
+                            <DrawerItem 
+                                icon={({color, size}) => (
+                                    <Icons
+                                    name="newspaper-outline"
+                                    color={color}
+                                    size={size}
+                                    />
+                                )}
+                                label="My Certificates"
+                                onPress={() => { props.navigation.navigate('My Certificates') }}
+                            />
                             </>
                         )}
                         {userData.rol === "instructor" && (

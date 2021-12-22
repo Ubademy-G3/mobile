@@ -6,7 +6,7 @@ import { ActivityIndicator } from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
-import UsersFilterComponent from '../components/UsersFilterComponent';
+import CollaboratorsFilterComponent from '../components/CollaboratorsFilterComponent';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -17,13 +17,14 @@ const ListCollaboratorsScreen = (props) => {
   const view_as = props.route.params.view_as;
 
   const [loading, setLoading] = useState(false); 
-  const [collaboratorsData, SetCollaboratorsData] = useState([]);
+  const [collaboratorsData, setCollaboratorsData] = useState([]);
+  const [filter, setFilter] = useState (0);
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const handleGetProfileFromList = (response) => {
     console.log("[List Collaborators Screen] content: ", response.content())
     if (!response.hasError()) {
-      SetCollaboratorsData(response.content());
+      setCollaboratorsData(response.content());
     } else {
       console.log("[List Collaborators Screen] error", response.content().message);
     }
@@ -48,46 +49,46 @@ const ListCollaboratorsScreen = (props) => {
     setLoading(true);
     let tokenLS = await app.getToken();
     console.log("[Student screen] token:", tokenLS); 
-    await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'student' }, handleGetAllUsersInCourse);
+    await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'collaborator' }, handleGetAllUsersInCourse);
     setLoading(false);
   };
 
   useEffect(() => {
       console.log("[Student screen] entro a useEffect");
-      SetCollaboratorsData([]);
+      setCollaboratorsData([]);
       onRefresh();
   }, []);
 
-  const filterUsers = async (query) => {
+  const filterCollaborators = async (query) => {
     setLoading(true);
-    let filters = {
-        user_type: 'student'
-    };
-    if (query.approved) {
-        const approved = query.approved.filter((s) => s.isChecked);
-        if (approved.length > 0) {
-            approved.forEach((st) => {
-                if (st.isChecked) {
-                  filters.approval_state = st.value;
-                }
-            })
-        }
-    }
     if (query.progress) {
       const progress = query.progress.filter((s) => s.isChecked);
       if (progress.length > 0) {
         progress.forEach((st) => {
             if (st.isChecked) {
-              filters.progress = st.value;
+              setFilter(st.value);
             }
         })
       }
     }
-    const tokenLS = await app.getToken();
-    SetCollaboratorsData([]);
-    await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, filters, handleGetAllUsersInCourse);
+    setCollaboratorsData([]);
     setLoading(false);
   }
+
+  const getAmountFromExams = (id, key) => {
+    let _collaborators = [...collaboratorsData];
+    const c = exams_graded.filter((c) => {
+        let a = (c.corrector_id === id);
+        if (a) {
+          _collaborators[key].amount_graded  += 1;
+        }
+      return a;
+    });
+    setCollaboratorsData(_collaborators);
+    var uniq = [ ...new Set(c) ]; 
+    uniq.filter((r) => r.amount === filter || r.amount > filter);
+    return uniq;
+};
 
   return (
     <ScrollView style={styles.cardWrapper}>
@@ -96,6 +97,12 @@ const ListCollaboratorsScreen = (props) => {
       )}
       {!loading && view_as === 'student' && collaboratorsData.length > 0 && (
         <>
+          {collaboratorsData.length === 0 && (
+            <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+              <Text style={styles.examsText}>Oops.. could not find any collaborators in this course</Text>
+            </View>
+          )}
           {collaboratorsData.map(item => (
             <ProfilesListComponent 
               item={item}
@@ -109,7 +116,7 @@ const ListCollaboratorsScreen = (props) => {
           {collaboratorsData.length === 0 ? (
             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
-              <Text style={styles.examsText}>Oops.. could not find any students in this course</Text>
+              <Text style={styles.examsText}>Oops.. could not find any collaborators in this course</Text>
             </View>
           ) : (
             <>
@@ -123,26 +130,22 @@ const ListCollaboratorsScreen = (props) => {
                 </TouchableOpacity>
               </View>
               {filtersVisible && (
-                  <UsersFilterComponent updateUsers={filterUsers} />
+                  <CollaboratorsFilterComponent updateUsers={filterCollaborators} />
               )}
-              {collaboratorsData.map(item => (
-                <ProfilesListComponent 
-                  item={item}
-                  navigation={props.navigation}
-                />
+              {collaboratorsData.map((item, key) => (
+                <View key={item.id}>
+                {getAmountFromExams(item.id, key).map(item_list => (
+                  <ProfilesListComponent 
+                    item={item_list}
+                    navigation={props.navigation}
+                  />
+                ))}
+                </View>
               ))}
             </>
           )}
         </>
       )}
-      {/* {collaboratorsData.length === 0 && (
-          <Text style={styles.listText}>This course doesn't have students.</Text>
-      )}
-      {collaboratorsData.map(item => (
-        <ProfilesListComponent 
-        item={item}
-        navigation={props.navigation}/>
-      ))} */}
     </ScrollView>
   );
 }

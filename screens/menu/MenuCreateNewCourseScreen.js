@@ -1,6 +1,5 @@
-import React, {useState, useEffect, useCallback} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Alert } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
+import React, {useState, useCallback} from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Modal, Pressable } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -8,7 +7,6 @@ import { app } from '../../app/app';
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from '../../firebase';
 import { useFocusEffect } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -30,10 +28,13 @@ const MenuCreateNewCourseScreen = (props) => {
         level: "",
         modules: [],
     });
-
     const [categories, setCategories] = useState([]);
-
     const [loading, setLoading] = useState(false);
+    const [modalAttentionVisible, setModalAttentionVisible] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState(false);
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
+    const [modalSuccessText, setModalSuccessText] = useState(false);
 
     const choosePhotoFromLibrary = async () => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -62,10 +63,11 @@ const MenuCreateNewCourseScreen = (props) => {
                 ...courseData,
                 profile_picture: newURL,
             })
-            Alert.alert(
+            setModalAttentionVisible(true);
+            /* Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded'
-            );
+            ); */
         } catch(err) {
             console.log("Error en el firebase storage:", err);
         }
@@ -86,21 +88,25 @@ const MenuCreateNewCourseScreen = (props) => {
     const handleApiResponseCreateCourse = (response) => {
         console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
-            Alert.alert(
+            setModalSuccessText(response.content().message);
+            setModalSuccessVisible(true);
+            /* Alert.alert(
                 "Create Course Succesfull",
                 response.content().message,
                 [
                 { text: "OK", onPress: () => {} }
                 ]
-            );
+            ); */
         } else {
-            Alert.alert(
+            setModalErrorText(response.content().message);
+            setModalErrorVisible(true);
+            /* Alert.alert(
                 "Create Course Unsuccesfull",
                 response.content().message,
                 [
                 { text: "Retry", onPress: () => {} }
                 ]
-            );
+            ); */
             console.log("[Create Course screen] error", response.content().message);
         }
     }
@@ -110,13 +116,15 @@ const MenuCreateNewCourseScreen = (props) => {
         if (!response.hasError()) {
             setCategories(response.content())
         } else {
-            Alert.alert(
+            setModalErrorText(response.content().message);
+            setModalErrorVisible(true);
+            /* Alert.alert(
                 "Create Course Unsuccesfull:",
                 response.content().message,
                 [
                 { text: "Retry", onPress: () => {} }
                 ]
-            );
+            ); */
             console.log("[Create Course screen] error", response.content().message);
         }
     }
@@ -182,8 +190,100 @@ const MenuCreateNewCourseScreen = (props) => {
     
 
     return (
-        <View style={styles.container}>
-        {
+        <View style={styles.centeredView}>
+            {modalSuccessVisible || modalErrorVisible || modalAttentionVisible && (
+                <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Create Course Unsuccesfull:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Create Course Succesfull:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalSuccessText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalAttentionVisible}
+                    onRequestClose={() => {
+                    setModalAttentionVisible(!modalAttentionVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView,{justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="alert-circle-outline"
+                                    size={30}
+                                    color={"#87ceeb"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Image Uploaded:</Text>
+                            </View>
+                            <Text style={styles.modalText}>Your image has been uploaded</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonAttention]}
+                            onPress={() => setModalAttentionVisible(!modalAttentionVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
+            {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
                     <ActivityIndicator color="#696969" animating={loading} size="large" /> 
@@ -400,6 +500,48 @@ const styles = StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+    },
+    centeredView: {
+        flex: 1,
+        /* justifyContent: "center",
+        alignItems: "center" */
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 })
 

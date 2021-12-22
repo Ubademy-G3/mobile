@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, Alert, TextInput } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Modal, Pressable, TextInput } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
@@ -13,15 +13,13 @@ const EditCourseScreen = (props) => {
     const { item } = props.route.params;
 
     const [loading, setLoading] = useState(false);
-
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
     const [rating, setRating] = useState({});
-
     const [rol, setRol] = useState("");
-
     const [addCollaborator, setAddCollaborator] = useState(false);
-
     const [removeCollaborator, setRemoveCollaborator] = useState(false);
-
     const [collaboratorsData, setCollaboratorsData] = useState([]);
 
     const [email, setEmail] = useState("");
@@ -70,22 +68,25 @@ const EditCourseScreen = (props) => {
     const handleResponseSubscribeToCourse = (response) => {
         console.log("[Edit Course screen] subscribe to course: ", response.content())
         if (!response.hasError()) {
-            Alert.alert(
+            setModalSuccessVisible(true);
+            /* Alert.alert(
                 "Successful:",
                 "Collaborator's updated in course",
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-            );
+            ); */
         } else {
             if (response.content().message == "Course already acquired by this user") {
-                Alert.alert(
+                setModalErrorText("User is subscribe to this course. Unable to make this user a collaborator");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error: User is subscribe to this course",
                     "Unable to make this user a collaborator",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                );
+                ); */
             }
             console.log("[Edit Course screen] error", response.content().message);
         }        
@@ -102,13 +103,15 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert(
+                setModalErrorText("Unable to find a user with given email");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                )
+                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -126,13 +129,15 @@ const EditCourseScreen = (props) => {
                 await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, response.content()[0].id, handleResponseSubscribeToCourse)
             } else {
                 console.log("ENTRO AL ELSE: ");
-                Alert.alert(
+                setModalErrorText("Unable to find a user with given email");
+                setModalErrorVisible(true);
+                /* Alert.alert(
                     "Error:",
                     "Unable to find a user with given email",
                     [
                       { text: "OK", onPress: () => {} }
                     ]
-                )
+                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -185,7 +190,70 @@ const EditCourseScreen = (props) => {
     }, [addCollaborator,removeCollaborator]);
 
     return (
-        <View style={styles.container}>
+        <View style={styles.centeredView}>
+            {modalSuccessVisible || modalErrorVisible && (
+                <>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Error:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Success:</Text>
+                            </View>
+                            <Text style={styles.modalText}>Collaborator's updated in course</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </>
+            )}
             <ScrollView>
                 <View style={styles.titlesWrapper}>
                     <View>
@@ -455,6 +523,50 @@ const styles = new StyleSheet.create({
         fontWeight: '300',
         fontSize: 16,
         paddingBottom: 5,
+    },
+    centeredView: {
+        flex: 1,
+        //flexDirection: 'column',
+        justifyContent: "center",
+        alignItems: "center",
+        //marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 });
 

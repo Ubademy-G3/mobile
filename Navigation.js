@@ -39,6 +39,7 @@ import MyExamTemplatesScreen from './screens/MyExamTemplatesScreen';
 import SolvedExamsScreen from './screens/SolvedExamsScreen';
 import ListExamsScreen from './screens/ListExamsScreen';
 import MenuCertificates from './screens/menu/MenuCertificates';
+import ListCollaboratorsScreen from './screens/ListCollaboratorsScreen';
 
 Entypo.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -130,6 +131,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="Course Screen" component={CourseScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Search Courses" component={SearchCoursesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Student List" component={ListStudentScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Collaborators List" component={ListCollaboratorsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Create New Exam" component={CreateExamScreen} />
                   <Stack.Screen options={{headerShown: true, title: null}} name="Anothers Profile" component={AnothersProfileScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Course" component={EditCourseScreen} />

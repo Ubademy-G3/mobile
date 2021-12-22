@@ -59,8 +59,8 @@ const ExamCorrectionScreen = (props) => {
     const handleResponseGetAllExamsByCourse = (response) => {
         console.log("[Exam Correction screen] get all exams: ", response.content())
         if (!response.hasError()) {
-            console.log("EXAM AMOUNT",response.content().amount);
-            setAmountExams(response.content().amount);
+            console.log("EXAM AMOUNT",response.content().total_exams);
+            setAmountExams(response.content().total_exams);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
         }
@@ -227,7 +227,8 @@ const ExamCorrectionScreen = (props) => {
         let tokenLS = await app.getToken();
         console.log("[Exam Correction screen] token:", tokenLS);
         await app.apiClient().getAllAnswersByExamId({token: tokenLS}, solution.exam_template_id, solution.id, handleResponseGetAllAnswers);
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, {}, handleResponseGetAllExamsByCourse);
+        //await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, {state:}, handleResponseGetAllExamsByCourse);
+        await app.apiClient().getCourseById({token: tokenLS}, solution.course_id, handleResponseGetAllExamsByCourse);
         await app.apiClient().getExamsById({token: tokenLS}, solution.exam_template_id, handleResponseGetExam);
         await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
         setLoading(false);
@@ -238,7 +239,7 @@ const ExamCorrectionScreen = (props) => {
         console.log("amount exams approved", amountExamsApproved);
         console.log("amount exams", amountExams);
         console.log("DIVISION", (amountExamsApproved/amountExams));
-        let new_progress = ((amountExamsApproved/amountExams) * 100);
+        let new_progress = Math.round(((amountExamsApproved/amountExams) * 100));
         console.log("NEW PROGRESS!!!", new_progress);
         await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, {username: username},handleResponseUpdateUserFromCourse);
     }

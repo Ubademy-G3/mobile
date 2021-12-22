@@ -13,23 +13,10 @@ const MenuCompletedCoursesScreen = (props) => {
     const [loading, setLoading] = useState(false);
     const [courses, setCourses] = useState([]);
 
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Completed Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Completed Courses Screen] error", response.content().message);
-        }
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Completed Courses screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse)
-            }
-            console.log("[Menu Completed Courses screen] response: ", courses);
+            setCourses(response.content().courses)
         } else {
             console.log("[Menu Completed Courses screen] error", response.content().message);
         }
@@ -41,7 +28,7 @@ const MenuCompletedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Completed Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', aprobal_state: true }, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', approval_state: true }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 

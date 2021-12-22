@@ -16,23 +16,10 @@ const MenuSubscribedCoursesScreen = (props) => {
     
     const [courses, setCourses] = useState([]);
 
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Subscribed Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Subscribed Courses Screen] error", response.content().message);
-        }
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Subscribed Courses screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.id, handleResponseCourseResponse)
-            }
-            console.log("[Menu Subscribed Courses screen] response: ", courses);
+            setCourses(response.content().courses)
         } else {
             console.log("[Menu Subscribed Courses screen] error", response.content().message);
         }

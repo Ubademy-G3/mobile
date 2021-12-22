@@ -14,35 +14,10 @@ const MenuCollaborationsScreen = (props) => {
     
     const [courses, setCourses] = useState([]);
 
-    const [rating, setRating] = useState(0);
-
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Collaborations Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Collaborations Courses Screen] error", response.content().message);
-        }
-    }
-    
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content().rating);
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Collaborations Courses screen] content: ", response.content())
+        console.log("[Menu Collaborations Courses screen] content 3: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-                await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
-            }
-            console.log("[Menu Collaborations Courses screen] response: ", courses);
+            setCourses(response.content().courses);
         } else {
             console.log("[Menu Collaborations Courses screen] error", response.content().message);
         }

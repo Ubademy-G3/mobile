@@ -30,7 +30,7 @@ export class GetAllCoursesFromListEndpoint extends Endpoint {
         console.log("salgo del constructor:", this._ids);
     }
     url() {
-        let url = `/courses/list/`;
+        let url = `/courses/list/rated/`;
         const params = serializeQuery(this._ids, "id");
         if (params.length > 0) {
             url = url.concat(`?${params}`);

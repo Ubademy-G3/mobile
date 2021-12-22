@@ -9,38 +9,6 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const CourseComponent = ({ item }) => {
-
-    console.log("[Course component] item", item);
-
-    const [loading, setLoading] = useState(false);
-
-    //const [subscribed, setSubscribed] = useState(false);
-
-    const [rating, setRating] = useState({});
-
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content());
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
-
-    const onRefresh = async () => {
-        console.log("[Course component] entro a onRefresh"); 
-        setLoading(true);
-        let tokenLS = await app.getToken();
-        console.log("[Course component] token:", tokenLS); 
-        await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
-        setLoading(false);
-    };
-  
-    useEffect(() => {
-        console.log("[Course component] entro a useEffect");
-        onRefresh();
-    }, []);
-
     return(
         <View style={styles.verticalCourseItemWrapper}>
                 <View>
@@ -57,12 +25,12 @@ const CourseComponent = ({ item }) => {
                                 <StarRating
                                     disabled={true}
                                     maxStars={5}
-                                    rating={rating.rating}
+                                    rating={item.rating_avg}
                                     containerStyle={{ width: 110}}
                                     starSize={20}
                                     fullStarColor='gold'
                                 />
-                                <Text style={{position: 'absolute', left: 115, top: 1,}}>{`(${rating.amount})`}</Text>
+                                <Text style={{position: 'absolute', left: 115, top: 1,}}>{`(${item.rating_amount})`}</Text>
                             </View>
                             <Text style={{ /* textAlign: 'right', */ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
                         </View>

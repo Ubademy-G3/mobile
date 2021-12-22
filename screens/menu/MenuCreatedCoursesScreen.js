@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
@@ -27,7 +26,7 @@ const MenuCreatedCoursesScreen = (props) => {
         console.log("[Menu Created Courses screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
+            for (let course of response.content().courses) {
                 await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
             }
             console.log("[Menu Created Courses screen] response: ", courses);
@@ -42,7 +41,7 @@ const MenuCreatedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Created Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, {}, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'creator' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
   

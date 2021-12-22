@@ -130,6 +130,14 @@ const CourseScreen = (props) => {
         }
     }
 
+    const handleResponseAddRating = (response) => {
+        if (!response.hasError()) {
+            console.log("[Course screen] ok");
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
     const handleResponseUnsubscribeToCourse = (response) => {
         //console.log("[Course screen] unsubscribe content: ", response.content())
         if (!response.hasError()) {
@@ -143,6 +151,16 @@ const CourseScreen = (props) => {
         //console.log("[Course screen] unfavorite content: ", response.content())
         if (!response.hasError()) {
             setFavorited(false);
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
+    const handleResponseGetUserFromCourse = (response) => {
+        if (!response.hasError()) {
+            if (response.content().aprobal_state){
+                setApproved(true);
+            }
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -259,7 +277,7 @@ const CourseScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        await app.apiClient().
+        await app.apiClient().addRatingToCourse({token: tokenLS, user_id: idLS, score: starCount, opinion: opinion}, item.id, handleResponseAddRating);
         setLoading(false);
     }
 
@@ -272,7 +290,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, {}, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
-        //await app.apiClient().
+        await app.apiClient().getUserFromCourse({token: tokenLS}, item.id, idLS, handleResponseGetUserFromCourse);
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);
         await app.apiClient().getAllMedia({token: tokenLS}, item.id, handleGetMedia);

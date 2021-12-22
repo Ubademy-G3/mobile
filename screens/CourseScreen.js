@@ -17,7 +17,9 @@ MaterialIcons.loadFont();
 const CourseScreen = (props) => {
     const { item } = props.route.params;
     const [loading, setLoading] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorTitle, setModalErrorTitle] = useState("");
+    const [modalErrorText, setModalErrorText] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [favorited, setFavorited] = useState(false);
     const [rating, setRating] = useState({});
@@ -118,7 +120,9 @@ const CourseScreen = (props) => {
             setSubscribed(true);
         } else {
             if(response.content().message === "Can't subscribe user because of subscription type") {
-                setModalVisible(true);
+                setModalErrorTitle("Subscription error:");
+                setModalErrorText(`You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`);
+                setModalErrorVisible(true);
                 /* Alert.alert(
                     "Subscription error:",
                     `You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`,
@@ -200,6 +204,23 @@ const CourseScreen = (props) => {
             console.log("[Course screen] error", response.content().message);
         }
     }
+
+    const handleGetRatings = async (response) => {
+        if (!response.hasError()) {
+            let idLS = await app.getId();
+            const m = response.content().reviews.filter((m) => {
+                return m.user_id === idLS;
+            });
+            if (m.lenght !== 0){
+                setShowOpinion(false);
+            } else {
+                setShowOpinion(true);
+            }
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
 
     const handleResponseGetAllUsersInCourses = async (response) => {
         //console.log("[Course screen] content: ", response.content())
@@ -296,6 +317,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);
         await app.apiClient().getAllMedia({token: tokenLS}, item.id, handleGetMedia);
+        await app.apiClient().getRatingFromCourse({token: tokenLS}, item.id, handleGetRatings);
         setLoading(false);
     };
   
@@ -332,14 +354,14 @@ const CourseScreen = (props) => {
 
     return (
         <View style={styles.centeredView}>
-            {modalVisible && (
+            {modalErrorVisible && (
                 <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
                 <Modal
                     animationType="slide"
                     transparent={true}
-                    visible={modalVisible}
+                    visible={modalErrorVisible}
                     onRequestClose={() => {
-                    setModalVisible(!modalVisible);
+                    setModalErrorVisible(!modalErrorVisible);
                     }}
                 >
                     <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
@@ -351,12 +373,12 @@ const CourseScreen = (props) => {
                                     color={"#ff6347"}
                                     style={{ position: 'absolute', top: -6, left: -35}}
                                 />
-                                <Text style={styles.modalText}>Subscription error:</Text>
+                                <Text style={styles.modalText}>{modalErrorTitle}</Text>
                             </View>
-                            <Text style={styles.modalText}>You can't subscribe to a {item.subscription_type} course with subscription type {subscriptionType}</Text>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
                             <Pressable
                             style={[styles.buttonModal, styles.buttonClose]}
-                            onPress={() => setModalVisible(!modalVisible)}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
                             >
                                 <Text style={styles.textStyle}>Ok</Text>
                             </Pressable>
@@ -557,15 +579,15 @@ const CourseScreen = (props) => {
                                 ))}
                             </View>
                         )}
-                        {/* <View style={styles.studentListWrapper}>
-                            <Text style={styles.instructorsTitle}>Instructors</Text>
+                        <View style={styles.studentListWrapper}>
+                            <Text style={styles.instructorsTitle}>Instructor</Text>
                             {instructors.map(item => (
                                 <ProfilesListComponent 
                                 item={item}
                                 navigation={props.navigation}
                                 key={item.id}/>
                             ))}
-                        </View> */}
+                        </View>
                     </>
                 )}
             </ScrollView>

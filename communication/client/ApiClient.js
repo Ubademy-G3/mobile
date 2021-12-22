@@ -55,6 +55,7 @@ import { GetSolvedExamsByUserFromCourseEndpoint } from "../endpoints/GetSolvedEx
 import { GetAllCertificatesEndpoint } from "../endpoints/GetAllCertificatesEndpoint.js";
 import { AddRatingToCourseEndpoint } from "../endpoints/AddRatingToCourseEndpoint.js";
 import { GetUserFromCourseEndpoint } from "../endpoints/GetUserFromCourseEndpoint.js";
+import { GetRatingFromCourseEndpoint } from "../endpoints/GetRatingFromCourseEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -196,6 +197,14 @@ class ApiClient {
     getCourseMetrics(data, courseId, onResponse) {
         return this._requester.call({
             endpoint: new GetCourseMetricsEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getRatingFromCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetRatingFromCourseEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });

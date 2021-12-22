@@ -88,15 +88,18 @@ const AnothersProfileScreen = (props) => {
     const renderCategoryItem = ({ item }) => {
         return (
             <View
-            key={item.id}
-            style={[
-            styles.categoryItemWrapper,
-            {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 0 ? 20 : 0,
-            },
-            ]}>
-              {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+              key={item.id}
+              style={[
+                styles.categoryItemWrapper,
+                {
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 0 ? 20 : 0,
+                },
+                ]}
+            >
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={{uri: item.photo_url}} style={styles.interestsImage} />
+                </View>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
@@ -106,17 +109,16 @@ const AnothersProfileScreen = (props) => {
         <View style={styles.container}>
             <ScrollView>
                 <View style={styles.titlesWrapper}>
-                    <View>
-                        <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
-                    </View>
+                    <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
                     <View style={styles.titleWrapper}>
                         <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
                     </View>
                 </View>
-
+                {userData.description !== "" && (
                 <View style={styles.descriptionWrapper}>
                     <Text style={styles.description}>{userData.description}</Text>
                 </View>
+                )}
                 {userData.rol === "student" && (
                     <>
                     <View style={styles.locationWrapper}>
@@ -157,7 +159,7 @@ const styles = StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: "row",
-        paddingVertical:25,
+        paddingVertical: 25,
         paddingHorizontal: 15,
         //paddingTop: 5,
         //paddingLeft: 10,
@@ -189,12 +191,16 @@ const styles = StyleSheet.create({
     description: {
         fontSize: 16,
     },
+    interestsImage: {
+        width: 80,
+        height: 80,
+    },
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
         // paddingVertical: 10,
-        paddingBottom: 10,
-        marginTop: 5,
+        //paddingBottom: 10,
+        //marginTop: 5,
     },
     location: {
         fontSize: 16,
@@ -236,6 +242,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 20,
         shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         shadowOffset: {
           width: 0,
           height: 2,

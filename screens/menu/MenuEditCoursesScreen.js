@@ -41,8 +41,7 @@ const MenuEditCoursesScreen = (props) => {
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-                await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
+                await app.apiClient().getCourseById({token: tokenLS}, course.id, handleResponseCourseResponse);                
             }
             console.log("[Menu Edit Courses screen] response: ", courses);
         } else {
@@ -53,10 +52,10 @@ const MenuEditCoursesScreen = (props) => {
     const onRefresh = async () => {
         console.log("[Menu Edit Courses screen] entro a onRefresh"); 
         setLoading(true);
-        let tokenLS = await app.getToken();
-        let idLS = await app.getId();
+        const tokenLS = await app.getToken();
+        const idLS = await app.getId();
         console.log("[Menu Edit Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {}, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {user_type: 'instructor'}, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 

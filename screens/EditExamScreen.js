@@ -269,15 +269,27 @@ const EditExamScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + +question.value;
         }
-        await app.apiClient().updateExam(
-            {
-                token: tokenLS,
-                state: selectedExam.state,
-                max_score: total_score,
-                approval_score: selectedExam.approval_score,
+        if (selectedExam.state === "draft"){
+            await app.apiClient().updateExam(
+                {
+                    token: tokenLS,
+                    max_score: total_score,
+                    approval_score: selectedExam.approval_score,
+    
+                }, 
+            selectedExam.id, handleApiResponseUpdateExam);
 
-            }, 
-        selectedExam.id, handleApiResponseUpdateExam);
+        } else {
+            await app.apiClient().updateExam(
+                {
+                    token: tokenLS,
+                    state: selectedExam.state,
+                    max_score: total_score,
+                    approval_score: selectedExam.approval_score,
+    
+                }, 
+            selectedExam.id, handleApiResponseUpdateExam);
+        }
         props.navigation.goBack();
     }
 

@@ -16,15 +16,6 @@ const MenuFavoriteCoursesScreen = (props) => {
     
     const [loading, setLoading] = useState(false);
 
-    /* const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Favorite Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Favorite Courses Screen] error", response.content().message);
-        }
-    } */
-
     const handleGetFavoriteCourses = (response) => {
         console.log("[Menu Favorite Courses Screen] content: ", response.content())
         if (!response.hasError()) {
@@ -34,34 +25,16 @@ const MenuFavoriteCoursesScreen = (props) => {
         }
     }
 
-    /* const handleApiResponseGetProfile = async (response) => {
-        console.log("[Menu Favorite Courses screen] content: ", response.content())
-        if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let id of response.content().favoriteCourses){
-                await app.apiClient().getCourseById({token: tokenLS}, id, handleResponseCourseResponse)
-            }
-            console.log("[Profile screen] error", response.content().message);
-        }
-    } */
-
     const onRefresh = async () => {
         console.log("[Menu Favorite Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Favorite Courses screen] token:",tokenLS);
-        /* await app.apiClient().getProfile({token: tokenLS}, idLS, handleApiResponseGetProfile); */
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
         console.log("[Menu Favorite Courses screen] id:", idLS);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Favorite Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props]); */
 
     useFocusEffect(
         useCallback(() => {

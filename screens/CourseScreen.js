@@ -503,7 +503,7 @@ const CourseScreen = (props) => {
                                     />
                                     </View>
                                     <KeyboardAvoidingView
-                                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                        behavior={Platform.OS === "ios" ? "padding" : "padding"}
                                     >
                                         <TextInput
                                             placeholder={opinion}

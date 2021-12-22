@@ -158,9 +158,10 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetUserFromCourse = (response) => {
+        console.log("USER FROM COURSE:", response.content())
         if (!response.hasError()) {
-            setRol(response.content().user_type);
-            if (response.content().approval_state){
+            //setRol(response.content().user_type);
+            if (response.content().approval_state) {
                 setApproved(true);
             }
         } else {
@@ -191,6 +192,7 @@ const CourseScreen = (props) => {
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
+            setRol(response.content().rol);
             for (let courseId of response.content().favoriteCourses){
                 if (courseId === item.id){
                     setFavorited(true);

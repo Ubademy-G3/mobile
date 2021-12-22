@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Image, Pressable, Alert } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../../app/app';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const MenuWalletScreen = (props) => {
     const [loading, setLoading] = useState(false);
@@ -73,6 +74,7 @@ const MenuWalletScreen = (props) => {
     );
 
     return (
+      <ScrollView>
       <View style={styles.container}>
         {wallet ? (
           <>
@@ -94,6 +96,7 @@ const MenuWalletScreen = (props) => {
            </>
         )}
       </View>
+      </ScrollView>
     )
 }
 

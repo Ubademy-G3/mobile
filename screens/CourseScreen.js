@@ -571,7 +571,6 @@ const CourseScreen = (props) => {
             </ScrollView>
             {!loading && rol === 'student' && (
                 <View style={styles.buttonsWrapper}>
-                    {console.log("PRUEBAAAA", subscribed)}
                     {!subscribed && (
                         <>
                             <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 

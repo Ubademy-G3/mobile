@@ -91,7 +91,7 @@ const MenuCollaborationsScreen = (props) => {
                                 <TouchableOpacity
                                     key={item.id}
                                     onPress={() => {
-                                    props.navigation.navigate('Edit Course', {item: item});
+                                    props.navigation.navigate('Course Screen', {item: item});
                                     }}
                                 >
                                     <CourseComponent 

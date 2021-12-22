@@ -144,7 +144,10 @@ const ProfileScreen = (props) => {
                   backgroundColor: item.selected ? '#87ceeb' : 'white',
                   marginLeft: item.id == 0 ? 20 : 0,
                 },
-              ]}>
+            ]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={{uri: item.photo_url}} style={styles.interestsImage} />
+                </View>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
@@ -259,18 +262,24 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
+        
+    },
+    interestsImage: {
+        width: 80,
+        height: 80,
     },
     titleWrapper: {
         paddingTop:35,
         paddingHorizontal: 10,
-        flex: 1, 
+        //flex: 1, 
         flexWrap: 'wrap',
-        flexDirection: "row",
+        flexDirection: 'row',
     },
     titlesTitle: {
         fontSize: 24,
         color: '#87ceeb',
-        textAlign: 'justify',        
+        textAlign: 'justify',
+        width: "85%", 
     },
     titlesRating: {
         paddingVertical: 5,
@@ -412,6 +421,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 20,
         shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         shadowOffset: {
           width: 0,
           height: 2,

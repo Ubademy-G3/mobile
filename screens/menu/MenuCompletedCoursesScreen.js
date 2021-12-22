@@ -41,7 +41,7 @@ const MenuCompletedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Completed Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', approval_state: true }, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', aprobal_state: true }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
 

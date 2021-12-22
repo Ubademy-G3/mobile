@@ -32,6 +32,7 @@ const CourseScreen = (props) => {
     const [updatingModules, setUpdatingModules] = useState(false);
     const [rol, setRol] = useState(null);
     const [progress, setProgress] = useState(0);
+    const [showOpinion, setShowOpinion] = useState(true);
     const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
@@ -158,7 +159,7 @@ const CourseScreen = (props) => {
 
     const handleResponseGetUserFromCourse = (response) => {
         if (!response.hasError()) {
-            if (response.content().aprobal_state){
+            if (response.content().approval_state){
                 setApproved(true);
             }
         } else {
@@ -278,6 +279,7 @@ const CourseScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().addRatingToCourse({token: tokenLS, user_id: idLS, score: starCount, opinion: opinion}, item.id, handleResponseAddRating);
+        setShowOpinion(false);
         setLoading(false);
     }
 
@@ -474,35 +476,43 @@ const CourseScreen = (props) => {
                         </>
                         {subscribed && approved && (
                             <View style={{paddingHorizontal: 15}}>
-                                <Text style={styles.opinionTitle}>Give your opinion about this course:</Text>
-                                <View style={{ justifyContent: "center", alignItems: "center" }}>
-                                <StarRating
-                                    disabled={false}
-                                    maxStars={5}
-                                    rating={starCount}
-                                    selectedStar={(rating) => onStarRatingPress(rating)}
-                                    containerStyle={{ width: "80%", paddingVertical: 10}}
-                                    starSize={35}
-                                    fullStarColor='gold'
-                                />
-                                </View>
-                                <KeyboardAvoidingView
-                                    style={styles.containerText}
-                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                                >
-                                    <TextInput
-                                        placeholder={opinion}
-                                        onChangeText={text => setOpinion(text)}
-                                        value={opinion}
-                                        multiline={true}
-                                        style={styles.inputText}
+                                {showOpinion && (
+                                    <>
+                                    <Text style={styles.opinionTitle}>Give your opinion about this course:</Text>
+                                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                                    <StarRating
+                                        disabled={false}
+                                        maxStars={5}
+                                        rating={starCount}
+                                        selectedStar={(rating) => onStarRatingPress(rating)}
+                                        containerStyle={{ width: "80%", paddingVertical: 10}}
+                                        starSize={35}
+                                        fullStarColor='gold'
                                     />
-                                </KeyboardAvoidingView>
-                                <TouchableOpacity
-                                    onPress={() => {handleSumbitSendOpinion()}}
-                                    style={styles.button}>
-                                    <Text style={styles.buttonText}>Send opinion</Text>
-                                </TouchableOpacity>
+                                    </View>
+                                    <KeyboardAvoidingView
+                                        behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                    >
+                                        <TextInput
+                                            placeholder={opinion}
+                                            onChangeText={text => setOpinion(text)}
+                                            value={opinion}
+                                            multiline={true}
+                                            style={styles.inputText}
+                                        />
+                                    </KeyboardAvoidingView>
+                                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                                        <TouchableOpacity
+                                            onPress={() => {handleSumbitSendOpinion()}}
+                                            style={[styles.button, {marginBottom: 10}]}>
+                                            <Text style={styles.buttonText}>Send opinion</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    </>
+                                )}
+                                {!showOpinion && (
+                                    <Text style={styles.opinionTitle}>Than you for your feedback!</Text>
+                                )}
                             </View>
                         )}
                         {subscribed && modules && media && (
@@ -852,7 +862,6 @@ const styles = new StyleSheet.create({
         paddingVertical: 35,
         borderRadius: 10,
         marginTop: 5,
-        marginBottom: 15,
     },
 });
 

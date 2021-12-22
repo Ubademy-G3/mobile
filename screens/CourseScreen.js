@@ -455,6 +455,18 @@ const CourseScreen = (props) => {
                                         <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
                                         <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            props.navigation.navigate('Collaborators List', {
+                                            course_id: item.id,
+                                            filter: false,
+                                            view_as: rol
+                                        });}}
+                                        style={[styles.buttonWithImage]}
+                                    >
+                                        <Image source={require("../assets/images/collaboratorsButton.jpg")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                                        <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </>
                         )}
@@ -554,18 +566,6 @@ const CourseScreen = (props) => {
                                 key={item.id}/>
                             ))}
                         </View> */}
-                        <TouchableOpacity
-                            onPress={() => {
-                                props.navigation.navigate('Collaborators List', {
-                                course_id: item.id,
-                                filter: false,
-                                view_as: rol
-                            });}}
-                            style={{flexDirection: 'row', alignItems: 'center'}}
-                        >
-                            <Image source={require("../assets/images/studentsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
-                            <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
-                        </TouchableOpacity>
                     </>
                 )}
             </ScrollView>

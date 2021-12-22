@@ -145,7 +145,10 @@ const ProfileScreen = (props) => {
                   backgroundColor: item.selected ? '#87ceeb' : 'white',
                   marginLeft: item.id == 0 ? 20 : 0,
                 },
-              ]}>
+            ]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={{uri: item.photo_url}} style={styles.interestsImage} />
+                </View>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
@@ -261,6 +264,10 @@ const styles = StyleSheet.create({
         height: 100,
         borderRadius: 50,
         
+    },
+    interestsImage: {
+        width: 80,
+        height: 80,
     },
     titleWrapper: {
         paddingTop:35,
@@ -415,6 +422,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 20,
         shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         shadowOffset: {
           width: 0,
           height: 2,

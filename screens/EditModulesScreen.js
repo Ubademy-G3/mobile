@@ -391,6 +391,7 @@ const EditModulesScreen = (props) => {
                                         description: text,
                                     })}
                                     value={course.description}
+                                    multiline={true}
                                     style={styles.inputCourse}
                                 />
                                 <Text style={styles.inputText}>Location</Text>

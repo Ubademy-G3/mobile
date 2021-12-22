@@ -53,12 +53,16 @@ const LoginScreen = (props) => {
                     lastName: googleData.lastName});
             }            
             else {
-                /* setError({
-                    messageError: response.content().message,
-                    showError: true,
-                }); */
+                if (response.content().status === 400) {
+                    setModalErrorText("Invalid fields");
+                } else if (response.content().status === 403) {
+                    setModalErrorText("Invalid credentials");
+                } else if (response.content().status === 404) {
+                    setModalErrorText("User not found with given email");
+                } else {
+                    setModalErrorText("Unexpected error. Please try again in a few seconds.");
+                }
                 console.log("[Login screen] error message: ", response.content().message);
-                setModalErrorText(response.content().message);
                 setModalErrorVisible(true);
                 /* Alert.alert(
                     "Error:",
@@ -73,7 +77,7 @@ const LoginScreen = (props) => {
             console.log("[Login screen] id: ", response.content().id);
             console.log("[Login screen] token: ", response.content().token);
             if (response.content().subscriptionState === "about_to_expire") {
-                setModalAttentionText("Your subscription is going to expire in 5 days, remember to renew it.");
+                setModalAttentionText("Your subscription is about to expire, remember to renew it.");
                 setModalAttentionVisible(true);
                 setToken(response.content().token);
                 setId(response.content().id);

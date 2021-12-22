@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert, Modal, Pressable } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, KeyboardAvoidingView, ScrollView, TextInput, Modal, Pressable } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -21,6 +21,9 @@ const CourseScreen = (props) => {
     const [subscribed, setSubscribed] = useState(false);
     const [favorited, setFavorited] = useState(false);
     const [rating, setRating] = useState({});
+    const [starCount, setStarCount] = useState(0);
+    const [opinion, setOpinion] = useState("");
+    const [approved, setApproved] = useState(false);
     const [instructors, setInstructors] = useState([]);
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
     const [exams, setExams] = useState([]);
@@ -253,6 +256,14 @@ const CourseScreen = (props) => {
         setLoading(false);
     }
 
+    const handleSumbitSendOpinion = async () => {
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        await app.apiClient().
+        setLoading(false);
+    }
+
     const onRefresh = async () => {
         console.log("[Course screen] entro a onRefresh"); 
         setLoading(true);
@@ -262,6 +273,7 @@ const CourseScreen = (props) => {
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, {}, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
+        //await app.apiClient().
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);
         await app.apiClient().getAllMedia({token: tokenLS}, item.id, handleGetMedia);
@@ -295,9 +307,14 @@ const CourseScreen = (props) => {
         return m;
     };
 
+    const onStarRatingPress = (rating) => {
+        setStarCount(rating);
+      }
+
     return (
-        <View style={styles.container}>
-            <View style={styles.centeredView}>
+        <View style={styles.centeredView}>
+            {modalVisible && (
+                <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
                 <Modal
                     animationType="slide"
                     transparent={true}
@@ -306,7 +323,7 @@ const CourseScreen = (props) => {
                     setModalVisible(!modalVisible);
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
                         <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
                                 <MaterialCommunityIcons
@@ -327,7 +344,8 @@ const CourseScreen = (props) => {
                         </View>
                     </View>
                 </Modal>
-            </View>
+                </View>
+            )}
             <ScrollView>
                 {loading && (
                     <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
@@ -437,6 +455,39 @@ const CourseScreen = (props) => {
                                 </View>
                             </View>
                         </>
+                        {subscribed && approved && (
+                            <View style={{paddingHorizontal: 15}}>
+                                <Text style={styles.opinionTitle}>Give your opinion about this course:</Text>
+                                <View style={{ justifyContent: "center", alignItems: "center" }}>
+                                <StarRating
+                                    disabled={false}
+                                    maxStars={5}
+                                    rating={starCount}
+                                    selectedStar={(rating) => onStarRatingPress(rating)}
+                                    containerStyle={{ width: "80%", paddingVertical: 10}}
+                                    starSize={35}
+                                    fullStarColor='gold'
+                                />
+                                </View>
+                                <KeyboardAvoidingView
+                                    style={styles.containerText}
+                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                                >
+                                    <TextInput
+                                        placeholder={opinion}
+                                        onChangeText={text => setOpinion(text)}
+                                        value={opinion}
+                                        multiline={true}
+                                        style={styles.inputText}
+                                    />
+                                </KeyboardAvoidingView>
+                                <TouchableOpacity
+                                    onPress={() => {handleSumbitSendOpinion()}}
+                                    style={styles.button}>
+                                    <Text style={styles.buttonText}>Send opinion</Text>
+                                </TouchableOpacity>
+                            </View>
+                        )}
                         {subscribed && modules && media && (
                             <View style={styles.studentListWrapper}>
                                 <Text style={styles.instructorsTitle}>Units</Text>
@@ -467,7 +518,7 @@ const CourseScreen = (props) => {
                                 ))}
                             </View>
                         )}
-                        <View style={styles.studentListWrapper}>
+                        {/* <View style={styles.studentListWrapper}>
                             <Text style={styles.instructorsTitle}>Instructors</Text>
                             {instructors.map(item => (
                                 <ProfilesListComponent 
@@ -475,7 +526,19 @@ const CourseScreen = (props) => {
                                 navigation={props.navigation}
                                 key={item.id}/>
                             ))}
-                        </View>
+                        </View> */}
+                        <TouchableOpacity
+                            onPress={() => {
+                                props.navigation.navigate('Collaborators List', {
+                                course_id: item.id,
+                                filter: false,
+                                view_as: rol
+                            });}}
+                            style={{flexDirection: 'row', alignItems: 'center'}}
+                        >
+                            <Image source={require("../assets/images/studentsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                            <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
+                        </TouchableOpacity>
                     </>
                 )}
             </ScrollView>
@@ -613,6 +676,11 @@ const styles = new StyleSheet.create({
         fontSize: 16,
         marginTop: 5,
     },
+    opinionTitle: {
+        fontSize: 16,
+        marginTop: 10,
+        fontWeight: "bold",
+    },
     featuresItemText: {},
     subscribeWrapper: {
         marginBottom: 15,
@@ -726,9 +794,7 @@ const styles = new StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        marginTop: 22
+        //marginTop: 22
     },
     modalView: {
         margin: 20,
@@ -762,7 +828,15 @@ const styles = new StyleSheet.create({
     modalText: {
         marginBottom: 15,
         textAlign: "center"
-    }
+    },
+    inputText: {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        paddingVertical: 35,
+        borderRadius: 10,
+        marginTop: 5,
+        marginBottom: 15,
+    },
 });
 
 export default CourseScreen;

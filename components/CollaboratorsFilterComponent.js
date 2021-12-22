@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, CheckBox} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { Checkbox } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 
@@ -67,14 +66,10 @@ const CollaboratorsFilterComponent = (props) => {
     const renderProgressItem = ({ item }) => {
         return (
             <View style={styles.listItem}>
-              {/* <CheckBox
+              <CheckBox
                 value={item.isChecked}
                 onValueChange={() => { addProgress(item); }}
-              /> */}
-            <Checkbox
-                status={item.isChecked}
-                onPress={() => { addProgress(item); }}
-            />
+              />
               <Text>{item.name}</Text>
             </View>
         );

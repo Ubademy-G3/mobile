@@ -113,6 +113,7 @@ const ListStudentScreen = (props) => {
             </View>
           ) : (
             <>
+            {view_as !== "collaborator" && (
               <View>
                 <TouchableOpacity
                     onPress={() => { setFiltersVisible(!filtersVisible) }}
@@ -122,6 +123,7 @@ const ListStudentScreen = (props) => {
                     <Text>Filters</Text>
                 </TouchableOpacity>
               </View>
+            )}
               {filtersVisible && (
                   <UsersFilterComponent updateUsers={filterUsers} />
               )}

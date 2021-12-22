@@ -11,6 +11,7 @@ const MyExamsScreen = (props) => {
         <>
             {rol !== 'student' && (
                 <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    {rol === "instructor" && (
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('My Exam Templates', {
@@ -21,6 +22,7 @@ const MyExamsScreen = (props) => {
                     >
                         <Text style={styles.buttonOutlineText}>Exam Templates</Text>
                     </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('Solved Exams', {

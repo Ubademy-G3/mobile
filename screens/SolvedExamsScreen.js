@@ -173,24 +173,6 @@ const SolvedExamsScreen = (props) => {
                                 ))}
                             </>
                         )}
-                        <TouchableOpacity
-                            onPress = {()=> {props.navigation.navigate('Create New Exam', {
-                                id: param_course_id,
-                                })}}
-                            style={styles.questionWrapper}
-                        >
-                            <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center', flexDirection: 'row'}]}>
-                                    <View style={styles.addQuestionView}>
-                                        <Text style={styles.buttonText}>Create New Exam</Text>
-                                        <Feather
-                                            name="plus"
-                                            size={20}
-                                            color={'white'}
-                                            style={styles.buttonEditIconRight}
-                                        />
-                                    </View>
-                            </View>
-                        </TouchableOpacity>
                     </>
                 )}
             </ScrollView>

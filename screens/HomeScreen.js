@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
@@ -21,25 +21,9 @@ const HomeScreen = (props) => {
   const [indexCarousel, setIndexCarousel] = React.useState(0);
   const [filtered, setFiltered] = useState(false);
 
-  /*const handleGetRating = (response) => {
-    if (!response.hasError()) {
-        return response.content();
-    } else {
-        console.log("[Home screen] error", response.content().message);
-    }
-  }*/
-
   const handleGetAllCourses = async (response) => {
     if (!response.hasError()) {
-        //const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        /*courses = await Promise.all(
-          courses.map(async (course) => {
-            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
-            course.rating = rating;
-            return course;
-          })
-        );*/
         setCourses(courses);
     } else {
         console.log("[Home screen] error", response.content().message);
@@ -48,16 +32,7 @@ const HomeScreen = (props) => {
 
   const handleSearchCourses = async (response) => {
     if (!response.hasError()) {
-        //const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        /*courses = await Promise.all(
-          courses.map(async (course) => {
-            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
-            course.rating = rating;
-            return course;
-          })
-        );*/
-        console.log(courses);
         setCourses(courses);
     } else {
         console.log("[Search by subscription screen] error", response.content().message);
@@ -72,11 +47,6 @@ const HomeScreen = (props) => {
     app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
     setLoading(false);
   };
-
-  /* useEffect(() => {
-      console.log("[Home screen] entro a useEffect");
-      onRefresh();
-  }, []); */
 
   useFocusEffect(
     useCallback(() => {
@@ -120,44 +90,6 @@ const HomeScreen = (props) => {
     await app.apiClient().searchCourse({ token: tokenLS }, q, handleSearchCourses);
     setFiltered(true);
     setLoading(false);
-  }
-
-  const renderVerticalCourseItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-        key={item.id}
-        onPress={() => {
-          props.navigation.navigate('Course Screen', {
-            item: item,
-          });
-        }}
-      >
-        <View style={styles.verticalCourseItemWrapper}>
-          <Image
-            source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
-            style={styles.image}
-          />
-          <View style={{ width: '70%', marginLeft: 10 }}>
-            <Text style={styles.courseTitle}>{item.name}</Text>
-            <Text numberOfLines={2}>{item.description}</Text>
-            <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating_avg}</Text>
-              <StarRating
-                disabled={true}
-                maxStars={5}
-                rating={item.rating_avg}
-                containerStyle={{ width: '40%', marginLeft: 5 }}
-                //starStyle={{ color: 'gold' }}
-                starSize={20}
-                fullStarColor='gold'
-              />
-              <Text style={{ marginLeft: 5 }}>{`(${item.rating_amount})`}</Text>
-            </View>
-            <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
   }
 
   const renderHorizontalCourseItem = ({ item }) => {
@@ -247,7 +179,12 @@ const HomeScreen = (props) => {
                   />
               </View>
           </View>
-
+          {filtered && courses.length === 0 && (
+            <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+              <Text style={styles.examsText}>Oops.. could not find any course</Text>
+            </View>
+          )}
           {courses && (
             <>
               {!filtered && (

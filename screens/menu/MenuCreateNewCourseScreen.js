@@ -98,7 +98,11 @@ const MenuCreateNewCourseScreen = (props) => {
                 ]
             ); */
         } else {
-            setModalErrorText(response.content().message);
+            if (response.content().status === 422) {
+                setModalErrorText("Invalid fields");
+            } else{
+                setModalErrorText(response.content().message);
+            }
             setModalErrorVisible(true);
             /* Alert.alert(
                 "Create Course Unsuccesfull",

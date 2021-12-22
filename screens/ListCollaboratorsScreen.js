@@ -18,8 +18,10 @@ const ListCollaboratorsScreen = (props) => {
 
   const [loading, setLoading] = useState(false); 
   const [collaboratorsData, setCollaboratorsData] = useState([]);
-  const [filter, setFilter] = useState (0);
+  const [filter, setFilter] = useState(0);
+  const [filtered, setFiltered] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
+  const [examsGraded, setExamsGraded] = useState([])
 
   const handleGetProfileFromList = (response) => {
     console.log("[List Collaborators Screen] content: ", response.content())
@@ -29,6 +31,16 @@ const ListCollaboratorsScreen = (props) => {
       console.log("[List Collaborators Screen] error", response.content().message);
     }
   }
+
+  const handleResponseGetExams = (response) => {
+    console.log("[List Collaborators Screen] content: ", response.content())
+    if (!response.hasError()) {
+      setExamsGraded(response.content().exam_solutions);
+    } else {
+      console.log("[List Collaborators Screen] error", response.content().message);
+    }
+  }
+
 
   const handleGetAllUsersInCourse = async (response) => {
       console.log("[List Collaborators Screen] get all users content: ", response.content())
@@ -50,6 +62,7 @@ const ListCollaboratorsScreen = (props) => {
     let tokenLS = await app.getToken();
     console.log("[Student screen] token:", tokenLS); 
     await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'collaborator' }, handleGetAllUsersInCourse);
+    await app.apiClient().getSolvedExamsByCourse({token: tokenLS}, param_id, { graded: true }, handleResponseGetExams);
     setLoading(false);
   };
 
@@ -58,6 +71,14 @@ const ListCollaboratorsScreen = (props) => {
       setCollaboratorsData([]);
       onRefresh();
   }, []);
+
+  useEffect(() => {
+    if (filter != 0){
+      setFiltered(true);
+    } else {
+      setFiltered(false);
+    }
+  }, [filter]);
 
   const filterCollaborators = async (query) => {
     setLoading(true);
@@ -76,17 +97,17 @@ const ListCollaboratorsScreen = (props) => {
   }
 
   const getAmountFromExams = (id, key) => {
-    let _collaborators = [...collaboratorsData];
-    const c = exams_graded.filter((c) => {
+    const c = examsGraded.filter((c) => {
         let a = (c.corrector_id === id);
         if (a) {
-          _collaborators[key].amount_graded  += 1;
+          c.amount_graded  += 1;
         }
       return a;
     });
-    setCollaboratorsData(_collaborators);
     var uniq = [ ...new Set(c) ]; 
-    uniq.filter((r) => r.amount === filter || r.amount > filter);
+    console.log("UNIQ PRE", uniq);
+    uniq.filter((r) => r.amount_graded === filter || r.amount_graded > filter);
+    console.log("UNIQ POST", uniq);
     return uniq;
 };
 
@@ -134,7 +155,13 @@ const ListCollaboratorsScreen = (props) => {
               )}
               {collaboratorsData.map((item, key) => (
                 <View key={item.id}>
-                {getAmountFromExams(item.id, key).map(item_list => (
+                {!filtered && (
+                  <ProfilesListComponent 
+                    item={item}
+                    navigation={props.navigation}
+                  />
+                )}
+                {filtered && getAmountFromExams(item.id, key).map(item_list => (
                   <ProfilesListComponent 
                     item={item_list}
                     navigation={props.navigation}

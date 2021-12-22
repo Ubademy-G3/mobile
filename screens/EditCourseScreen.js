@@ -191,7 +191,7 @@ const EditCourseScreen = (props) => {
 
     return (
         <View style={styles.centeredView}>
-            {modalSuccessVisible || modalErrorVisible && (
+            {(modalSuccessVisible || modalErrorVisible) && (
                 <>
                 <Modal
                     animationType="slide"

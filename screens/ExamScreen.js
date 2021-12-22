@@ -322,6 +322,9 @@ const styles = new StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+        flex: 1, 
+        flexWrap: 'wrap',
+        flexDirection: "row",
     },
     saveWrapper: {
         marginBottom: 15,

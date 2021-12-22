@@ -182,10 +182,12 @@ const ProfileScreen = (props) => {
                         </View>
                         {userData.rol === "student" && (
                             <>
+                            {userData.location != "" && (
                             <View style={styles.locationWrapper}>
                                 <Text style={styles.locationTitle}>Location:</Text>
                                 <Text style={styles.location}>{userData.location}</Text>
                             </View>
+                            )}
                             <View style={styles.categoriesWrapper}>
                                 <Text style={styles.coursesTitle}>Your interests</Text>
                                 <View style={styles.categoriesListWrapper}>

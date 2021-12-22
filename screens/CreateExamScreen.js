@@ -18,7 +18,7 @@ const CreateExamScreen = (props) => {
     const [nameSaved, setNameSaved] = useState(false);
     const [questionSaved, setQuestionSaved] = useState(true);
     const [questionMC, setQuestionMC] = useState("");
-    const [finishedMC, setFinishedMC] = useState(false);
+    /* const [finishedMC, setFinishedMC] = useState(false); */
 
     /*const initialValues = [{ id: "points", value: 1 }];
     
@@ -173,7 +173,7 @@ const CreateExamScreen = (props) => {
     const handleSubmitEditQuestion = (key) => {
         const _inputs = [...inputs];
         _inputs[key].question_saved = false;
-        setFinishedMC(false);
+        /* setFinishedMC(false); */
         setInputs(_inputs);
     }
 
@@ -181,13 +181,13 @@ const CreateExamScreen = (props) => {
         const _inputs = [...inputs];
         //_inputs[key].is_multiple_choice = true;
         _inputs[key].question_type = "multiple_choice";
-        setFinishedMC(false);
+        /* setFinishedMC(false); */
         setInputs(_inputs);
     }
 
     const handleDevelopPressed = (key) => {
         const _inputs = [...inputs];
-        setFinishedMC(false);
+        /* setFinishedMC(false); */
         setQuestionMC("");
         _inputs[key].options = [];
         _inputs[key].question_type = "written";
@@ -246,9 +246,9 @@ const CreateExamScreen = (props) => {
         setQuestionMC("");
     }
 
-    const handleSaveMC = () => {
+    /* const handleSaveMC = () => {
         setFinishedMC(true);
-    } 
+    }  */
 
     const handleSubmitValue = (value, key) => {
         //setPoints(value);
@@ -262,11 +262,11 @@ const CreateExamScreen = (props) => {
         setExam({...exam, approval_score: value});
     }
 
-    const setCorrect = (key, idx) => {
+    /* const setCorrect = (key, idx) => {
         const _inputs = [...inputs];
         _inputs[key].correct = idx;
         setInputs(_inputs);
-    }
+    } */
 
     const saveExam = async () => {
         let tokenLS = await app.getToken();
@@ -310,7 +310,7 @@ const CreateExamScreen = (props) => {
                     setModalVisible(!modalVisible);
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center"}]}>
                         <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
                                 <MaterialCommunityIcons
@@ -396,16 +396,6 @@ const CreateExamScreen = (props) => {
                                                     color={'black'}
                                                 />
                                             </TouchableOpacity>
-                                            <TouchableOpacity
-                                                    onPress = {()=> {}}
-                                                    style={[styles.buttonSaveIconRight]}
-                                                >
-                                                    <MaterialCommunityIcons
-                                                        name="image-plus"
-                                                        size={20}
-                                                        color={'black'}
-                                                    />
-                                            </TouchableOpacity>
                                             <TouchableOpacity 
                                             onPress = {()=> deleteHandler(key)}
                                             style={styles.buttonInputIcon}
@@ -472,7 +462,7 @@ const CreateExamScreen = (props) => {
                                     {input.question_type === "written" && (
                                         <Text style={styles.choiceText}>The answer will be a free text response.</Text>
                                     )}
-                                    {(input.question_type === "multiple_choice" && (!finishedMC)) && (
+                                    {input.question_type === "multiple_choice" && (
                                         <>
                                             <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
                                             <Text style={styles.choiceText}>Fill the multiple answers:</Text>
@@ -501,7 +491,7 @@ const CreateExamScreen = (props) => {
                                                 </TouchableOpacity>
                                                 {/*</View>*/}
                                             </View>
-                                            <View style={styles.buttonSaveMC}>
+                                            {/* <View style={styles.buttonSaveMC}>
                                                 <TouchableOpacity
                                                     onPress={() => {handleSaveMC()}}
                                                     style={[styles.button,
@@ -514,13 +504,13 @@ const CreateExamScreen = (props) => {
                                                         name="check-bold"
                                                         size={20}
                                                         color={'black'}
-                                                    />*/}
+                                                    />
                                                     <Text style={styles.buttonText}>Save Multiple Choice</Text>
                                                 </TouchableOpacity>
-                                            </View>
+                                            </View> */}
                                         </>
                                     )}
-                                    {(input.question_type === "multiple_choice" && (finishedMC)) && (
+                                    {/* {(input.question_type === "multiple_choice" && (finishedMC)) && (
                                         <>
                                             <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
                                             <SelectDropdown
@@ -536,7 +526,7 @@ const CreateExamScreen = (props) => {
                                                 }}
                                             />
                                         </>
-                                    )}
+                                    )} */}
                                 </>
                             )}
                             { input.question_saved && (
@@ -653,7 +643,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     inputsContainer: {
-        //flex: 1, 
+        padding: 15,  
         //marginBottom: 20,
     },
     inputContainer: {
@@ -773,6 +763,9 @@ const styles = StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+        flex: 1, 
+        flexWrap: 'wrap',
+        flexDirection: "row",
     },
     courseCardWrapper: {
         backgroundColor: 'white',
@@ -872,8 +865,6 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
     },
 })
 

@@ -212,8 +212,9 @@ const CourseScreen = (props) => {
                     setProgress(course.progress);
                     //setRol(course.user_type);
                 }
-                if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
+                if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
+                    break;
                 }
             }
         } else {

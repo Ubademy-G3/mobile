@@ -96,6 +96,7 @@ const ExamScreen = (props) => {
     }
 
     const handleSubmitSave = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         console.log("ANSWERS")
         console.log(answer)
@@ -103,6 +104,7 @@ const ExamScreen = (props) => {
             await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId, handleResponseCreateNewAnswer);
         }
         props.navigation.goBack();
+        setLoading(false);
     }
 
     const handleSubmitSetAnswer = (key, asw, question_id) => {
@@ -221,7 +223,8 @@ const ExamScreen = (props) => {
             </ScrollView>
             {!blocked && (
             <View style={styles.saveButtonWrapper}>
-                <TouchableOpacity onPress={() => handleSubmitSave()}> 
+                <TouchableOpacity
+                onPress={() => handleSubmitSave()}> 
                     <View style={styles.saveWrapper}>
                         <Text style={styles.saveText}>Save</Text>
                     </View>

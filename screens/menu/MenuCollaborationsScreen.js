@@ -23,24 +23,15 @@ const MenuCollaborationsScreen = (props) => {
         } else {
             console.log("[Menu Collaborations Courses Screen] error", response.content().message);
         }
-    }
-    
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content().rating);
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
+    }    
 
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Collaborations Courses screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-                await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
+                await app.apiClient().getCourseById({token: tokenLS}, course.id, handleResponseCourseResponse);
+                
             }
             console.log("[Menu Collaborations Courses screen] response: ", courses);
         } else {

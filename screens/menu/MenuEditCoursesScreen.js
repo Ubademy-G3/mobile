@@ -18,15 +18,6 @@ const MenuEditCoursesScreen = (props) => {
 
     const [rating, setRating] = useState(0);
 
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content().rating);
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
-
     const handleResponseCourseResponse = (response) => {
         console.log("[Menu Edit Courses Screen] content: ", response.content())
         if (!response.hasError()) {

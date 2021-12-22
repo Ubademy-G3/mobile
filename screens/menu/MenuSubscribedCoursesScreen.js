@@ -30,7 +30,7 @@ const MenuSubscribedCoursesScreen = (props) => {
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse)
+                await app.apiClient().getCourseById({token: tokenLS}, course.id, handleResponseCourseResponse)
             }
             console.log("[Menu Subscribed Courses screen] response: ", courses);
         } else {

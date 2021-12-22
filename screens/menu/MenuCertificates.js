@@ -1,86 +1,95 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
-import CourseComponent from "../../components/CourseComponent"
+import CertificateComponent from "../../components/CertificateComponent";
 import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const MenuEditCoursesScreen = (props) => {
-
+const MenuCertificates = (props) => {
     const [loading, setLoading] = useState(false);
-    
-    const [courses, setCourses] = useState([]);
+    const [courses, setCourses] = useState(null);
+    const [certificates, setCertificates] = useState(null);
 
-    const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Edit Courses screen] content: ", response.content())
+    const handleResponseCourseResponse = (response) => {
+        console.log("[Menu Certificated Screen] content: ", response.content())
         if (!response.hasError()) {
-            setCourses(response.content().courses)
+            //console.log("COURSES:", response.content().courses);
+            setCourses(response.content().courses);
         } else {
-            console.log("[Menu Edit Courses screen] error", response.content().message);
+            console.log("[Menu Certificated Screen] error", response.content().message);
+        }
+    }
+
+    const handleGetCertificatesResponse = (response) => {
+        console.log("[Menu Certificated Screen] content: ", response.content())
+        if (!response.hasError()) {
+            console.log("CERTIFICATES:", response.content().certificates);
+            setCertificates(response.content().certificates);
+        } else {
+            console.log("[Menu Certificated Screen] error", response.content().message);
         }
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Edit Courses screen] entro a onRefresh"); 
+        console.log("[Menu Certificates screen] entro a onRefresh"); 
         setLoading(true);
-        const tokenLS = await app.getToken();
-        const idLS = await app.getId();
-        console.log("[Menu Edit Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {user_type: 'instructor'}, handleResponseGetCoursesByUser);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
+        console.log("[Menu Certificates screen] token:", tokenLS);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student', aprobal_state: true }, handleResponseCourseResponse);
+        await app.apiClient().getAllCertificates({ token: tokenLS }, idLS, handleGetCertificatesResponse)
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Edit Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props.navigate]); */
-
+  
     useFocusEffect(
         useCallback(() => {
-            setCourses([]);
             onRefresh();
         }, [])
     );
 
+    const getCourseById = (id) => {
+        let course = courses.filter((c) => {
+            return c.id === id;
+        });
+        return course[0];
+    }
+
     return (
         <View style={styles.container}>
-            {
-            loading ? 
+            {loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
                     <ActivityIndicator color="#696969" animating={loading} size="large" /> 
                 </View>
             :
-            <>
+                <>
                 <ScrollView>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Create new courses to edit your courses here.</Text>
+                    <View style={styles.coursesCardWrapper}>
+                    {!loading && (!courses || !certificates || certificates.length === 0) && (
+                        <Text style={styles.courseText}>Complete courses to get certifications.</Text>
                     )}
-                    {courses.map((item) => (
-                        <View style={styles.coursesCardWrapper} key={item.id}>
-                            <TouchableOpacity
-                                key={item.id}
-                                onPress={() => {
-                                props.navigation.navigate('Edit Course', {item: item});
-                                }}
-                            >
-                                <CourseComponent 
-                                item={item}
-                                key={item.id}
-                                />
-                            </TouchableOpacity>
-                        </View>
+                    {!loading && courses && certificates && certificates.map((item) => (
+                        <TouchableOpacity
+                            key={item.course_id}
+                            onPress={() => {
+                                props.navigation.navigate('My Certificate', { item: getCourseById(item.course_id), pdf: item.pdf_path });
+                            }}
+                        >
+                            <CertificateComponent 
+                                item={getCourseById(item.course_id)}
+                                key={item.course_id}
+                            />
+                        </TouchableOpacity>
                     ))}
+                    </View>
                 </ScrollView>
-            </>
+                </>
             }
         </View>
-    )
+    );
 }
 
 const styles = StyleSheet.create({
@@ -108,6 +117,9 @@ const styles = StyleSheet.create({
     },
     coursesCardWrapper: {
         paddingHorizontal: 15,
+      },
+    coursesTitle: {
+        fontSize: 20,
     },
     courseCardWrapper: {
         backgroundColor: 'white',
@@ -180,4 +192,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default MenuEditCoursesScreen;
+export default MenuCertificates;

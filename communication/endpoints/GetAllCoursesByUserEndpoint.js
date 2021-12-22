@@ -21,21 +21,22 @@ function serializeQuery(params, prefix) {
 
 export class GetAllCoursesByUserEndpoint extends Endpoint {
     constructor(userId, query) {
-        super(userId, query);
-        console.log("entro al constructor:", userId, query);
-        this._user_id = userId;
-        this._query = query;
-        console.log("salgo del constructor:", this._user_id, this._query);
+      super(userId, query);
+      console.log("entro al constructor:", userId, query);
+      this._user_id = userId;
+      this._query = query;
+      console.log("salgo del constructor:", this._user_id, this._query);
     }
     url() {
-        let url = `/users/${this._user_id}/courses`;
-        const params = serializeQuery(this._query);
-        if (params.length > 0) {
-            url = url.concat(`?${params}`);
-        }
-        console.log("URL")
-        console.log(url)
-        return url;
+      let url = `/courses/user/${this._user_id}/rated`;
+      const params = serializeQuery(this._query);
+      if (params.length > 0) {
+        url = url.concat(`?${params}`);
+      }
+
+      console.log("URL")
+      console.log(url)
+      return url;
     }
 
     method() {

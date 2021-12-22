@@ -1,6 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
@@ -14,23 +13,10 @@ const MenuCreatedCoursesScreen = (props) => {
     const [loading, setLoading] = useState(false);
     const [courses, setCourses] = useState([]);
 
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Created Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Created Courses Screen] error", response.content().message);
-        }
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
         console.log("[Menu Created Courses screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-            }
-            console.log("[Menu Created Courses screen] response: ", courses);
+            setCourses(response.content().courses)
         } else {
             console.log("[Menu Created Courses screen] error", response.content().message);
         }
@@ -42,7 +28,7 @@ const MenuCreatedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Created Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, {}, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'creator' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
   

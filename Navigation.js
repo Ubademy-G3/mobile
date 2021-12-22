@@ -38,7 +38,9 @@ import MyExamsScreen from './screens/MyExamsScreen';
 import MyExamTemplatesScreen from './screens/MyExamTemplatesScreen';
 import SolvedExamsScreen from './screens/SolvedExamsScreen';
 import ListExamsScreen from './screens/ListExamsScreen';
+import MenuCertificates from './screens/menu/MenuCertificates';
 import ListCollaboratorsScreen from './screens/ListCollaboratorsScreen';
+import CertificateScreen from './screens/CertificateScreen';
 
 Entypo.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -68,6 +70,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
           <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
           <Drawer.Screen name="Wallet" component={MenuWalletScreen} />
+          <Drawer.Screen name="My Certificates" component={MenuCertificates} />
     </Drawer.Navigator>
   );
 }
@@ -143,6 +146,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="My Certificate" component={CertificateScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

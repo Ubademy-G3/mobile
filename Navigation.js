@@ -40,6 +40,7 @@ import SolvedExamsScreen from './screens/SolvedExamsScreen';
 import ListExamsScreen from './screens/ListExamsScreen';
 import MenuCertificates from './screens/menu/MenuCertificates';
 import ListCollaboratorsScreen from './screens/ListCollaboratorsScreen';
+import CertificateScreen from './screens/CertificateScreen';
 
 Entypo.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -145,6 +146,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="My Certificate" component={CertificateScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

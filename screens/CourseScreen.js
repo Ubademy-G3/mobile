@@ -464,7 +464,7 @@ const CourseScreen = (props) => {
                                         });}}
                                         style={[styles.buttonWithImage]}
                                     >
-                                        <Image source={require("../assets/images/collaboratorsButton.jpg")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                                        <Image source={require("../assets/images/collaboratorsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
                                         <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
                                     </TouchableOpacity>
                                 </View>

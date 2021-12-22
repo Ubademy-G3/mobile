@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIn
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
-import CourseComponent from "../../components/CourseComponent"
+import CertificateComponent from "../../components/CertificateComponent";
 import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
@@ -12,38 +12,36 @@ Feather.loadFont();
 const MenuCertificates = (props) => {
     const [loading, setLoading] = useState(false);
     const [courses, setCourses] = useState(null);
-    const [Certificates, setCertificates] = useState(null);
+    const [certificates, setCertificates] = useState(null);
 
     const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Created Courses Screen] content: ", response.content())
+        console.log("[Menu Certificated Screen] content: ", response.content())
         if (!response.hasError()) {
-            console.log("COURSES:", response.content().courses);
+            //console.log("COURSES:", response.content().courses);
             setCourses(response.content().courses);
         } else {
-            console.log("[Menu Created Courses Screen] error", response.content().message);
+            console.log("[Menu Certificated Screen] error", response.content().message);
         }
     }
 
-    /*const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Created Courses screen] content: ", response.content())
+    const handleGetCertificatesResponse = (response) => {
+        console.log("[Menu Certificated Screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for (let course of response.content().courses) {
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-            }
-            console.log("[Menu Created Courses screen] response: ", courses);
+            console.log("CERTIFICATES:", response.content().certificates);
+            setCertificates(response.content().certificates);
         } else {
-            console.log("[Menu Created Courses screen] error", response.content().message);
+            console.log("[Menu Certificated Screen] error", response.content().message);
         }
-    }*/
+    }
 
     const onRefresh = async () => {
         console.log("[Menu Certificates screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Certificates screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, {}, handleResponseCourseResponse);
+        console.log("[Menu Certificates screen] token:", tokenLS);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student', aprobal_state: true }, handleResponseCourseResponse);
+        await app.apiClient().getAllCertificates({ token: tokenLS }, idLS, handleGetCertificatesResponse)
         setLoading(false);
     };
   
@@ -52,6 +50,13 @@ const MenuCertificates = (props) => {
             onRefresh();
         }, [])
     );
+
+    const getCourseById = (id) => {
+        let course = courses.filter((c) => {
+            return c.id === id;
+        });
+        return course[0];
+    }
 
     return (
         <View style={styles.container}>
@@ -63,19 +68,19 @@ const MenuCertificates = (props) => {
                 <>
                 <ScrollView>
                     <View style={styles.coursesCardWrapper}>
-                    {!loading && courses && (
-                        <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
+                    {!loading && (!courses || !certificates || certificates.length === 0) && (
+                        <Text style={styles.courseText}>Complete courses to get certifications.</Text>
                     )}
-                    {!loading && courses && courses.map((item) => (
+                    {!loading && courses && certificates && certificates.map((item) => (
                         <TouchableOpacity
-                            key={item.id}
+                            key={item.course_id}
                             onPress={() => {
-                            props.navigation.navigate('Course Screen', {item: item});
+                                props.navigation.navigate('My Certificate', { item: getCourseById(item.course_id), pdf: item.pdf_path });
                             }}
                         >
-                            <CourseComponent 
-                            item={item}
-                            key={item.id}
+                            <CertificateComponent 
+                                item={getCourseById(item.course_id)}
+                                key={item.course_id}
                             />
                         </TouchableOpacity>
                     ))}

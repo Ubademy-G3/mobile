@@ -260,18 +260,20 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
+        
     },
     titleWrapper: {
         paddingTop:35,
         paddingHorizontal: 10,
-        flex: 1, 
+        //flex: 1, 
         flexWrap: 'wrap',
-        flexDirection: "row",
+        flexDirection: 'row',
     },
     titlesTitle: {
         fontSize: 24,
         color: '#87ceeb',
-        textAlign: 'justify',        
+        textAlign: 'justify',
+        width: "85%", 
     },
     titlesRating: {
         paddingVertical: 5,

@@ -274,7 +274,7 @@ const SignupScreen = (props) => {
                     />
                 </View>
             </SafeAreaView>
-            <ScrollView>
+            <ScrollView style = {styles.scrollView}>
                 <KeyboardAvoidingView
                 style={styles.container}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -417,6 +417,9 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         //paddingTop: 5,
+    },
+    scrollView:{
+        height: 400
     },
     headerContainer: {
         flex: 1,

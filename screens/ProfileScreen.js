@@ -66,8 +66,8 @@ const ProfileScreen = (props) => {
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             const courses_list = [];
-            for (let course of response.content().courses){
-                courses_list.push(course.course_id);
+            for (let course of response.content().courses) {
+                courses_list.push(course.id);
             }
             await app.apiClient().getAllCoursesFromList({token: tokenLS}, courses_list, handleGetCoursesFromList)
         } else {
@@ -100,7 +100,7 @@ const ProfileScreen = (props) => {
 
     const auxGetCourses = async () => {
         let tokenLS = await app.getToken();
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {user_type: userData.rol}, handleGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, { user_type: userData.rol }, handleGetCoursesByUser);
     }
 
     useEffect(() => {
@@ -121,7 +121,6 @@ const ProfileScreen = (props) => {
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
-        
     };
 
     useEffect(() => {

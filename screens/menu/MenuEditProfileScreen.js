@@ -277,7 +277,7 @@ const MenuEditProfileScreen = (props) => {
                 >
                     <KeyboardAvoidingView
                     style={styles.containerWrapper}
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    behavior={Platform.OS === "ios" ? "padding" : "padding"}
                     >
                             <TouchableOpacity
                                 onPress={() => {choosePhotoFromLibrary()}}

@@ -9,7 +9,7 @@ export class GetFavoriteCoursesByUserEndpoint extends Endpoint {
     }
     
     url() {
-        return `/users/${this._id}/favorites`
+        return `/users/${this._id}/favorites/rated`
     }
 
     method() {

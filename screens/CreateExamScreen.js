@@ -337,7 +337,7 @@ const CreateExamScreen = (props) => {
             <ScrollView style={styles.inputsContainer}>
                 <KeyboardAvoidingView
                     style={styles.containerWrapper}
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    behavior={Platform.OS === "ios" ? "padding" : "padding"}
                 > 
                 { !nameSaved && (
                     <View style={styles.nameWrapper}>

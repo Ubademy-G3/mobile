@@ -28,7 +28,7 @@ const MenuCreatedCoursesScreen = (props) => {
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         console.log("[Menu Created Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'creator' }, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'instructor' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
   

@@ -327,7 +327,7 @@ const LoginScreen = (props) => {
                 <ScrollView>
                     <KeyboardAvoidingView
                     style={styles.containerText}
-                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                    behavior={Platform.OS === "ios" ? "padding" : "padding"}
                     >
                         <View style={styles.inputContainer}>
                             <TextInput

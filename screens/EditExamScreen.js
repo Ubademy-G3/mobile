@@ -269,7 +269,7 @@ const EditExamScreen = (props) => {
             console.log("total scrore", total_score);
             total_score = total_score + +question.value;
         }
-        if (state === "draft"){
+        if (selectedExam.state === "draft"){
             await app.apiClient().updateExam(
                 {
                     token: tokenLS,
@@ -289,7 +289,7 @@ const EditExamScreen = (props) => {
     
                 }, 
             selectedExam.id, handleApiResponseUpdateExam);
-        } 
+        }
         props.navigation.goBack();
     }
 

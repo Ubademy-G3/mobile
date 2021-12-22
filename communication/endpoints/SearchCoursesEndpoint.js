@@ -24,7 +24,7 @@ export class SearchCoursesEndpoint extends Endpoint {
         this._query = query;
     }
     url() {
-        let url = "/courses";
+        let url = "/courses/rated";
         const params = serializeQuery(this._query);
         if (params.length > 0) {
             url = url.concat(`?${params}`);

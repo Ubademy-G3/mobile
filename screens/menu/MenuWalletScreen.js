@@ -3,6 +3,9 @@ import { StyleSheet, Text, View, Image, Pressable, Modal } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../../app/app';
 import { ScrollView } from 'react-native-gesture-handler';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+MaterialCommunityIcons.loadFont();
 
 const MenuWalletScreen = (props) => {
     const [loading, setLoading] = useState(false);

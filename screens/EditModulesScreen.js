@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
+import { Modal, Pressable, Text, View, Button, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput, Alert } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -323,7 +323,7 @@ const EditModulesScreen = (props) => {
           });
         console.log("CARGO UNA IMAGEN:", pickerResult);
         const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
-        console.log("Media URi:", mediaUri);  
+        console.log("MedsePhotoFroma URi:", mediaUri);  
         uploadPhotoOnFirebase(mediaUri);
     }
     

@@ -18,6 +18,7 @@ const MenuChangeSubscription = (props) => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selected, setSelected] = useState(null);
     const [downgrade, setDowngrade] = useState(false);
+    const [modalSuccessText, setModalSuccessText] = useState("")
 
     const handleApiResponseUpdate = (response) => {
         console.log("[Subscription screen] content: ", response.content())
@@ -35,6 +36,7 @@ const MenuChangeSubscription = (props) => {
             let user_id = await app.getId();
             await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
             setSubscription(selected);
+            setModalSuccessText(response.content().message)
             setModalSuccessVisible(true);
             /* Alert.alert(
                 "Deposit Successful",

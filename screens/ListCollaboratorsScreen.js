@@ -141,15 +141,17 @@ const ListCollaboratorsScreen = (props) => {
             </View>
           ) : (
             <>
-              <View>
-                <TouchableOpacity
-                    onPress={() => { setFiltersVisible(!filtersVisible) }}
-                    style={{ display:'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10, marginTop: 10 }}
-                >
-                    <Feather name="filter" color={"#444"} size={18} />
-                    <Text>Filters</Text>
-                </TouchableOpacity>
-              </View>
+              {view_as !== "collaborator" && (
+                <View>
+                  <TouchableOpacity
+                      onPress={() => { setFiltersVisible(!filtersVisible) }}
+                      style={{ display:'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10, marginTop: 10 }}
+                  >
+                      <Feather name="filter" color={"#444"} size={18} />
+                      <Text>Filters</Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               {filtersVisible && (
                   <CollaboratorsFilterComponent updateUsers={filterCollaborators} />
               )}

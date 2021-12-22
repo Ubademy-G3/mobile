@@ -289,6 +289,7 @@ const ExamCorrectionScreen = (props) => {
                 )}
                 {!loading && answers && questions && (
                     <>
+                    {console.log("ANSWERA LENGTH", answers)}
                     {answers.length === 0 && !solution.graded && (
                         <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />

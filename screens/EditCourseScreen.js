@@ -45,7 +45,7 @@ const EditCourseScreen = (props) => {
     const handleGetProfileFromList = (response) => {
         console.log("[Edit Course Screen] content: ", response.content())
         if (!response.hasError()) {
-                setCollaboratorsData(response.content());
+            setCollaboratorsData(response.content());
         } else {
             console.log("[Edit Course Screen] error", response.content().message);
         }
@@ -201,7 +201,7 @@ const EditCourseScreen = (props) => {
                     setModalErrorVisible(!modalErrorVisible);
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center"}]}>
                         <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
                                 <MaterialCommunityIcons
@@ -230,7 +230,7 @@ const EditCourseScreen = (props) => {
                     setModalSuccessVisible(!modalSuccessVisible);
                     }}
                 >
-                    <View style={styles.centeredView}>
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center"}]}>
                         <View style={styles.modalView}>
                             <View style={{ display:'flex', flexDirection: 'row' }}>
                                 <MaterialCommunityIcons
@@ -527,8 +527,6 @@ const styles = new StyleSheet.create({
     centeredView: {
         flex: 1,
         //flexDirection: 'column',
-        justifyContent: "center",
-        alignItems: "center",
         //marginTop: 22
     },
     modalView: {

@@ -185,7 +185,7 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        //console.log("[Course screen] content: ", response.content());
+        console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
@@ -213,7 +213,6 @@ const CourseScreen = (props) => {
                 }
                 if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
-                    break;
                 }
             }
         } else {
@@ -562,6 +561,7 @@ const CourseScreen = (props) => {
             </ScrollView>
             {!loading && rol === 'student' && (
                 <View style={styles.buttonsWrapper}>
+                    {console.log("PRUEBAAAA", subscribed)}
                     {!subscribed && (
                         <>
                             <TouchableOpacity onPress={() => handleSubmitSubscribe()}> 

@@ -74,9 +74,9 @@ const ListCollaboratorsScreen = (props) => {
 
   useEffect(() => {
     if (filter != 0){
-      setFiltered(true);
-    } else {
-      setFiltered(false);
+      setFiltered(!filtered);
+    /* } else {
+      setFiltered(false); */
     }
   }, [filter]);
 

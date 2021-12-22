@@ -221,7 +221,7 @@ const ExamScreen = (props) => {
                     )}
                 </>
             </ScrollView>
-            {!blocked && (
+            {!loading && !blocked && (
             <View style={styles.saveButtonWrapper}>
                 <TouchableOpacity
                 onPress={() => handleSubmitSave()}> 

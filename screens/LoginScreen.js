@@ -5,8 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
 import { ScrollView } from 'react-native-gesture-handler';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 MaterialCommunityIcons.loadFont();
+Ionicons.loadFont();
 
 const LoginScreen = (props) => {                   
     const [data, setData] = useState({
@@ -374,8 +376,17 @@ const LoginScreen = (props) => {
                                         //setsignupGoogle(true);
                                         setData({...data, loginType: "google"});
                                     }}
-                                    style={styles.button}>
-                                    <Text style={styles.buttonText}>Login with Google</Text>
+                                    style={styles.button}
+                                >
+                                    <View style={{display: 'flex', flexDirection: 'row', alignItems: "center", justifyContent: "center"}}>
+                                    <Ionicons
+                                        name="logo-google"
+                                        size={20}
+                                        color={"white"}
+                                        style={{marginRight: 15}}
+                                    />
+                                    <Text style={[styles.buttonText, {}]}>Login with Google</Text>
+                                    </View>
                                 </TouchableOpacity> 
                                 <TouchableOpacity
                                     onPress={() => {handleSubmitForgotPassword()}}

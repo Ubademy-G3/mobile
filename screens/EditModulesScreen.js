@@ -20,6 +20,11 @@ const EditModulesScreen = (props) => {
     const param_course = props.route.params.course;
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
+    const [modalAttentionVisible, setModalAttentionVisible] = useState(false);
+    const [modalAttentionTitle, setModalAttentionTitle] = useState("");
+    const [modalAttentionText, setModalAttentionText] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
+    const [modalSuccessText, setModalSuccessText] = useState("");
     const [loading, setLoading] = useState(false);
     const [modules, setModules] = useState(null);
     const [media, setMedia] = useState(null);
@@ -256,10 +261,12 @@ const EditModulesScreen = (props) => {
         newmodule[module_key].media_url = [];
         setModules(newmodule);
         setUpdatingModules(true);
-        Alert.alert(
+        setModalSuccessText("Your video was deleted succesfully");
+        setModalSuccessVisible(true);
+        /* Alert.alert(
             'Video deleted',
-            'Your video was deleted succesfully'
-        );
+            ''
+        ); */
     }
 
     const chooseVideoFromLibrary = async (key) => {
@@ -277,11 +284,13 @@ const EditModulesScreen = (props) => {
         console.log("uploadUri:", uploadUri);
         let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
         console.log("filename:", filename); 
-        
-        Alert.alert(
+        setModalAttentionTitle("Please wait:");
+        setModalAttentionText("Your video is uploading");
+        setModalAttentionVisible(true);
+        /* Alert.alert(
             'Please wait',
             'Your video is uploading'
-        );
+        ); */
 
         try {
             const response = await fetch(uploadUri);
@@ -296,10 +305,13 @@ const EditModulesScreen = (props) => {
             newmodule[key].media_url = [];
             setModules(newmodule);
             setUpdatingModules(true);
-            Alert.alert(
-                'Image Uploaded',
+            setModalAttentionTitle("Video Uploaded:");
+            setModalAttentionText("Your video has been uploaded");
+            setModalAttentionVisible(true);
+            /* Alert.alert(
+                'Video Uploaded',
                 'Your video has been uploaded'
-            );
+            ); */
         } catch(err) {
             console.log("Error en el firebase storage:", err);
         }
@@ -332,10 +344,13 @@ const EditModulesScreen = (props) => {
                 ...course,
                 profile_picture: newURL,
             })
-            Alert.alert(
+            setModalAttentionTitle("Image Uploaded:");
+            setModalAttentionText("Your image has been uploaded");
+            setModalAttentionVisible(true);
+            /* Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded'
-            );
+            ); */
         } catch(err) {
             console.log("Error en el firebase storage:", err);
         }
@@ -349,7 +364,70 @@ const EditModulesScreen = (props) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.centeredView}>
+            {(modalSuccessVisible || modalAttentionVisible) && (
+                <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Successfull deleted video:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalSuccessText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, {backgroundColor: "#9acd32"}]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalAttentionVisible}
+                    onRequestClose={() => {
+                    setModalAttentionVisible(!modalAttentionVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView,{justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="alert-circle-outline"
+                                    size={30}
+                                    color={"#87ceeb"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Image Uploaded:</Text>
+                            </View>
+                            <Text style={styles.modalText}>Your image has been uploaded</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonAttention]}
+                            onPress={() => setModalAttentionVisible(!modalAttentionVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
             <ScrollView>
                 {loading && (
                     <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
@@ -912,6 +990,48 @@ const styles = new StyleSheet.create({
         paddingBottom:15,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    centeredView: {
+        flex: 1,
+        /* justifyContent: "center",
+        alignItems: "center" */
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 });
 

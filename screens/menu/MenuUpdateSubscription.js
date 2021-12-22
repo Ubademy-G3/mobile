@@ -10,6 +10,9 @@ Feather.loadFont();
 
 const MenuChangeSubscription = (props) => {
     const [loading, setLoading] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
     const [subscription, setSubscription] = useState(null);
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
@@ -32,19 +35,24 @@ const MenuChangeSubscription = (props) => {
             let user_id = await app.getId();
             await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
             setSubscription(selected);
-            Alert.alert(
+            setModalSuccessVisible(true);
+            /* Alert.alert(
                 "Deposit Successful",
                 response.content().message,
                 [
                   { text: "OK", onPress: () => {} }
                 ]
-            );
+            ); */
         } else {
             console.log("[Subscription screen] error", response.content().message);
             if (response.content().message.includes("insufficient funds")) {
-                Alert.alert("Insufficient funds for transaction");
+                setModalErrorText("Insufficient funds for transaction");
+                setModalErrorVisible(true);
+                /* Alert.alert("Insufficient funds for transaction"); */
             } else {
-                Alert.alert("Please, try again in a few minutes");
+                setModalErrorText("Please, try again in a few minutes");
+                setModalErrorVisible(true);
+                /* Alert.alert("Please, try again in a few minutes"); */
             }
         }
     }
@@ -112,7 +120,70 @@ const MenuChangeSubscription = (props) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={styles.centeredView}>
+            {(modalSuccessVisible || modalErrorVisible) && (
+                <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Deposit Unsuccesfull:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Deposit Successful:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalSuccessText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, {backgroundColor: "#9acd32"}]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
@@ -327,7 +398,49 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         marginTop: 60,
-    }
+    },
+    centeredView: {
+        flex: 1,
+        /* justifyContent: "center",
+        alignItems: "center" */
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    },
 })
 
 export default MenuChangeSubscription;

@@ -243,7 +243,7 @@ const EditCourseScreen = (props) => {
                             </View>
                             <Text style={styles.modalText}>Collaborator's updated in course</Text>
                             <Pressable
-                            style={[styles.buttonModal, styles.buttonClose]}
+                            style={[styles.buttonModal, {backgroundColor: "#9acd32"}]}
                             onPress={() => {
                                 setModalSuccessVisible(!modalSuccessVisible)}}
                             >

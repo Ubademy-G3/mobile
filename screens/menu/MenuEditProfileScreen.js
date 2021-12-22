@@ -173,7 +173,7 @@ const MenuEditProfileScreen = (props) => {
 
     return (
         <View style={styles.centeredView}>
-            {modalSuccessVisible || modalErrorVisible || modalAttentionVisible && (
+            {(modalSuccessVisible || modalErrorVisible || modalAttentionVisible) && (
                 <View style={{justifyContent: 'center', alignItems: 'center',}}>
                 <Modal
                     animationType="slide"
@@ -225,7 +225,7 @@ const MenuEditProfileScreen = (props) => {
                             </View>
                             <Text style={styles.modalText}>{modalSuccessText}</Text>
                             <Pressable
-                            style={[styles.buttonModal, styles.buttonClose]}
+                            style={[styles.buttonModal, {backgroundColor: "#9acd32"}]}
                             onPress={() => {
                                 setModalSuccessVisible(!modalSuccessVisible)}}
                             >

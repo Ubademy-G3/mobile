@@ -19,7 +19,6 @@ const ListCollaboratorsScreen = (props) => {
   const [loading, setLoading] = useState(false); 
   const [collaboratorsData, setCollaboratorsData] = useState([]);
   const [filter, setFilter] = useState(0);
-  const [filtered, setFiltered] = useState(false);
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [examsGraded, setExamsGraded] = useState([])
 
@@ -40,7 +39,6 @@ const ListCollaboratorsScreen = (props) => {
       console.log("[List Collaborators Screen] error", response.content().message);
     }
   }
-
 
   const handleGetAllUsersInCourse = async (response) => {
       console.log("[List Collaborators Screen] get all users content: ", response.content())
@@ -72,25 +70,23 @@ const ListCollaboratorsScreen = (props) => {
       onRefresh();
   }, []);
 
-  useEffect(() => {
-    if (filter != 0){
-      setFiltered(!filtered);
-    /* } else {
-      setFiltered(false); */
-    }
-  }, [filter]);
-
   const filterCollaborators = async (query) => {
     setLoading(true);
+    let flag = false;
     if (query.progress) {
       const progress = query.progress.filter((s) => s.isChecked);
       if (progress.length > 0) {
         progress.forEach((st) => {
             if (st.isChecked) {
               setFilter(st.value);
+              flag = true;
             }
         })
       }
+    }
+    if (!flag) {
+      setFilter(filter);
+      onRefresh();
     }
     setCollaboratorsData([]);
     setLoading(false);
@@ -104,10 +100,8 @@ const ListCollaboratorsScreen = (props) => {
         }
       return a;
     });
-    var uniq = [ ...new Set(c) ]; 
-    console.log("UNIQ PRE", uniq);
+    var uniq = [ ...new Set(c) ];
     uniq.filter((r) => r.amount_graded === filter || r.amount_graded > filter);
-    console.log("UNIQ POST", uniq);
     return uniq;
 };
 
@@ -125,7 +119,7 @@ const ListCollaboratorsScreen = (props) => {
             </View>
           )}
           {collaboratorsData.map(item => (
-            <ProfilesListComponent 
+            <ProfilesListComponent
               item={item}
               navigation={props.navigation}
             />
@@ -134,7 +128,7 @@ const ListCollaboratorsScreen = (props) => {
       )}
       {!loading && view_as !== 'student' && (
         <>
-          {collaboratorsData.length === 0 ? (
+          {filter !== 0 && collaboratorsData.length === 0 ? (
             <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
               <Text style={styles.examsText}>Oops.. could not find any collaborators in this course</Text>
@@ -155,22 +149,27 @@ const ListCollaboratorsScreen = (props) => {
               {filtersVisible && (
                   <CollaboratorsFilterComponent updateUsers={filterCollaborators} />
               )}
-              {collaboratorsData.map((item, key) => (
+              {filter !== 0 && collaboratorsData.map((item, key) => (
                 <View key={item.id}>
-                {!filtered && (
-                  <ProfilesListComponent 
-                    item={item}
-                    navigation={props.navigation}
-                  />
-                )}
-                {filtered && getAmountFromExams(item.id, key).map(item_list => (
-                  <ProfilesListComponent 
-                    item={item_list}
-                    navigation={props.navigation}
-                  />
-                ))}
+                  {getAmountFromExams(item.id, key).map(item_list => (
+                    <ProfilesListComponent
+                      item={item_list}
+                      navigation={props.navigation}
+                    />
+                  ))}
                 </View>
               ))}
+              {filter === 0 && (
+                <>
+                  {collaboratorsData.map(item => (
+                    <ProfilesListComponent
+                      item={item}
+                      navigation={props.navigation}
+                      key={item.id}
+                    />
+                  ))}
+                </>
+              )}
             </>
           )}
         </>

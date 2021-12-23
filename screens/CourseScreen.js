@@ -517,7 +517,7 @@ const CourseScreen = (props) => {
                                 </View>
                             )}
                         </View>
-                        {subscribed && modules && media && (
+                        {subscribed && (modules.length !== 0) && media && (
                             <View style={styles.studentListWrapper}>
                                 <Text style={styles.instructorsTitle}>Units</Text>
                                 {modules.map((item, key) => (

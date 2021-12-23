@@ -163,10 +163,10 @@ const CourseScreen = (props) => {
             const m = response.content().reviews.filter((m) => {
                 return m.user_id === idLS;
             });
-            if (m.lenght === 0){
-                setShowOpinion(false);
-            } else {
+            if (m.length === 0) {
                 setShowOpinion(true);
+            } else {
+                setShowOpinion(false);
             }
             setStudentsOpinions(response.content().reviews.slice(0,6));
         } else {
@@ -300,7 +300,7 @@ const CourseScreen = (props) => {
         return (
             <View
               key={item.id}
-              style={[styles.opinionItemWrapper, {width: "80%"}]}>
+              style={[styles.opinionItemWrapper, { maxWidth: "90%"}]}>
               <Text style={styles.categoryItemTitle}>{item.opinion}</Text>            
             </View>
         );
@@ -466,7 +466,7 @@ const CourseScreen = (props) => {
                             <View style={{paddingHorizontal: 15}}>
                                 {showOpinion && (
                                     <>
-                                    <Text style={styles.opinionTitle}>Give your opinion about this course:</Text>
+                                    <Text style={styles.opinionTitle}>Give your opinion about this course</Text>
                                     <View style={{ justifyContent: "center", alignItems: "center" }}>
                                     <StarRating
                                         disabled={false}
@@ -517,16 +517,16 @@ const CourseScreen = (props) => {
                                 <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>There are no opinions about this course</Text>
                             )}
                             {studentsOpinions.length !== 0 && (
-                                <>
-                                <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>Opinions about this course:</Text>
-                                <FlatList  
-                                    data={studentsOpinions}
-                                    renderItem={renderOpinionItem}
-                                    keyExtractor={(item) => item.id}
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                />
-                                </>
+                                <View>
+                                    <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>Opinions about this course</Text>
+                                    <FlatList  
+                                        data={studentsOpinions}
+                                        renderItem={renderOpinionItem}
+                                        keyExtractor={(item) => item.id}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    />
+                                </View>
                             )}
                         </View>
                         {subscribed && modules && media && (

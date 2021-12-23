@@ -137,6 +137,10 @@ const EditExamScreen = (props) => {
             value: questions[key].value,
         }, 
         selectedExam.id, questions[key].id, handleApiResponseUpdateQuestion);
+        const tmp = selectedExam;
+        var total_score = tmp.max_score + +_questions[key].value;
+        tmp.max_score = total_score;
+        setSelectedExam(tmp);
         setQuestions(_questions);
     }
 
@@ -181,9 +185,9 @@ const EditExamScreen = (props) => {
         setQuestions(_questions);
     }
 
-    const handleSaveMC = () => {
+    /* const handleSaveMC = () => {
         setFinishedMC(true);
-    } 
+    }  */
 
     const handleMultipleChoiceOption = (key) => {
         const _questions = [...questions];
@@ -264,16 +268,16 @@ const EditExamScreen = (props) => {
 
     const handleSubmitSave = async() => {
         let tokenLS = await app.getToken();
-        var total_score = 0
+        /* var total_score = 0
         for (let question of questions) {
             console.log("total scrore", total_score);
             total_score = total_score + +question.value;
-        }
+        } */
         if (selectedExam.state === "draft"){
             await app.apiClient().updateExam(
                 {
                     token: tokenLS,
-                    max_score: total_score,
+                    max_score: selectedExam.max_score,
                     approval_score: selectedExam.approval_score,
     
                 }, 
@@ -284,7 +288,7 @@ const EditExamScreen = (props) => {
                 {
                     token: tokenLS,
                     state: selectedExam.state,
-                    max_score: total_score,
+                    max_score: selectedExam.max_score,
                     approval_score: selectedExam.approval_score,
     
                 }, 
@@ -382,16 +386,6 @@ const EditExamScreen = (props) => {
                                                     color={'black'}
                                                 />
                                             </TouchableOpacity>
-                                            <TouchableOpacity
-                                                    onPress = {()=> {}}
-                                                    style={[styles.buttonSaveIconRight]}
-                                                >
-                                                    <MaterialCommunityIcons
-                                                        name="image-plus"
-                                                        size={20}
-                                                        color={'black'}
-                                                    />
-                                            </TouchableOpacity>
                                             <TouchableOpacity 
                                                 onPress = {()=> deleteHandler(key)}
                                                 style={styles.buttonInputIcon}
@@ -444,7 +438,7 @@ const EditExamScreen = (props) => {
                                     {item.question_type === "written" && (
                                         <Text style={styles.choiceText}>The answer will be a free text response.</Text>
                                     )}
-                                    {(item.question_type === "multiple_choice" && (!finishedMC)) && (
+                                    {item.question_type === "multiple_choice" && (
                                         <>
                                             <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
                                             <Text style={styles.choiceText}>Fill the multiple answers:</Text>
@@ -467,7 +461,7 @@ const EditExamScreen = (props) => {
                                                     />
                                                 </TouchableOpacity>
                                             </View>
-                                            <View style={styles.buttonSaveMC}>
+                                            {/* <View style={styles.buttonSaveMC}>
                                                 <TouchableOpacity
                                                     onPress={() => {handleSaveMC()}}
                                                     style={[styles.button,
@@ -478,10 +472,10 @@ const EditExamScreen = (props) => {
                                                 >
                                                     <Text style={styles.buttonText}>Save Multiple Choice</Text>
                                                 </TouchableOpacity>
-                                            </View>
+                                            </View> */}
                                         </>
                                     )}
-                                    {(item.question_type === "multiple_choice" && (finishedMC)) && (
+                                    {/* {(item.question_type === "multiple_choice" && (finishedMC)) && (
                                         <>
                                             <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
                                             <SelectDropdown
@@ -497,7 +491,7 @@ const EditExamScreen = (props) => {
                                                 }}
                                             />
                                         </>
-                                    )}
+                                    )} */}
                                 </>
                             )}
                             </>

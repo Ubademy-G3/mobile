@@ -129,23 +129,29 @@ const EditModulesScreen = (props) => {
     }, [updatingModules2]);
 
     const handleUpdateCourse = (response) => {
-        console.log("[Edit Modules screen] update course: ", response.content())
+        console.log("[Edit Modules screen] update course: ", response.content());
         if (!response.hasError()) {
-            console.log("[Edit Modules screen] error", response.content().message);
-        }   
+            console.log("[Edit Modules Screen] ok");
+        } else {
+            console.log("[Edit Modules Screen] error", response.content().message);
+        } 
     }
 
     const handleApiResponseUpdateModule = (response) => {
         console.log("[Edit Modules screen] update module: ", response.content())
         if (!response.hasError()) {
-            console.log("[Edit Modules screen] error", response.content().message);
+            console.log("[Edit Modules Screen] ok");
+        } else {
+            console.log("[Edit Modules Screen] error", response.content().message);
         }   
     }
 
     const handleApiResponseDeleteModule = (response) => {
         console.log("[Edit Modules screen] delete module: ", response.content())
         if (!response.hasError()) {
-            console.log("[Edit Modules screen] error", response.content().message);
+            console.log("[Edit Modules Screen] ok");
+        } else {
+            console.log("[Edit Modules Screen] error", response.content().message);
         }   
     }
 

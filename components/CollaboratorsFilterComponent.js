@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, CheckBox, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, CheckBox} from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 MaterialCommunityIcons.loadFont();
@@ -8,58 +8,41 @@ const data = {
     progress: [
         {
             id: '0',
-            name: '0%',
-            value: '0',
+            name: '10 exams',
+            value: '10',
             isChecked: false
         },
         {
             id: '1',
-            name: '25%',
-            value: '25',
+            name: '20 exams',
+            value: '20',
             isChecked: false
         },
         {
             id: '2',
-            name: '50%',
-            value: '50',
+            name: '40 exams',
+            value: '40',
             isChecked: false
         },
         {
             id: '3',
-            name: '75%',
-            value: '75',
+            name: '80 exams',
+            value: '80',
             isChecked: false
         }
     ],
-    approval: [
-        {
-            id: '0',
-            name: 'Passed',
-            value: true,
-            isChecked: false
-        },
-        {
-            id: '1',
-            name: 'Not approved',
-            value: false,
-            isChecked: false
-        }
-    ]
 }
 
-const UsersFilterComponent = (props) => {
+const CollaboratorsFilterComponent = (props) => {
     const [progress, setProgress] = useState(data.progress);
-    const [approved, setApproved] = useState(data.approval);
 
     const cleanFilters = () => {
-        setApproved(data.approval);
         setProgress(data.progress);
     }
 
     const setFilter = () => {
         const query = {
           progress: progress,
-          approved: approved
         };
         cleanFilters();
         props.updateUsers(query);
@@ -80,21 +63,6 @@ const UsersFilterComponent = (props) => {
         setProgress(temp);
     }
 
-    const addApproved = (item) => {
-        for (let i = 0; i < approved.length; i++) {
-            if (approved[i].isChecked === true && approved[i].id !== item.id) {
-                return;
-            }
-        }
-        let temp = approved.map((a) => {
-            if (item.id === a.id) {
-              return { ...a, isChecked: !a.isChecked };
-            }
-            return a;
-          });
-        setApproved(temp);
-    }
-
     const renderProgressItem = ({ item }) => {
         return (
             <View style={styles.listItem}>
@@ -107,39 +75,17 @@ const UsersFilterComponent = (props) => {
         );
     };
 
-    const renderApprovedItem = ({ item }) => {
-        return (
-            <View style={styles.listItem}>
-              <CheckBox
-                value={item.isChecked}
-                onValueChange={() => { addApproved(item); }}
-              />
-              <Text>{item.name}</Text>            
-            </View>
-        );
-    };
-
     return (
         <View style={styles.container}>
             <View style={styles.dialog}>
-                <>
-                    <View>
-                        <Text style={styles.title}>{`Progress \ngreater than`}</Text>
-                        <FlatList
-                            data={progress}
-                            renderItem={renderProgressItem}
-                            keyExtractor={(item) => item.id}
-                        />
-                    </View>
-                    <View>
-                        <Text style={styles.title}>{`Approval\n`}</Text>
-                        <FlatList
-                            data={approved}
-                            renderItem={renderApprovedItem}
-                            keyExtractor={(item) => item.id}
-                        />
-                    </View>
-                </>
+                <View>
+                    <Text style={styles.title}>{`The amount of exams graded is \ngreater than`}</Text>
+                    <FlatList
+                        data={progress}
+                        renderItem={renderProgressItem}
+                        keyExtractor={(item) => item.id}
+                    />
+                </View>
             </View>
             <TouchableOpacity
                 onPress={() => { setFilter() }}
@@ -193,4 +139,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default UsersFilterComponent;
+export default CollaboratorsFilterComponent;

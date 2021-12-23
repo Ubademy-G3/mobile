@@ -12,10 +12,6 @@ export class GetCategoryByIdEndpoint extends Endpoint {
         return `/categories/${this._id}`
     }
 
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
     method() {
         return 'GET'
     }

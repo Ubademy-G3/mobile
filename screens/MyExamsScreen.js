@@ -5,12 +5,12 @@ const MyExamsScreen = (props) => {
     const courseId = props.route.params.course_id;
     const rol = props.route.params.view_as;
     const exams = props.route.params.exams;
-    console.log(exams)
 
     return (
         <>
             {rol !== 'student' && (
                 <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    {rol === "instructor" && (
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('My Exam Templates', {
@@ -21,6 +21,7 @@ const MyExamsScreen = (props) => {
                     >
                         <Text style={styles.buttonOutlineText}>Exam Templates</Text>
                     </TouchableOpacity>
+                    )}
                     <TouchableOpacity
                         onPress={() => {
                             props.navigation.navigate('Solved Exams', {
@@ -104,7 +105,6 @@ const styles = new StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },

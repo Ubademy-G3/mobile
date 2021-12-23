@@ -1,6 +1,5 @@
-import React, {Component, useEffect, useState, useCallback} from 'react';
-import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator } from 'react-native';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import SelectDropdown from 'react-native-select-dropdown'
 
@@ -8,17 +7,12 @@ Feather.loadFont();
 
 const QuestionComponent = ({ item }) => {
 
-    console.log("item:", item);
-
     const [loading, setLoading] = useState(false);
-
     const [answer, setAnswer] = useState({
         answer: "",
         question_template_id: item.id
     });
-
     const [optionsMC, setOptionsMC] = useState(item.options);
-
     const [selectedMC, setSelectedMC] = useState(0);
 
     return(
@@ -91,7 +85,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {

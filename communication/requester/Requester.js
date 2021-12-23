@@ -1,5 +1,3 @@
-import { or } from "react-native-reanimated";
-import { createIconSetFromFontello } from "react-native-vector-icons";
 import {ErrorApiResponse} from "../responses/generalResponses/ErrorApiResponse.js";
 
 class Requester {
@@ -9,36 +7,22 @@ class Requester {
 
     call({endpoint, onResponse, data = undefined}) {
         let has_error = false;
+        let status_error = 0;
         const request = this._buildRequest(endpoint, data);
         let url = endpoint.url();
-        /*if (endpoint.method() === 'GET' && data) {
-            url += "?" + this._dataToQueryString(data);
-        }*/
-        console.log("request:", request);
-        console.log("url:", this._baseUrl + url);
 
         return fetch(this._baseUrl + url, request)
             .then(function(result) {
-                console.log("[function] status:", result.status);
                 if (!((result.status === 200) || (result.status === 201))) {
-                    console.log("[function] entro a status error: ", has_error);
                     has_error = true;
-                    console.log("[function] dalgo de status error: ", has_error);
+                    status_error = result.status;
                 }
                 return result.json();
             })
             .then(jsonResponse => {
                 return onResponse(
-                    this._buildResponse(jsonResponse, endpoint, has_error));
+                    this._buildResponse(jsonResponse, endpoint, has_error, status_error));
             })
-            /***
-             * https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#Checking_that_the_fetch_was_successful
-             *
-             * A fetch() promise will reject with a TypeError when a network error is encountered or CORS is
-             * misconfigured on the server-side, although this usually means permission issues or similar —
-             * a 404 does not constitute a network error, for example.
-             *
-             ***/
             .catch(exception => {
                 console.log("Exception in API request: ", exception);
             })
@@ -54,15 +38,14 @@ class Requester {
         if (endpoint.method() !== 'GET') {
             let encoder = this._encoderFor(endpoint.contentType());
             Object.assign(headers, encoder.headers());
-            console.log("Paso por aca");
             Object.assign(requestOptions, {body: encoder.encode(data)});
         }
         return requestOptions;
     }
 
-    _buildResponse(jsonResponse, endpoint, has_error) {
-        console.log("mensaje crudo:", jsonResponse);
+    _buildResponse(jsonResponse, endpoint, has_error, status_error) {
         jsonResponse.error = has_error;
+        jsonResponse.status = status_error;
         let endpointResponse;
         const availableResponsesForEndpoint = endpoint.responses();
         for (let responseType of availableResponsesForEndpoint) {
@@ -83,7 +66,6 @@ class Requester {
             headers['Content-Type'] = endpoint.contentType();
         }
         if (endpoint.needsAuthorization()){
-            //console.log("entro a header authorization")
             headers['authorization'] = data.token;
         }
         return headers;

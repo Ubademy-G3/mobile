@@ -12,10 +12,6 @@ export class GetCourseRatingEndpoint extends Endpoint {
         return `/courses/${this._id}/ratings`
     }
 
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
     method() {
         return 'GET'
     }

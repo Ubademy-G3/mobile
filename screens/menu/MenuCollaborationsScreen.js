@@ -1,10 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CourseComponent from '../../components/CourseComponent';
 import { app } from '../../app/app';
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -14,60 +15,25 @@ const MenuCollaborationsScreen = (props) => {
     
     const [courses, setCourses] = useState([]);
 
-    const [rating, setRating] = useState(0);
-
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Collaborations Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Collaborations Courses Screen] error", response.content().message);
-        }
-    }
-    
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content().rating);
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Collaborations Courses screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-                await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
-            }
-            console.log("[Menu Collaborations Courses screen] response: ", courses);
+            setCourses(response.content().courses);
         } else {
             console.log("[Menu Collaborations Courses screen] error", response.content().message);
         }
     }
 
-    const onRefresh = async () => {
-        console.log("[Menu Collaborations Courses screen] entro a onRefresh"); 
+    const onRefresh = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Collaborations Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'collaborator' }, handleResponseGetCoursesByUser);
         setLoading(false);
     }
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Collaborations Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props]); */
     
     useFocusEffect(
         useCallback(() => {
             setCourses([]);
-            console.log("[Menu Collaborations screen] entro a useEffect");
             onRefresh();
         }, [])
     );
@@ -76,9 +42,9 @@ const MenuCollaborationsScreen = (props) => {
         <View style={styles.container}>
             {
                 loading ? 
-                    <View style={{flex:1, justifyContent: 'center'}}>
-                        <ActivityIndicator color="#696969" animating={loading} size="large" /> 
-                    </View>
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                </View>
                 :
                     <>
                     <ScrollView>
@@ -91,7 +57,7 @@ const MenuCollaborationsScreen = (props) => {
                                 <TouchableOpacity
                                     key={item.id}
                                     onPress={() => {
-                                    props.navigation.navigate('Edit Course', {item: item});
+                                    props.navigation.navigate('Course Screen', {item: item});
                                     }}
                                 >
                                     <CourseComponent 
@@ -183,11 +149,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,
@@ -246,11 +209,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

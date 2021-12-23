@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, FlatList, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 import { app } from '../app/app';
 import CourseComponent from '../components/CourseComponent';
 
@@ -11,58 +11,30 @@ Feather.loadFont();
 
 const ProfileScreen = (props) => {
     const mounted = useRef(false);
-    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
-
-    console.log("PROFILE ID: ",param_id);
-    
+    const param_id = props.route.params ? props.route.params.id : 'defaultId';
     const [loading, setLoading] = useState(false);
-    
-    const [courses, setCourses] = useState([]);  
-    
+    const [courses, setCourses] = useState([]);
     const [userData, setData] = useState({
-        firstName: "Name",
-        lastName: "Last name",
+        firstName: "",
+        lastName: "",
         location: "",
         profilePictureUrl: "../assets/images/profilePic.jpg",
         description: "",
         interests: [],
         rol: "",
     });
-
     const [categories, setCategories] = useState([]);
-
     const [favCourses, setFavCourses] = useState([]);
 
-    const handleCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    }
-
-    /* const handleFavoriteCourseResponse = (response) => {
-        console.log("[Profile Screen] content: ", response.content())
-        if (!response.hasError()) {
-            console.log(response.content())
-            setFavCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Profile Screen] error", response.content().message);
-        }
-    } */
-
     const handleGetFavoriteCourses = (response) => {
-        console.log("[Menu Favorite Courses Screen] content: ", response.content())
         if (!response.hasError()) {
             setFavCourses(response.content().courses);
         } else {
-            console.log("[Menu Favorite Courses Screen] error", response.content().message);
+            console.log("[Profile screen] error", response.content().message);
         }
     }
     
     const handleGetCategories = (response) => {
-        console.log("[Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
             setCategories(userCategories);
@@ -71,21 +43,28 @@ const ProfileScreen = (props) => {
         }
     }
 
+    const handleGetCoursesFromList = (response) => {
+        if (!response.hasError()) {
+            setCourses(response.content().courses);
+        } else {
+            console.log("[Profile Screen] error", response.content().message);
+        }
+    }
+
     const handleGetCoursesByUser = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleCourseResponse)
+            const courses_list = [];
+            for (let course of response.content().courses) {
+                courses_list.push(course.id);
             }
-            //console.log("[Profile screen] response: ", courses);
+            await app.apiClient().getAllCoursesFromList({token: tokenLS}, courses_list, handleGetCoursesFromList);
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
     }
 
     const handleApiResponseProfile = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {            
             setData({
                 firstName: response.content().firstName,
@@ -103,25 +82,34 @@ const ProfileScreen = (props) => {
     }
 
     const onRefreshCategories = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+        setLoading(false);
+    }
+
+    const auxGetCourses = async () => {
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, { user_type: userData.rol }, handleGetCoursesByUser);
+        setLoading(false);
     }
 
     useEffect(() => {
-        if (userData.interests.length > 0) {
-            console.log("[Anothers Profile screen] entro a updating categories"); 
+        if (userData.interests.length > 0) { 
             onRefreshCategories();            
+        }
+        if(userData.rol !== ""){
+            auxGetCourses();
         }
     }, [userData]);
     
     const onRefresh = async () => {
-        console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, {}, handleGetCoursesByUser);
         setLoading(false);
     };
 
@@ -146,7 +134,10 @@ const ProfileScreen = (props) => {
                   backgroundColor: item.selected ? '#87ceeb' : 'white',
                   marginLeft: item.id == 0 ? 20 : 0,
                 },
-              ]}>
+            ]}>
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={{uri: item.photo_url}} style={styles.interestsImage} />
+                </View>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
@@ -157,7 +148,7 @@ const ProfileScreen = (props) => {
             {
                 loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
                 :
                 <>
@@ -181,10 +172,12 @@ const ProfileScreen = (props) => {
                         </View>
                         {userData.rol === "student" && (
                             <>
+                            {userData.location != "" && (
                             <View style={styles.locationWrapper}>
                                 <Text style={styles.locationTitle}>Location:</Text>
                                 <Text style={styles.location}>{userData.location}</Text>
                             </View>
+                            )}
                             <View style={styles.categoriesWrapper}>
                                 <Text style={styles.coursesTitle}>Your interests</Text>
                                 <View style={styles.categoriesListWrapper}>
@@ -252,27 +245,28 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingVertical:25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     titlesImage: {
         width: 100,
         height: 100,
         borderRadius: 50,
+        
+    },
+    interestsImage: {
+        width: 80,
+        height: 80,
     },
     titleWrapper: {
         paddingTop:35,
         paddingHorizontal: 10,
-        flex: 1, 
         flexWrap: 'wrap',
-        flexDirection: "row",
+        flexDirection: 'row',
     },
     titlesTitle: {
         fontSize: 24,
         color: '#87ceeb',
-        textAlign: 'justify',        
+        textAlign: 'justify',
+        width: "85%", 
     },
     titlesRating: {
         paddingVertical: 5,
@@ -284,7 +278,6 @@ const styles = StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
     },
     description: {
@@ -364,11 +357,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
       },
       courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
       },
       courseCardImage: {
         width: 60,
@@ -394,15 +384,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     categoriesWrapper: {
-        //marginTop: 10,
         paddingTop: 10,
-        //paddingLeft: 20,
         paddingVertical: 5,
         paddingHorizontal: 15,
     },
     categoriesText: {
         fontSize: 20,
-        //paddingHorizontal: 20,
     },
     categoriesListWrapper: {
         paddingTop: 15,
@@ -414,6 +401,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 20,
         shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         shadowOffset: {
           width: 0,
           height: 2,
@@ -438,9 +427,7 @@ const styles = StyleSheet.create({
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
-        // paddingVertical: 10,
         paddingBottom: 10,
-        //marginTop: 5,
     },
     location: {
         fontSize: 16,

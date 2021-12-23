@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../app/app';
 import { ActivityIndicator } from 'react-native-paper';
@@ -20,8 +20,6 @@ const ExamCorrectionScreen = (props) => {
 
     const getAnswerMC = (key, questionId) => {
         const _answers = [...answers];
-        console.log("GET ANSWER MC")
-        console.log(_answers);
         const question = questions.filter((q) => {
             return q.id === questionId;
         });
@@ -30,7 +28,6 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseUpdateSolution = (response) => {
-        console.log("[Exam Correction screen] update solution: ", response.content())
         if (!response.hasError()) {
             console.log("[Exam Correction screen] ok");
         } else {
@@ -39,7 +36,6 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseUpdateAnswer = (response) => {
-        console.log("[Exam Correction screen] update answer: ", response.content())
         if (!response.hasError()) {
             console.log("[Exam Correction screen] ok");
         } else {
@@ -48,7 +44,6 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseUpdateUserFromCourse = (response) => {
-        console.log("[Exam Correction screen] update user from course: ", response.content())
         if (!response.hasError()) {
             console.log("[Exam Correction screen] ok");
         } else {
@@ -57,17 +52,14 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetAllExamsByCourse = (response) => {
-        console.log("[Exam Correction screen] get all exams: ", response.content())
         if (!response.hasError()) {
-            console.log("EXAM AMOUNT",response.content().amount);
-            setAmountExams(response.content().amount);
+            setAmountExams(response.content().total_exams);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
         }
     }
 
     const handleResponseGetExam = (response) => {
-        console.log("[Exam Correction screen] get exam: ", response.content())
         if (!response.hasError()) {
             setApprovalScore(response.content().approval_score);
         } else {
@@ -76,7 +68,6 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetSolvedExams = (response) => {
-        console.log("[Exam Correction screen] get solved exams: ", response.content())
         if (!response.hasError()) {
             setAmountExamsApproved(response.content().amount);
         } else {
@@ -85,7 +76,6 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        console.log("[Exam Correction screen] get solved exams: ", response.content())
         if (!response.hasError()) {
             setUsername(`${response.content().firstName} ${response.content().lastName}`);
         } else {
@@ -94,19 +84,7 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetAllQuestions = (response) => {
-        console.log("[Exam Correction screen] get question: ", response.content())
         if (!response.hasError()) {
-            /*for (let [idx, answer] of answers.entries()) {
-                if(answer.question_template_id === response.content().id) {
-                    const _answers = [...answers];
-                    _answers[idx].question = response.content().question;
-                    _answers[idx].question_type = response.content().question_type;
-                    _answers[idx].options = response.content().options;
-                    _answers[idx].correct = response.content().correct;
-                    _answers[idx].value = response.content().value;
-                    setAnswers(_answers);
-                }
-            }*/
             setQuestions(response.content().question_templates);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
@@ -114,22 +92,7 @@ const ExamCorrectionScreen = (props) => {
     }
 
     const handleResponseGetAllAnswers = (response) => {
-        console.log("[Exam Correction screen] get all answers: ", response.content())
         if (!response.hasError()) {
-            /*for (let answer of response.content().question_solutions) {
-                setAnswers(answers => [...answers,{
-                    id: answer.id,
-                    answer: answer.answer,
-                    score: answer.score,
-                    exam_solution_id: answer.exam_solution_id,
-                    question_template_id: answer.question_template_id,
-                    question: "",
-                    question_type: "",
-                    options: [],
-                    correct: 0,
-                    value: 0,
-                }]);
-            }*/
             setAnswers(response.content().question_solutions);
         } else {
             console.log("[Exam Correction screen] error", response.content().message);
@@ -147,7 +110,6 @@ const ExamCorrectionScreen = (props) => {
         await app.apiClient().updateAnswer({token: tokenLS, score: _answers[key].score}, solution.exam_template_id, _answers[key].exam_solution_id, _answers[key].id, handleResponseUpdateAnswer);
         var total_score = 0
         for (let answ of _answers) {
-            console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
         if (total_score < approvalScore) {
@@ -168,10 +130,8 @@ const ExamCorrectionScreen = (props) => {
         await app.apiClient().updateAnswer({token: tokenLS, score: _answers[key].score}, solution.exam_template_id, _answers[key].exam_solution_id, _answers[key].id, handleResponseUpdateAnswer);
         var total_score = 0
         for (let answ of _answers) {
-            console.log("total scrore", total_score);
             total_score = total_score + answ.score;
         }
-        console.log
         if (total_score < approvalScore) {
             await app.apiClient().updateSolution({token: tokenLS, score: total_score, corrector_id: idLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
             setSolution({...solution, score: total_score, approval_state: false});
@@ -182,74 +142,44 @@ const ExamCorrectionScreen = (props) => {
         setAnswers(_answers);
     };
 
-    /* const handleSubmitChangeState = async () => {
-        let tokenLS = await app.getToken();
-        if(solution.approval_state){
-            await app.apiClient().updateSolution({token: tokenLS, approval_state: false}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
-            setSolution({
-                ...solution,
-                approval_state: false,
-            });
-        } else {
-            await app.apiClient().updateSolution({token: tokenLS, approval_state: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
-            setSolution({
-                ...solution,
-                approval_state: true,
-            });
-        }
-    }; */
-
     const handleSubmitSave = async () => {
         //updeatear solution y poner graded: true
         let tokenLS = await app.getToken();
         await app.apiClient().updateSolution({token: tokenLS, graded: true}, solution.exam_template_id, solution.id, handleResponseUpdateSolution);
         setSolution({...solution, graded: true});
-        await app.apiClient().getSolvedExamsByUserFromCourse({token: tokenLS}, solution.user_id, solution.course_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
+        await app.apiClient().getSolvedExamsByUserFromCourse({token: tokenLS}, solution.course_id, solution.user_id, {graded: true, approval_state: true, user_type: "user"}, handleResponseGetSolvedExams);   
     }
 
-    const getQuestions = async () => {
-        console.log("[Exam Correction screen] entro a onRefresh"); 
+    const getQuestions = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Exam Correction screen] token:", tokenLS);
-        /*for( let answer of answers){
-            if(answer.question === ""){
-                await app.apiClient().getQuestionById({token: tokenLS}, solution.exam_template_id, answer.question_template_id, handleResponseGetQuestion);
-            }
-        }*/
         await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, solution.exam_template_id, handleResponseGetAllQuestions)
         setLoading(false);
     };
 
     const onRefresh = async () => {
-        console.log("[Exam Correction screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Exam Correction screen] token:", tokenLS);
         await app.apiClient().getAllAnswersByExamId({token: tokenLS}, solution.exam_template_id, solution.id, handleResponseGetAllAnswers);
-        await app.apiClient().getAllExamsByCourseId({token: tokenLS}, solution.course_id, {}, handleResponseGetAllExamsByCourse);
+        await app.apiClient().getCourseById({token: tokenLS}, solution.course_id, handleResponseGetAllExamsByCourse);
         await app.apiClient().getExamsById({token: tokenLS}, solution.exam_template_id, handleResponseGetExam);
         await app.apiClient().getProfile({token: tokenLS}, solution.user_id, handleResponseGetProfile);
         setLoading(false);
     };
 
     const setProgress = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("amount exams approved", amountExamsApproved);
-        console.log("amount exams", amountExams);
-        console.log("DIVISION", (amountExamsApproved/amountExams));
-        let new_progress = ((amountExamsApproved/amountExams) * 100);
-        console.log("NEW PROGRESS!!!", new_progress);
+        let new_progress = Math.round(((amountExamsApproved/amountExams) * 100));
         await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, {username: username},handleResponseUpdateUserFromCourse);
+        setLoading(false);
     }
 
     useEffect(() => {
-        console.log("[Exam screen] entro a useEffect");
         onRefresh();
     }, []);
 
     useEffect(() => {
-        console.log("[Exam screen] entro a useEffect");
         getQuestions();
     }, [answers]);
 
@@ -284,14 +214,16 @@ const ExamCorrectionScreen = (props) => {
         <View style={styles.container}>
             <ScrollView>
                 {loading && (
-                    <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+                    <View style={{flex:1, justifyContent: 'center'}}>
+                        <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                    </View>
                 )}
                 {!loading && answers && questions && (
                     <>
                     {answers.length === 0 && !solution.graded && (
                         <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
-                            <Text style={styles.examsText}>This exam has no questions</Text>
+                            <Text style={styles.examsText}>This exam has no answers</Text>
                         </View>
                     )}
                     {solution.graded && (
@@ -319,10 +251,6 @@ const ExamCorrectionScreen = (props) => {
                                 backgroundColor: solution.approval_state ? "white": '#87ceeb',
                             }]}>
                             <View style={styles.examDescritpionWrapper}>
-                                {/* <TouchableOpacity
-                                    onPress = {()=> {handleSubmitChangeState()}}
-                                    style={styles.questionWrapper}
-                                > */}
                                     <View style={styles.questionView}>
                                     {solution.approval_state && (
                                         <Text style={styles.examDescription}>Approved: {solution.score}/{solution.max_score}</Text>
@@ -331,7 +259,6 @@ const ExamCorrectionScreen = (props) => {
                                         <Text style={styles.examDescription}>Failed: {solution.score}/{solution.max_score}</Text>
                                     )}
                                     </View>
-                                {/* </TouchableOpacity> */}
                             </View>
                         </View>
                         {answers.map((item, idx) => (
@@ -445,7 +372,6 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //textDecorationLine: 'underline',
     },
     examsText: {
         marginTop: 15,
@@ -481,7 +407,6 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {
@@ -518,7 +443,6 @@ const styles = new StyleSheet.create({
     },
     saveWrapper: {
         marginBottom: 15,
-        //marginLeft: 35,
         marginHorizontal: 10,
         justifyContent: 'center',
         alignItems: 'center',
@@ -551,7 +475,6 @@ const styles = new StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         flexDirection: 'row',
-        //marginHorizontal: 10,
     },
     stateCardWrapper: {
         backgroundColor: '#87ceeb',
@@ -570,7 +493,6 @@ const styles = new StyleSheet.create({
         elevation: 2,  
     },
     examDescritpionWrapper: {
-        //marginTop:5,
         flexDirection: 'row',
         justifyContent: 'center',
     },
@@ -586,7 +508,6 @@ const styles = new StyleSheet.create({
         color:'black',
         fontWeight: '400',
         fontSize: 16,
-        //marginTop:5,
     },
 });
 

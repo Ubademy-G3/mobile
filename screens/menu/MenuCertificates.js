@@ -1,24 +1,33 @@
 import React, {useCallback, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
-import CourseComponent from "../../components/CourseComponent"
-import { useFocusEffect } from '@react-navigation/native';
+import CertificateComponent from "../../components/CertificateComponent";
 import { ActivityIndicator } from 'react-native-paper';
+import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
-const MenuCreatedCoursesScreen = (props) => {
+const MenuCertificates = (props) => {
     const [loading, setLoading] = useState(false);
-    const [courses, setCourses] = useState([]);
+    const [courses, setCourses] = useState(null);
+    const [certificates, setCertificates] = useState(null);
 
-    const handleResponseGetCoursesByUser = async (response) => {
+    const handleResponseCourseResponse = (response) => {
         if (!response.hasError()) {
-            setCourses(response.content().courses)
+            setCourses(response.content().courses);
         } else {
-            console.log("[Menu Created Courses screen] error", response.content().message);
+            console.log("[Menu Certificated Screen] error", response.content().message);
+        }
+    }
+
+    const handleGetCertificatesResponse = (response) => {
+        if (!response.hasError()) {
+            setCertificates(response.content().certificates);
+        } else {
+            console.log("[Menu Certificated Screen] error", response.content().message);
         }
     }
 
@@ -26,21 +35,27 @@ const MenuCreatedCoursesScreen = (props) => {
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'instructor' }, handleResponseGetCoursesByUser);
+        await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student', aprobal_state: true }, handleResponseCourseResponse);
+        await app.apiClient().getAllCertificates({ token: tokenLS }, idLS, handleGetCertificatesResponse)
         setLoading(false);
     };
   
     useFocusEffect(
         useCallback(() => {
-            setCourses([]);
             onRefresh();
         }, [])
     );
 
+    const getCourseById = (id) => {
+        let course = courses.filter((c) => {
+            return c.id === id;
+        });
+        return course[0];
+    }
+
     return (
         <View style={styles.container}>
-            {
-            loading ? 
+            {loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
                     <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
@@ -48,19 +63,22 @@ const MenuCreatedCoursesScreen = (props) => {
                 <>
                 <ScrollView>
                     <View style={styles.coursesCardWrapper}>
-                    {courses.length === 0 && (
-                        <Text style={styles.courseText}>Create new courses to list your courses here.</Text>
+                    {!loading && (!courses || !certificates || certificates.length === 0) && (
+                        <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Image source={require("../../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+                            <Text style={styles.examsText}>You have not completed any course yet</Text>
+                        </View>
                     )}
-                    {courses.map((item) => (
+                    {!loading && courses && certificates && certificates.map((item) => (
                         <TouchableOpacity
-                            key={item.id}
+                            key={item.course_id}
                             onPress={() => {
-                            props.navigation.navigate('Course Screen', {item: item});
+                                props.navigation.navigate('My Certificate', { item: getCourseById(item.course_id), pdf: item.pdf_path });
                             }}
                         >
-                            <CourseComponent 
-                            item={item}
-                            key={item.id}
+                            <CertificateComponent 
+                                item={getCourseById(item.course_id)}
+                                key={item.course_id}
                             />
                         </TouchableOpacity>
                     ))}
@@ -169,4 +187,4 @@ const styles = StyleSheet.create({
     },
 })
 
-export default MenuCreatedCoursesScreen;
+export default MenuCertificates;

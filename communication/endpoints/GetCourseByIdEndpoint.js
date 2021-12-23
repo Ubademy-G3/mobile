@@ -12,10 +12,6 @@ export class GetCourseByIdEndpoint extends Endpoint {
         return `/courses/${this._id}`
     }
 
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
     method() {
         return 'GET'
     }

@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
+import React, {useCallback, useState} from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
 import CourseComponent from "../../components/CourseComponent"
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -16,55 +16,21 @@ const MenuEditCoursesScreen = (props) => {
     
     const [courses, setCourses] = useState([]);
 
-    const [rating, setRating] = useState(0);
-
-    const handleResponseGetCourseRating = (response) => {
-        console.log("[Course component] get rating: ", response.content())
-        if (!response.hasError()) {
-            setRating(response.content().rating);
-        } else {
-            console.log("[Course component] error", response.content().message);
-        }        
-    }
-
-    const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Edit Courses Screen] content: ", response.content())
-        if (!response.hasError()) {
-               setCourses(courses => [...courses, response.content()]);
-        } else {
-            console.log("[Menu Edit Courses Screen] error", response.content().message);
-        }
-    }
-
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Edit Courses screen] content: ", response.content())
         if (!response.hasError()) {
-            let tokenLS = await app.getToken();
-            for(let course of response.content().courses){
-                await app.apiClient().getCourseById({token: tokenLS}, course.course_id, handleResponseCourseResponse);
-                await app.apiClient().getCourseRating({token: tokenLS}, course.course_id, handleResponseGetCourseRating);
-            }
-            console.log("[Menu Edit Courses screen] response: ", courses);
+            setCourses(response.content().courses)
         } else {
             console.log("[Menu Edit Courses screen] error", response.content().message);
         }
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Edit Courses screen] entro a onRefresh"); 
         setLoading(true);
-        let tokenLS = await app.getToken();
-        let idLS = await app.getId();
-        console.log("[Menu Edit Courses screen] token:",tokenLS);
-        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {}, handleResponseGetCoursesByUser);
+        const tokenLS = await app.getToken();
+        const idLS = await app.getId();
+        await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {user_type: 'instructor'}, handleResponseGetCoursesByUser);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Edit Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props.navigate]); */
 
     useFocusEffect(
         useCallback(() => {
@@ -78,7 +44,7 @@ const MenuEditCoursesScreen = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
             :
             <>
@@ -186,11 +152,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

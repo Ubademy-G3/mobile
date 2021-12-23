@@ -38,6 +38,9 @@ import MyExamsScreen from './screens/MyExamsScreen';
 import MyExamTemplatesScreen from './screens/MyExamTemplatesScreen';
 import SolvedExamsScreen from './screens/SolvedExamsScreen';
 import ListExamsScreen from './screens/ListExamsScreen';
+import MenuCertificates from './screens/menu/MenuCertificates';
+import ListCollaboratorsScreen from './screens/ListCollaboratorsScreen';
+import CertificateScreen from './screens/CertificateScreen';
 
 Entypo.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -67,6 +70,7 @@ const DrawerNavigator = ({route, navigation}) => {
           <Drawer.Screen name="Create New Course" component={MenuCreateNewCourseScreen} />
           <Drawer.Screen name="Edit Courses" component={MenuEditCoursesScreen} />
           <Drawer.Screen name="Wallet" component={MenuWalletScreen} />
+          <Drawer.Screen name="My Certificates" component={MenuCertificates} />
     </Drawer.Navigator>
   );
 }
@@ -101,10 +105,6 @@ const TabNavigator = () => {
             ),
           }}
         />
-        {/*<Tab.Screen
-          name='Menu'
-          component={DrawerNavigator}
-        />*/}
         <Tab.Screen
           name="Messages"
           component={ChatScreen}
@@ -128,6 +128,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true, title: null, headerTintColor: 'white', headerStyle: {backgroundColor: '#87ceeb'}}} name="Course Screen" component={CourseScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Search Courses" component={SearchCoursesScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Student List" component={ListStudentScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="Collaborators List" component={ListCollaboratorsScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Create New Exam" component={CreateExamScreen} />
                   <Stack.Screen options={{headerShown: true, title: null}} name="Anothers Profile" component={AnothersProfileScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Edit Course" component={EditCourseScreen} />
@@ -141,6 +142,7 @@ const Navigation = () => {
                   <Stack.Screen options={{headerShown: true}} name="Edit Exam" component={EditExamScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Exam Correction" component={ExamCorrectionScreen} />
                   <Stack.Screen options={{headerShown: true}} name="Direct Message" component={MessagesScreen} />
+                  <Stack.Screen options={{headerShown: true}} name="My Certificate" component={CertificateScreen} />
               </Stack.Navigator>
           </NavigationContainer>
       );

@@ -4,11 +4,7 @@ export class CreateExamEndpoint extends Endpoint {
     url() {
         return `/exams/`
     }
-
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
+    
     method() {
         return 'POST'
     }

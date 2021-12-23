@@ -1,5 +1,4 @@
 import {Endpoint} from "./Endpoint.js";
-//import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
 
 export class EditProfileEndpoint extends Endpoint {
     constructor(props) {
@@ -11,10 +10,6 @@ export class EditProfileEndpoint extends Endpoint {
     url() {
         return `/users/${this._id}`
     }
-
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
 
     method() {
         return 'PATCH'

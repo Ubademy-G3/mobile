@@ -1,23 +1,28 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const MenuChangeSubscription = (props) => {
     const [loading, setLoading] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
     const [subscription, setSubscription] = useState(null);
     const [subscriptionExpDate, setSubscriptionExpDate] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [selected, setSelected] = useState(null);
     const [downgrade, setDowngrade] = useState(false);
+    const [modalSuccessText, setModalSuccessText] = useState("")
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleApiResponseUpdate = (response) => {
-        console.log("[Subscription screen] content: ", response.content())
         if (!response.hasError()) {
             console.log("Update successful");
         } else {
@@ -26,31 +31,26 @@ const MenuChangeSubscription = (props) => {
     }
 
     const handleApiResponseDeposit = async (response) => {
-        console.log("[Subscription screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             let user_id = await app.getId();
             await app.apiClient().editProfile({ subscription: selected, token: tokenLS }, user_id, handleApiResponseUpdate);
             setSubscription(selected);
-            Alert.alert(
-                "Deposit Successful",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-            );
+            setModalSuccessText(response.content().message)
+            setModalSuccessVisible(true);
         } else {
-            console.log("[Subscription screen] error", response.content().message);
             if (response.content().message.includes("insufficient funds")) {
-                Alert.alert("Insufficient funds for transaction");
+                setModalErrorText("Insufficient funds for transaction");
+                setModalErrorVisible(true);
             } else {
-                Alert.alert("Please, try again in a few minutes");
+                setModalErrorText("Please, try again in a few minutes");
+                setModalErrorVisible(true);
             }
         }
     }
 
     const handleConfirmSubscription = async () => {
-        console.log("[Subscription screen] entro al confirm")
+        setSubmitLoading(true)
         let tokenLS = await app.getToken();
         let user_id = await app.getId();
         if (!downgrade) {
@@ -64,7 +64,7 @@ const MenuChangeSubscription = (props) => {
             }
         }
         setModalVisible(!modalVisible);
-        console.log("[Subscription screen] termino confirm")
+        setSubmitLoading(false)
     }
 
     const handleUpdateSubscription = (subscriptionSelected) => {
@@ -92,18 +92,12 @@ const MenuChangeSubscription = (props) => {
     };
 
     const onRefresh = async () => {
-        console.log("[Menu Update Subscription screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: idLS, token: tokenLS }, idLS, handleApiResponseUser);
         setLoading(false);
-        console.log("[Menu Update Subscription screen] salgo del onRefresh");
     };
-
-    /* useEffect(() => {
-        onRefresh();
-    }, []); */
 
     useFocusEffect(
         useCallback(() => {
@@ -112,11 +106,74 @@ const MenuChangeSubscription = (props) => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={styles.centeredView}>
+            {(modalSuccessVisible || modalErrorVisible) && (
+                <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Deposit Unsuccesfull:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: 'center', alignItems: 'center',}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>Deposit Successful:</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalSuccessText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, {backgroundColor: "#9acd32"}]}
+                            onPress={() => {
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
             :
                 <>
@@ -154,18 +211,22 @@ const MenuChangeSubscription = (props) => {
                                         </>
                                     ) : (
                                         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
-                                            <Pressable
+                                            <TouchableOpacity
                                                 onPress={() => setModalVisible(!modalVisible)}
                                                 style={styles.cancelButton}
                                             >
                                                 <Text>Cancel</Text>
-                                            </Pressable>
-                                            <Pressable
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
                                                 onPress={() => handleConfirmSubscription()}
                                                 style={styles.confirmButton}
                                             >
-                                                <Text>Confirm</Text>
-                                            </Pressable>
+                                                {submitLoading ? (
+                                                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={submitLoading} size="large" />
+                                                ) : ( 
+                                                    <Text>Confirm</Text>
+                                                )}
+                                            </TouchableOpacity>
                                         </View>
                                     )}
                                 </View>
@@ -195,7 +256,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -215,7 +276,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -235,7 +296,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -327,7 +388,47 @@ const styles = StyleSheet.create({
         padding: 15,
         borderRadius: 10,
         marginTop: 60,
-    }
+    },
+    centeredView: {
+        flex: 1,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    },
 })
 
 export default MenuChangeSubscription;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -20,19 +20,16 @@ const MyExamTemplatesScreen = (props) => {
     const [filtersVisible, setFiltersVisible] = useState(false);
 
     const handleResponseGetAllExams = async (response) => {
-        console.log("[List Exams screen] get all exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
-            console.log("[List Exams screen] error", response.content().message);
+            console.log("[My Exam Templates screen] error", response.content().message);
         }
     }
 
     const onRefresh = async () => {
-        console.log("[List Exams screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[List Exams screen] token:", tokenLS);
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, {}, handleResponseGetAllExams);
         setLoading(false);
     };
@@ -68,7 +65,9 @@ const MyExamTemplatesScreen = (props) => {
         <View style={styles.container}>
             <ScrollView>
                 {loading && (
-                    <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+                    <View style={{flex:1, justifyContent: 'center'}}>
+                        <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                    </View>
                 )}
                 {!loading && (
                     <>

@@ -49,8 +49,13 @@ import { GetAllModulesByCourseIdEndpoint } from "../endpoints/GetAllModulesByCou
 import { GetAllMediaByCourseIdEndpoint } from "../endpoints/GetAllMediaByCourseIdEndpoint";
 import { UpdateUserFromCourseEndpoint } from "../endpoints/UpdateUserFromCourseEndpoint.js";
 import { GetAllUsersFromListEndpoint } from "../endpoints/GetAllUsersFromListEndpoint";
+import { GetAllCoursesFromListEndpoint } from "../endpoints/GetAllCoursesFromListEndpoint";
 import { GetFavoriteCoursesByUserEndpoint } from "../endpoints/GetFavoriteCoursesByUserEndpoint.js";
 import { GetSolvedExamsByUserFromCourseEndpoint } from "../endpoints/GetSolvedExamsByUserFromCourseEndpoint.js";
+import { GetAllCertificatesEndpoint } from "../endpoints/GetAllCertificatesEndpoint.js";
+import { AddRatingToCourseEndpoint } from "../endpoints/AddRatingToCourseEndpoint.js";
+import { GetUserFromCourseEndpoint } from "../endpoints/GetUserFromCourseEndpoint.js";
+import { GetRatingFromCourseEndpoint } from "../endpoints/GetRatingFromCourseEndpoint.js";
 
 class ApiClient {
     constructor(requester, onServerErrorDo = () => {
@@ -133,6 +138,14 @@ class ApiClient {
         });
     }
 
+    getUserFromCourse(data, courseId, userId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetUserFromCourseEndpoint(courseId, userId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
     searchCourse(data, query, onResponse) {
         return this._requester.call({
             endpoint: new SearchCoursesEndpoint(query),
@@ -184,6 +197,14 @@ class ApiClient {
     getCourseMetrics(data, courseId, onResponse) {
         return this._requester.call({
             endpoint: new GetCourseMetricsEndpoint(courseId),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        });
+    }
+
+    getRatingFromCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new GetRatingFromCourseEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         });
@@ -478,6 +499,30 @@ class ApiClient {
     getAllUsersFromList(data, ids, onResponse) {
         return this._requester.call({
             endpoint: new GetAllUsersFromListEndpoint(ids),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllCoursesFromList(data, ids, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCoursesFromListEndpoint(ids),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    getAllCertificates(data, id, onResponse) {
+        return this._requester.call({
+            endpoint: new GetAllCertificatesEndpoint(id),
+            onResponse: (response) => this._handleResponse(response, onResponse),
+            data: data
+        })
+    }
+
+    addRatingToCourse(data, courseId, onResponse) {
+        return this._requester.call({
+            endpoint: new AddRatingToCourseEndpoint(courseId),
             onResponse: (response) => this._handleResponse(response, onResponse),
             data: data
         })

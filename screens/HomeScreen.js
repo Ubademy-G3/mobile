@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ import { app } from '../app/app';
 import CoursesFilterComponent from '../components/CourseFilterComponent';
 import CourseComponent from '../components/CourseComponent';
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -21,25 +22,9 @@ const HomeScreen = (props) => {
   const [indexCarousel, setIndexCarousel] = React.useState(0);
   const [filtered, setFiltered] = useState(false);
 
-  const handleGetRating = (response) => {
-    if (!response.hasError()) {
-        return response.content();
-    } else {
-        console.log("[Home screen] error", response.content().message);
-    }
-  }
-
   const handleGetAllCourses = async (response) => {
     if (!response.hasError()) {
-        const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        courses = await Promise.all(
-          courses.map(async (course) => {
-            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
-            course.rating = rating;
-            return course;
-          })
-        );
         setCourses(courses);
     } else {
         console.log("[Home screen] error", response.content().message);
@@ -48,15 +33,7 @@ const HomeScreen = (props) => {
 
   const handleSearchCourses = async (response) => {
     if (!response.hasError()) {
-        const tokenLS = await app.getToken();
         let courses = response.content().courses;
-        courses = await Promise.all(
-          courses.map(async (course) => {
-            const rating = await app.apiClient().getCourseRating({ token: tokenLS }, course.id, handleGetRating);
-            course.rating = rating;
-            return course;
-          })
-        );
         setCourses(courses);
     } else {
         console.log("[Search by subscription screen] error", response.content().message);
@@ -64,18 +41,11 @@ const HomeScreen = (props) => {
   }
 
   const onRefresh = async () => {
-      console.log("[Home screen] entro a onRefresh");
-      setLoading(true);
-      let tokenLS = await app.getToken();
-      console.log("[Home screen] token:", tokenLS);
-      app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
-      setLoading(false);
+    setLoading(true);
+    let tokenLS = await app.getToken();
+    app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
+    setLoading(false);
   };
-
-  /* useEffect(() => {
-      console.log("[Home screen] entro a useEffect");
-      onRefresh();
-  }, []); */
 
   useFocusEffect(
     useCallback(() => {
@@ -84,7 +54,7 @@ const HomeScreen = (props) => {
   );
 
   const getBestRatedCourses = () => {
-    const bestRated = courses.filter((course) => course.rating.rating >= 4);
+    const bestRated = courses.filter((course) => course.rating_avg >= 4);
     return bestRated.slice(0, 10);
   }
 
@@ -121,44 +91,6 @@ const HomeScreen = (props) => {
     setLoading(false);
   }
 
-  const renderVerticalCourseItem = ({ item }) => {
-    return (
-      <TouchableOpacity
-        key={item.id}
-        onPress={() => {
-          props.navigation.navigate('Course Screen', {
-            item: item,
-          });
-        }}
-      >
-        <View style={styles.verticalCourseItemWrapper}>
-          <Image
-            source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
-            style={styles.image}
-          />
-          <View style={{ width: '70%', marginLeft: 10 }}>
-            <Text style={styles.courseTitle}>{item.name}</Text>
-            <Text numberOfLines={2}>{item.description}</Text>
-            <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
-              <StarRating
-                disabled={true}
-                maxStars={5}
-                rating={item.rating.rating}
-                containerStyle={{ width: '40%', marginLeft: 5 }}
-                //starStyle={{ color: 'gold' }}
-                starSize={20}
-                fullStarColor='gold'
-              />
-              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
-            </View>
-            <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
-          </View>
-        </View>
-      </TouchableOpacity>
-    );
-  }
-
   const renderHorizontalCourseItem = ({ item }) => {
     return (
       <TouchableOpacity
@@ -178,17 +110,17 @@ const HomeScreen = (props) => {
             <Text style={styles.courseTitle}>{item.name}</Text>
             <Text numberOfLines={2}>{item.description}</Text>
             <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating.rating}</Text>
+              <Text style={{ color: 'gold' }}>{item.rating_avg}</Text>
               <StarRating
                 disabled={true}
                 maxStars={5}
-                rating={item.rating.rating}
+                rating={item.rating_avg}
                 containerStyle={{ width: '40%', marginLeft: 5 }}
                 //starStyle={{ color: 'gold' }}
                 starSize={20}
                 fullStarColor='gold'
               />
-              <Text style={{ marginLeft: 5 }}>{`(${item.rating.amount})`}</Text>
+              <Text style={{ marginLeft: 5 }}>{`(${item.rating_amount})`}</Text>
             </View>
             <Text style={{ textAlign: 'right', fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
           </View>
@@ -201,19 +133,17 @@ const HomeScreen = (props) => {
       {
       loading ? 
         <View style={{flex:1, justifyContent: 'center'}}>
-          <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+          <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
         </View>
         :
         <>
         <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}>
-          {/* Filter */}
           {modalVisible && (
             <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
           )}
           
-          {/* Logo */}
           <SafeAreaView>
               <View style={styles.headerWrapper}>
                   <Image
@@ -235,7 +165,6 @@ const HomeScreen = (props) => {
               </View>
           </SafeAreaView>
 
-          {/* Search */}
           <View style={styles.searchWrapper}>
               <Feather name="search" size={16}/>
               <View style={styles.search}>
@@ -246,7 +175,12 @@ const HomeScreen = (props) => {
                   />
               </View>
           </View>
-
+          {filtered && courses.length === 0 && (
+            <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Image source={require("../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+              <Text style={styles.examsText}>Oops.. could not find any course</Text>
+            </View>
+          )}
           {courses && (
             <>
               {!filtered && (
@@ -263,7 +197,6 @@ const HomeScreen = (props) => {
                   <Pagination
                     dotsLength={getBestRatedCourses().length}
                     activeDotIndex={indexCarousel}
-                    //carouselRef={isCarousel}
                     dotStyle={{
                       width: 10,
                       height: 10,
@@ -294,11 +227,6 @@ const HomeScreen = (props) => {
                       />
                     </TouchableOpacity>
                 ))}
-                {/* <FlatList 
-                  data={courses}
-                  renderItem={renderVerticalCourseItem}
-                  keyExtractor={(item) => item.id}
-                /> */}
               </View>
               </>
             )}
@@ -400,9 +328,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     width: '73%'
   },
-
-
-
   categoriesWrapper: {
     marginTop: 20,
   },

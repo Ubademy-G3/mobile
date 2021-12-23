@@ -12,10 +12,6 @@ export class UnsubscribeToCourseEndpoint extends Endpoint {
         return `/courses/${this._courseid}/users/${this._userid}`
     }
 
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
     method() {
         return 'DELETE'
     }

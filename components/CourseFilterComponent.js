@@ -1,8 +1,6 @@
-import React, {Component, useEffect, useState, useCallback} from 'react';
-import { StyleSheet, CheckBox, Text, View, Button, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, CheckBox, Text, View, FlatList, Modal, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
-import SelectDropdown from 'react-native-select-dropdown';
 import { app } from '../app/app';
 import subs from '../assets/data/subscriptionTypeCourses';
 
@@ -14,7 +12,6 @@ const CourseFilterComponent = (props) => {
     const [loading, setLoading] = useState(false);
 
     const handleGetAllCategories = (response) => {
-        // console.log("[Home screen] categories content: ", response.content())
         if (!response.hasError()) {
             let cats = response.content();
             cats = cats.map((c) => {
@@ -22,7 +19,6 @@ const CourseFilterComponent = (props) => {
                 return c;
             });
             setCategories(cats);
-            console.log("[Home screen] categories: ", categories);
         } else {
             console.log("[Home screen] error", response.content().message);
         }

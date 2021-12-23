@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, Alert } from 'react-native';
+import { Text, View, Image, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, ScrollView, TextInput, Modal, Pressable } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
@@ -17,9 +17,15 @@ MaterialIcons.loadFont();
 const CourseScreen = (props) => {
     const { item } = props.route.params;
     const [loading, setLoading] = useState(false);
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorTitle, setModalErrorTitle] = useState("");
+    const [modalErrorText, setModalErrorText] = useState("");
     const [subscribed, setSubscribed] = useState(false);
     const [favorited, setFavorited] = useState(false);
     const [rating, setRating] = useState({});
+    const [starCount, setStarCount] = useState(0);
+    const [opinion, setOpinion] = useState("");
+    const [approved, setApproved] = useState(false);
     const [instructors, setInstructors] = useState([]);
     const [favoriteCoursesList, setFavoriteCoursesList] = useState([]);
     const [exams, setExams] = useState([]);
@@ -28,22 +34,14 @@ const CourseScreen = (props) => {
     const [updatingModules, setUpdatingModules] = useState(false);
     const [rol, setRol] = useState(null);
     const [progress, setProgress] = useState(0);
+    const [showOpinion, setShowOpinion] = useState(true);
+    const [studentsOpinions, setStudentsOpinions] = useState([]);
     const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
 
     const handleGetMedia = async (response) => {
-        console.log("[Course screen] get media: ", response.content())
         if (!response.hasError()) {
-            /*let centinela = 0;            
-            for (let module of modules){                
-                if (module.id === response.content().module_id){
-                    const newmodule = [...modules];
-                    newmodule[centinela].media_url = response.content().course_media;
-                    setModules(newmodule);
-                }
-                centinela = centinela + 1;
-            }*/
             setMedia(response.content().course_media);
         } else {
             console.log("[ Course screen] error", response.content().message);
@@ -51,46 +49,13 @@ const CourseScreen = (props) => {
     }
 
     const handleGetAllModules = async (response) => {
-        console.log("[Course screen] set module: ", response.content())
         if (!response.hasError()) {           
-            /*setModules(modules => [...modules, {
-                id: response.content().id,      
-                saved_module: true,
-                new_module: false,
-                title: response.content().title,
-                media_id: response.content().media_id,
-                media_url: [],
-                content: response.content().content
-            }            
-            ]);*/
             setModules(response.content().modules);
             setUpdatingModules(true);          
         } else {
             console.log("[Course screen] error", response.content().message);
         }   
     }
-
-    /*const funcionauxiliar = async () => {
-        let tokenLS = await app.getToken();          
-        for (let module of modules){           
-            if (module.media_url.length === 0){
-                await app.apiClient().getMediaByModule({token: tokenLS}, item.id, module.id, handleGetMedia);             
-            }
-        }
-    }*/
-
-    /*const getAllModules = async () => {
-        let tokenLS = await app.getToken();
-        /*for (let module_id of item.modules) {    
-            await app.apiClient().getModuleById({token: tokenLS}, item.id, module_id, handleGetModule);
-        }
-        await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules)
-    }*/
-
-    /*useEffect(() => {
-        funcionauxiliar();
-        setUpdatingModules(false);
-    }, [updatingModules]);*/
 
     const removeElement = (arr, value) => {
         return arr.filter(function(ele) {
@@ -99,7 +64,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetAllExams = (response) => {
-        //console.log("[Course screen] get exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
@@ -108,25 +72,27 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseSubscribeToCourse = (response) => {
-        //console.log("[Course screen] subscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(true);
         } else {
             if(response.content().message === "Can't subscribe user because of subscription type") {
-                Alert.alert(
-                    "Subscription error:",
-                    `You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`,
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                );
+                setModalErrorTitle("Subscription error:");
+                setModalErrorText(`You can't subscribe to a ${item.subscription_type} course with subscription type ${subscriptionType}`);
+                setModalErrorVisible(true);
             }
             console.log("[Course screen] error", response.content().message);
         }
     }
 
+    const handleResponseAddRating = (response) => {
+        if (!response.hasError()) {
+            console.log("[Course screen] ok");
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
     const handleResponseUnsubscribeToCourse = (response) => {
-        //console.log("[Course screen] unsubscribe content: ", response.content())
         if (!response.hasError()) {
             setSubscribed(false);
         } else {
@@ -135,7 +101,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseUnfavorite = (response) => {
-        //console.log("[Course screen] unfavorite content: ", response.content())
         if (!response.hasError()) {
             setFavorited(false);
         } else {
@@ -143,8 +108,21 @@ const CourseScreen = (props) => {
         }
     }
 
+    const handleResponseGetUserFromCourse = (response) => {
+        if (!response.hasError()) {
+            setRol(response.content().user_type);
+            if (response.content().approval_state) {
+                setApproved(true);
+            }
+        } else {
+            if (response.content().status === 404) {
+                setRol('student');
+            }
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
     const handleResponseFavorited = (response) => {
-        //console.log("[Course screen] favorited content: ", response.content())
         if (!response.hasError()) {
             setFavorited(true);
         } else {
@@ -153,7 +131,6 @@ const CourseScreen = (props) => {
     }
 
     const handleApiResponseProfile = (response) => {
-        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {  
             setInstructors(instructors => [...instructors, response.content()]);
         } else {
@@ -162,11 +139,10 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        //console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
-            setRol(response.content().rol);
+            //setRol(response.content().rol);
             for (let courseId of response.content().favoriteCourses){
                 if (courseId === item.id){
                     setFavorited(true);
@@ -177,8 +153,24 @@ const CourseScreen = (props) => {
         }
     }
 
+    const handleGetRatings = async (response) => {
+        if (!response.hasError()) {
+            let idLS = await app.getId();
+            const m = response.content().reviews.filter((m) => {
+                return m.user_id === idLS;
+            });
+            if (m.length === 0) {
+                setShowOpinion(true);
+            } else {
+                setShowOpinion(false);
+            }
+            setStudentsOpinions(response.content().reviews.slice(0,6));
+        } else {
+            console.log("[Course screen] error", response.content().message);
+        }
+    }
+
     const handleResponseGetAllUsersInCourses = async (response) => {
-        //console.log("[Course screen] content: ", response.content())
         if (!response.hasError()) {
             let idLS = await app.getId();
             let tokenLS = await app.getToken();
@@ -186,9 +178,8 @@ const CourseScreen = (props) => {
                 if (course.user_id === idLS){
                     setSubscribed(true);
                     setProgress(course.progress);
-                    //setRol(course.user_type);
                 }
-                if (course.user_type === 'instructor' || course.user_type === 'collaborator') {
+                if (course.user_type === 'instructor') {
                     await app.apiClient().getProfile({id: course.user_id, token: tokenLS}, course.user_id, handleApiResponseProfile);
                 }
             }
@@ -198,7 +189,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetCourseRating = (response) => {
-        console.log("[Course screen] get rating: ", response.content())
         if (!response.hasError()) {
             setRating(response.content());
         } else {
@@ -207,17 +197,14 @@ const CourseScreen = (props) => {
     }
     
     const handleSubmitSubscribe = async () => {
-        console.log("[Course screen] entro submit button"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "student"}, item.id, handleResponseSubscribeToCourse);
         setLoading(false);
     }
 
     const handleSubmitUnsubscribe = async () => {
-        console.log("[Course screen] unsubcribe");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -226,52 +213,51 @@ const CourseScreen = (props) => {
     }
 
     const handleSubmitUnfavorite = async() => {
-        console.log("[Course screen] unfavorite");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         let newList = removeElement(favoriteCoursesList, item.id);
-        //console.log("[Course screen] new list:", newList);
         await app.apiClient().editProfile({token: tokenLS, favoriteCourses: newList }, idLS, handleResponseUnfavorite);
         setFavoriteCoursesList(newList);
         setLoading(false);
     }
 
     const handleSubmitFavorited = async () => {
-        console.log("[Course screen] unfavorite");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         const newList = [...favoriteCoursesList];
         newList.push(item.id);
-        console.log("[Course screen] new list:", newList);
         await app.apiClient().editProfile({token: tokenLS, favoriteCourses: newList }, idLS, handleResponseFavorited);
         setFavoriteCoursesList(newList);
         setLoading(false);
     }
 
-    const onRefresh = async () => {
-        console.log("[Course screen] entro a onRefresh"); 
+    const handleSumbitSendOpinion = async () => {
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Course screen] token:", tokenLS); 
+        await app.apiClient().addRatingToCourse({token: tokenLS, user_id: idLS, score: starCount, opinion: opinion}, item.id, handleResponseAddRating);
+        setShowOpinion(false);
+        setLoading(false);
+    }
+
+    const onRefresh = async () => { 
+        setLoading(true);
+        let tokenLS = await app.getToken();
+        let idLS = await app.getId();
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, {}, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
+        await app.apiClient().getUserFromCourse({token: tokenLS}, item.id, idLS, handleResponseGetUserFromCourse);
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, item.id, {}, handleResponseGetAllExams);
         await app.apiClient().getAllModules({token: tokenLS}, item.id, handleGetAllModules);
         await app.apiClient().getAllMedia({token: tokenLS}, item.id, handleGetMedia);
+        await app.apiClient().getRatingFromCourse({token: tokenLS}, item.id, handleGetRatings);
         setLoading(false);
     };
-  
-    /*useEffect(() => {
-        console.log("[Course screen] entro a useEffect GET ALL MODULES");
-        getAllModules(); 
-    }, []);*/
 
     useEffect(() => {
-        console.log("[Course screen] entro a useEffect");
         setInstructors([]);
         onRefresh();
     }, []);
@@ -292,11 +278,60 @@ const CourseScreen = (props) => {
         return m;
     };
 
+    const onStarRatingPress = (rating) => {
+        setStarCount(rating);
+    }
+
+    const renderOpinionItem = ({ item }) => {
+        return (
+            <View
+              key={item.id}
+              style={[styles.opinionItemWrapper, { maxWidth: "90%"}]}>
+              <Text style={styles.categoryItemTitle}>{item.opinion}</Text>            
+            </View>
+        );
+    };
+
     return (
-        <View style={styles.container}>
+        <View style={styles.centeredView}>
+            {modalErrorVisible && (
+                <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>{modalErrorTitle}</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
             <ScrollView>
                 {loading && (
-                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                    <View style={{flex:1, justifyContent: 'center'}}>
+                        <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                    </View>
                 )}
                 {!loading && (
                     <>
@@ -384,6 +419,18 @@ const CourseScreen = (props) => {
                                         <Image source={require("../assets/images/examButton.png")} style={styles.buttonImage} />
                                         <Text style={{color: 'grey', textAlign: 'center'}}>Exams</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            props.navigation.navigate('Collaborators List', {
+                                            course_id: item.id,
+                                            filter: false,
+                                            view_as: rol
+                                        });}}
+                                        style={[styles.buttonWithImage]}
+                                    >
+                                        <Image source={require("../assets/images/collaboratorsButton.png")} style={{ width: 70, height: 70, marginLeft: 20 }} />
+                                        <Text style={{color: 'grey', textAlign: 'center', marginLeft: 5}}>Collaborators</Text>
+                                    </TouchableOpacity>
                                 </View>
                             </>
                         )}
@@ -403,6 +450,73 @@ const CourseScreen = (props) => {
                                 </View>
                             </View>
                         </>
+                        {subscribed && approved && (
+                            <View style={{paddingHorizontal: 15}}>
+                                {showOpinion && (
+                                    <>
+                                    <Text style={styles.opinionTitle}>Give your opinion about this course</Text>
+                                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                                    <StarRating
+                                        disabled={false}
+                                        maxStars={5}
+                                        rating={starCount}
+                                        selectedStar={(rating) => onStarRatingPress(rating)}
+                                        containerStyle={{ width: "80%", paddingVertical: 10}}
+                                        starSize={35}
+                                        fullStarColor='gold'
+                                    />
+                                    </View>
+                                    <KeyboardAvoidingView
+                                        behavior={Platform.OS === "ios" ? "padding" : "padding"}
+                                    >
+                                        <TextInput
+                                            placeholder={opinion}
+                                            onChangeText={text => setOpinion(text)}
+                                            value={opinion}
+                                            multiline={true}
+                                            style={styles.inputText}
+                                        />
+                                    </KeyboardAvoidingView>
+                                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                                        <TouchableOpacity
+                                            onPress={() => {handleSumbitSendOpinion()}}
+                                            style={[styles.button, {marginBottom: 10}]}>
+                                            <Text style={styles.buttonText}>Send opinion</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    </>
+                                )}
+                                {!showOpinion && (
+                                    <Text style={styles.opinionTitle}>Thank you for your feedback!</Text>
+                                )}
+                            </View>
+                        )}
+                        <View style={styles.studentListWrapper}>
+                            <Text style={styles.instructorsTitle}>Instructor</Text>
+                            {instructors.map(item => (
+                                <ProfilesListComponent 
+                                item={item}
+                                navigation={props.navigation}
+                                key={item.id}/>
+                            ))}
+                        </View>
+                        <View style={styles.studentListWrapper}>
+                            {studentsOpinions.length === 0 && (
+                                <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>There are no opinions about this course</Text>
+                            )}
+                            {studentsOpinions.length !== 0 && (
+                                <View>
+                                    <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>Opinions about this course</Text>
+                                    <FlatList  
+                                        data={studentsOpinions}
+                                        renderItem={renderOpinionItem}
+                                        keyExtractor={(item) => item.id}
+                                        horizontal={true}
+                                        showsHorizontalScrollIndicator={false}
+                                    />
+                                </View>
+                            )}
+                        </View>
                         {subscribed && modules && media && (
                             <View style={styles.studentListWrapper}>
                                 <Text style={styles.instructorsTitle}>Units</Text>
@@ -433,15 +547,6 @@ const CourseScreen = (props) => {
                                 ))}
                             </View>
                         )}
-                        <View style={styles.studentListWrapper}>
-                            <Text style={styles.instructorsTitle}>Instructors</Text>
-                            {instructors.map(item => (
-                                <ProfilesListComponent 
-                                item={item}
-                                navigation={props.navigation}
-                                key={item.id}/>
-                            ))}
-                        </View>
                     </>
                 )}
             </ScrollView>
@@ -579,6 +684,11 @@ const styles = new StyleSheet.create({
         fontSize: 16,
         marginTop: 5,
     },
+    opinionTitle: {
+        fontSize: 16,
+        marginTop: 10,
+        fontWeight: "bold",
+    },
     featuresItemText: {},
     subscribeWrapper: {
         marginBottom: 15,
@@ -637,7 +747,6 @@ const styles = new StyleSheet.create({
         borderRadius: 10,
     },
     studentListWrapper: {
-        //marginTop: 10,
         paddingHorizontal: 15,
     },
     button: {
@@ -657,7 +766,6 @@ const styles = new StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },
@@ -689,7 +797,71 @@ const styles = new StyleSheet.create({
     moduleTitle: {
         fontWeight: '600',
         fontSize: 18
-    }
+    },
+    centeredView: {
+        flex: 1,
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    },
+    inputText: {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        paddingVertical: 35,
+        borderRadius: 10,
+        marginTop: 5,
+    },
+    opinionItemWrapper: {
+        backgroundColor: '#F5CA48',
+        marginRight: 10,
+        borderRadius: 20,
+        shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+    categoryItemTitle: {
+        textAlign: 'center',
+        fontSize: 14,
+        marginTop: 5,
+        marginBottom: 5
+    },
 });
 
 export default CourseScreen;

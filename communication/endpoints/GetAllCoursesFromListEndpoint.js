@@ -1,6 +1,9 @@
 import { Endpoint } from "./Endpoint.js";
 
 function serializeQuery(params, prefix) {
+    if (params.length == 1) {
+      params.push(params[0]);
+    }
     const query = Object.keys(params).map((key) => {
       const value  = params[key];
 
@@ -19,24 +22,22 @@ function serializeQuery(params, prefix) {
 }
 
 
-export class GetAllCoursesByUserEndpoint extends Endpoint {
-    constructor(userId, query) {
-      super(userId, query);
-      console.log("entro al constructor:", userId, query);
-      this._user_id = userId;
-      this._query = query;
-      console.log("salgo del constructor:", this._user_id, this._query);
+export class GetAllCoursesFromListEndpoint extends Endpoint {
+    constructor(ids) {
+        super(ids);
+        console.log("entro al constructor:", ids);
+        this._ids = ids;
+        console.log("salgo del constructor:", this._ids);
     }
     url() {
-      let url = `/courses/user/${this._user_id}/rated`;
-      const params = serializeQuery(this._query);
-      if (params.length > 0) {
-        url = url.concat(`?${params}`);
-      }
-
-      console.log("URL")
-      console.log(url)
-      return url;
+        let url = `/courses/list/rated/`;
+        const params = serializeQuery(this._ids, "id");
+        if (params.length > 0) {
+            url = url.concat(`?${params}`);
+        }
+        console.log("URL")
+        console.log(url)
+        return url;
     }
 
     method() {

@@ -1,18 +1,19 @@
 import {Endpoint} from "./Endpoint.js";
 
-export class SubscribeToCourseEndpoint extends Endpoint {
+export class GetRatingFromCourseEndpoint extends Endpoint {
     constructor(props) {
         super(props);
         console.log("entro al constructor:", props);
-        this._id = props;
-        console.log("salgo del constructor:", this._id);
+        this._courseId = props;
+        console.log("salgo del constructor:", this._courseId);
     }
+
     url() {
-        return `/courses/${this._id}/users`
+        return `/courses/${this._courseId}/ratings`
     }
 
     method() {
-        return 'POST'
+        return 'GET'
     }
 
     needsAuthorization() {

@@ -1,16 +1,21 @@
-import React, { Component, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppState, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Platform, ActivityIndicator, Modal, Pressable } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import MultiSelect from 'react-native-multiple-select';
 import { ScrollView } from 'react-native-gesture-handler';
+import { firebase } from '../firebase';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 Feather.loadFont();
+MaterialCommunityIcons.loadFont();
 
 const rols = ["student", "instructor"];
-// const subscriptions = ["free", "platinum", "gold"];
+const db = firebase.default.firestore();
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -32,8 +37,6 @@ const SignupScreen = (props) => {
         subscription: 'free',
         profilePictureUrl: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/c23449d1-43e3-4cc5-9681-25d563ee5ab9.jpg?alt=media&token=8ec949cd-5ad1-4bbf-a1a5-c3d7c612e440",
         favoriteCourses: [],
-        /* registerType: "not-google",
-        loginType: "not-google", */
 
     });
 
@@ -41,17 +44,50 @@ const SignupScreen = (props) => {
         messageError: '',
         showError: false,
     });
-
     const [loading, setLoading] = useState(false);
-
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorText, setModalErrorText] = useState({
+        title: "",
+        body: "",
+    });
     const [selectInterets, setSelectInterets] = useState(false);
-
     const [categories, setCategories] = useState([]);
-
     const [selectedItems, setSelectedItems] = useState([]);
+    const [expoPushToken, setExpoPushToken] = useState("");
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    }, []);
+
+    const registerForPushNotificationsAsync = async () => {
+        let token;
+        if (Constants.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+          token = (await Notifications.getExpoPushTokenAsync()).data;
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+        return token;
+      }
 
     const handleApiResponseGetCategories = (response) => {
-        console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             setCategories(response.content())
         } else {
@@ -60,20 +96,16 @@ const SignupScreen = (props) => {
     }
 
     const handleApiResponseLogin = async (response) => {
-        console.log("[Signup screen] entro a handle api response:", response.content());
         if (response.hasError()) {
-            console.log("[Signup screen] error")
-            Alert.alert(
-                "Login error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              );
+            setModalErrorText({ title: "Login error:", body: response.content().message});
+            setModalErrorVisible(true);
         } else {
             await app.loginUser(response.content().token, response.content().id);
-            console.log("[Signup screen] token: ", response.content().token);
             setData({...SignUpData, id: response.content().id});
+            db.collection('users').doc(response.content().id).set({
+                id: response.content().id,
+                expoPushToken: expoPushToken
+            });
             if (SignUpData.rol === "student") {
                 setSelectInterets(true);
                 await app.apiClient().getAllCategories({token: response.content().token}, handleApiResponseGetCategories);
@@ -89,10 +121,7 @@ const SignupScreen = (props) => {
     }
 
     const handleApiResponseEditProfile = async (response) => {
-        console.log("[Signup screen] response content: ", response.content())
         if (!response.hasError()) {
-            //let idLS = await app.getId();
-            console.log("[Signup screen] ID!!!: ", SignUpData.id)
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',
@@ -105,24 +134,15 @@ const SignupScreen = (props) => {
     }
    
     const handleApiResponseSignUp = (response) => {
-        console.log("[Signup screen] entro a handle api response sign up")
         if (response.hasError()) {
             setError({
                 ...errorData,
                 messageError: response.content().message,
                 showError: true,
             });
-            console.log("[Signup screen] error")
-            console.log("[Signup screen] show error: ", errorData.showError);
-            Alert.alert(
-                "Signup error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              );
+            setModalErrorText({ title: "Signup error:", body: response.content().message});
+            setModalErrorVisible(true);
         } else {
-            console.log("[Signup screen] done signup")
             setError({
                 ...errorData,
                 showError: false,
@@ -131,24 +151,18 @@ const SignupScreen = (props) => {
     }
 
     const handleSubmitEditProfile = async () =>{
-        console.log("[Signup screen] entro a submit edit profile")
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Signup screen] token:", tokenLS);
-        console.log("[Signup screen] id:", idLS);
         await app.apiClient().editProfile({
             id: idLS,
             interests: SignUpData.interests,
             token: tokenLS}, idLS, handleApiResponseEditProfile);
         setLoading(false);
-        console.log("[Signup screen] termino submit signup")
     }
 
     const handleSubmitSignUp = async () => {
-        console.log("[Signup screen] entro a submit signup")
         setLoading(true);
-        console.log("[Signup screen] data:", SignUpData)
         if (param_signupGoogle) {
             await app.apiClient().signup({
                 firstName: SignUpData.firstName,
@@ -182,9 +196,7 @@ const SignupScreen = (props) => {
         
             }, handleApiResponseSignUp);
         }
-        console.log("[Signup screen] show error: ", errorData.showError);
         setLoading(false);
-        console.log("[Signup screen] termino submit signup")
     }
 
     const onSelectedItemsChange = (selectedItems) => {
@@ -193,33 +205,21 @@ const SignupScreen = (props) => {
 
     const doLogin = async () => {
         if (!errorData.showError) {
-            console.log("[Signup screen] entro a submit login");
             if (param_signupGoogle) {
                 await app.apiClient().login({email: SignUpData.email, password: SignUpData.password, loginType: "google"}, handleApiResponseLogin);
             } else {
                 await app.apiClient().login({email: SignUpData.email, password: SignUpData.password, loginType: "not-google"}, handleApiResponseLogin);
             }
-            console.log("[Signup screen] termino submit login");
         }
     }
 
     useEffect(() => {
-        console.log("[Signup screen] params: ", props.route.params);
-        console.log("[Signup screen] Entro a use effect");
         if(SignUpData.rol != '') {
             doLogin();
         }
     }, [errorData]);
 
-    /* useEffect(() => {
-        if (param_signupGoogle) {
-            console.log("SETEO TYPES EN GOOGLE");
-            setData({...SignUpData, registerType: "google", loginType: "google"});
-        }
-    }, []); */
-
     useEffect(() => {
-        console.log("[Signup screen] entro a useEffect", SignUpData); 
         setData({
             ...SignUpData,
             interests: selectedItems,
@@ -228,6 +228,37 @@ const SignupScreen = (props) => {
     
     return (
         <View>
+            <View style={styles.centeredView}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={styles.centeredView}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>{modalErrorText.title}</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText.body}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => setModalErrorVisible(!modalErrorVisible)}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+            </View>
             <SafeAreaView>
                 <View style={styles.headerWrapper}>
                     <Image
@@ -236,7 +267,7 @@ const SignupScreen = (props) => {
                     />
                 </View>
             </SafeAreaView>
-            <ScrollView>
+            <ScrollView style = {styles.scrollView}>
                 <KeyboardAvoidingView
                 style={styles.container}
                 behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -362,7 +393,7 @@ const SignupScreen = (props) => {
                                 disabled={loading}
                             >
                                 {
-                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                                    loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
                                 }
                             </TouchableOpacity>
                         )}
@@ -378,7 +409,9 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        //paddingTop: 5,
+    },
+    scrollView:{
+        height: 400
     },
     headerContainer: {
         flex: 1,
@@ -439,7 +472,6 @@ const styles = StyleSheet.create({
     inputMultiSelect : {
         backgroundColor:'white',
         paddingHorizontal: 15,
-        //paddingVertical: 5,
         borderRadius: 10,
         marginTop: 5,
     },
@@ -447,8 +479,50 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
+    },
+    centeredView: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        paddingHorizontal: 35,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    buttonAttention: {
+        backgroundColor: "#87ceeb",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
     },
 })
 

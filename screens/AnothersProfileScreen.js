@@ -1,34 +1,32 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
-import CourseComponent from '../components/CourseComponent';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const AnothersProfileScreen = (props) => {
-    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
+    const param_id = props.route.params ? props.route.params.id : 'defaultId';
     
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
     const [userData, setData] = useState({
         id: 0,
-        firstName: "Name",
-        lastName: "Last name",
+        firstName: "",
+        lastName: "",
         location: "",
         profilePictureUrl: "../assets/images/profilePic.jpg",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor",
+        description: "",
         interests: [],
         rol: "",
     });
     const [myId, setMyId] = useState(0);
 
     const handleGetCategories = (response) => {
-        console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
             setCategories(userCategories);
@@ -38,7 +36,6 @@ const AnothersProfileScreen = (props) => {
     }
 
     const handleApiResponseProfile = async (response) => {
-        console.log("[Anothers Profile screen] content: ", response.content())
         if (!response.hasError()) {
             setData({
                 id: response.content().id,
@@ -56,47 +53,46 @@ const AnothersProfileScreen = (props) => {
     }
 
     const onRefreshCategories = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+        setLoading(false);
     }
     
     useEffect(() => {
         if (userData.interests.length > 0) {
-            console.log("[Anothers Profile screen] entro a updating categories"); 
             onRefreshCategories();            
         }
     }, [userData]);
     
     const onRefresh = async () => {
-        console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         setMyId(idLS);
-        console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
         setLoading(false);
     };
 
     useEffect(() => {
-        console.log("[Anothers Profile screen] entro a useEffect"); 
-        console.log("[Anothers Profile screen] param id:", param_id);
-        console.log("[Anothers Profile screen] params: ", props.route.params)
         onRefresh();
     }, [param_id]);
 
     const renderCategoryItem = ({ item }) => {
         return (
             <View
-            key={item.id}
-            style={[
-            styles.categoryItemWrapper,
-            {
-                backgroundColor: item.selected ? '#87ceeb' : 'white',
-                marginLeft: item.id == 0 ? 20 : 0,
-            },
-            ]}>
-              {/*<Image source={item.image} style={styles.categoryItemImage}/>*/ }
+              key={item.id}
+              style={[
+                styles.categoryItemWrapper,
+                {
+                  backgroundColor: item.selected ? '#87ceeb' : 'white',
+                  marginLeft: item.id == 0 ? 20 : 0,
+                },
+                ]}
+            >
+                <View style={{justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={{uri: item.photo_url}} style={styles.interestsImage} />
+                </View>
               <Text style={styles.categoryItemTitle}>{item.name}</Text>            
             </View>
         );
@@ -104,48 +100,56 @@ const AnothersProfileScreen = (props) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <View>
+            {loading && (
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                </View>
+            )}
+            {!loading && (
+                <>
+                <ScrollView>
+                    <View style={styles.titlesWrapper}>
                         <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
-                    </View>
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
-                    </View>
-                </View>
-
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
-                {userData.rol === "student" && (
-                    <>
-                    <View style={styles.locationWrapper}>
-                        <Text style={styles.locationTitle}>Location:</Text>
-                        <Text style={styles.location}>{userData.location}</Text>
-                    </View>
-                    <View style={styles.categoriesWrapper}>
-                        <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
-                        <View style={styles.categoriesListWrapper}>
-                            <FlatList  
-                                data={categories}
-                                renderItem={renderCategoryItem}
-                                keyExtractor={(item) => item.id}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            />
+                        <View style={styles.titleWrapper}>
+                            <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
                         </View>
                     </View>
-                    </>
+                    {userData.description !== "" && (
+                    <View style={styles.descriptionWrapper}>
+                        <Text style={styles.description}>{userData.description}</Text>
+                    </View>
+                    )}
+                    {userData.rol === "student" && (
+                        <>
+                        <View style={styles.locationWrapper}>
+                            <Text style={styles.locationTitle}>Location:</Text>
+                            <Text style={styles.location}>{userData.location}</Text>
+                        </View>
+                        <View style={styles.categoriesWrapper}>
+                            <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
+                            <View style={styles.categoriesListWrapper}>
+                                <FlatList  
+                                    data={categories}
+                                    renderItem={renderCategoryItem}
+                                    keyExtractor={(item) => item.id}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                            </View>
+                        </View>
+                        </>
+                    )}
+                </ScrollView>
+                {myId != param_id &&(
+                    <View style={styles.buttonWrapper}>
+                        <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity> 
+                    </View>
                 )}
-            </ScrollView>
-            {myId != param_id &&(
-                <View style={styles.buttonWrapper}>
-                    <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
-                        </View>
-                    </TouchableOpacity> 
-                </View>
+                </>
             )}
         </View>
     )
@@ -157,12 +161,8 @@ const styles = StyleSheet.create({
     },
     titlesWrapper: {
         flexDirection: "row",
-        paddingVertical:25,
+        paddingVertical: 25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     titlesImage: {
         width: 100,
@@ -183,18 +183,18 @@ const styles = StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
     },
     description: {
         fontSize: 16,
     },
+    interestsImage: {
+        width: 80,
+        height: 80,
+    },
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
-        // paddingVertical: 10,
-        paddingBottom: 10,
-        marginTop: 5,
     },
     location: {
         fontSize: 16,
@@ -206,7 +206,6 @@ const styles = StyleSheet.create({
     },
     interestsWrapper:{
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
         marginTop: 5,
     },
@@ -216,7 +215,6 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },
     categoriesWrapper: {
-        //marginTop: 10,
         paddingTop: 20,
         paddingLeft: 20,
         paddingVertical: 5,
@@ -224,7 +222,6 @@ const styles = StyleSheet.create({
     },
     categoriesText: {
         fontSize: 20,
-        //paddingHorizontal: 20,
     },
     categoriesListWrapper: {
         paddingTop: 15,
@@ -236,6 +233,8 @@ const styles = StyleSheet.create({
         marginRight: 10,
         borderRadius: 20,
         shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
         shadowOffset: {
           width: 0,
           height: 2,
@@ -268,7 +267,6 @@ const styles = StyleSheet.create({
         width: '50%',
         paddingVertical: 10,
         paddingHorizontal: 10,
-        //flexDirection: 'row',
     },
     buttonWrapper: {
         alignItems: 'center',

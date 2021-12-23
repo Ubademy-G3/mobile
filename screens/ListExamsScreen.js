@@ -10,7 +10,6 @@ const ListExamsScreen = (props) => {
     const [exams, setExams] = useState([]);
 
     const handleResponseGetAllExams = async (response) => {
-        console.log("[List Exams screen] get all exams: ", response.content())
         if (!response.hasError()) {
             setExams(response.content().exam_templates);
         } else {
@@ -19,16 +18,13 @@ const ListExamsScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[List Exams screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[List Exams screen] token:", tokenLS); 
         await app.apiClient().getAllExamsByCourseId({token: tokenLS}, param_course_id, {state: 'active'}, handleResponseGetAllExams);
         setLoading(false);
     };
 
     useEffect(() => {
-        console.log("[List Exams screen] entro a useEffect");
         onRefresh();
     }, []);
 
@@ -37,7 +33,9 @@ const ListExamsScreen = (props) => {
             <ScrollView>
                 <>
                     {loading && (
-                        <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+                        <View style={{flex:1, justifyContent: 'center'}}>
+                            <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                        </View>
                     )}
                     {!loading && (
                         <View style={styles.coursesCardWrapper}>

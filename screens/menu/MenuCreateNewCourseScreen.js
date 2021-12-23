@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, ActivityIndicator, Modal, Pressable } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -7,6 +7,7 @@ import { app } from '../../app/app';
 import * as ImagePicker from "expo-image-picker";
 import { firebase } from '../../firebase';
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -290,7 +291,7 @@ const MenuCreateNewCourseScreen = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator color="lightblue" animating={loading} size="large" /> 
                 </View>
             :
                 <>
@@ -429,9 +430,7 @@ const MenuCreateNewCourseScreen = (props) => {
                             style={styles.button}
                             disabled={loading}
                         >
-                            {
-                                loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Create New Course</Text>
-                            }
+                            <Text style={styles.buttonText}>Create New Course</Text>
                         </TouchableOpacity>
                     </View>
                 </KeyboardAvoidingView>

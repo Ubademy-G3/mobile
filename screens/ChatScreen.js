@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { firebase } from '../firebase';
 import { app } from '../app/app';
 import image from "../assets/images/profilePic.jpg"
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 const db = firebase.default.firestore();
 
@@ -73,7 +74,7 @@ const ChatScreen = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
                 </View>
             :
                 <>

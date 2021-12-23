@@ -525,9 +525,7 @@ const EditModulesScreen = (props) => {
                                 style={styles.button}
                                 disabled={loading}
                             >
-                                {
-                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
-                                }
+                                <Text style={styles.buttonText}>Save</Text>
                             </TouchableOpacity>
                         </View>
                         <View style={{marginLeft: 20}}>

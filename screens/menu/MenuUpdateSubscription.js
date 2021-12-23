@@ -1,9 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -189,7 +190,7 @@ const MenuChangeSubscription = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator color="lightblue" animating={loading} size="large" />
                 </View>
             :
                 <>
@@ -268,7 +269,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
+                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -288,7 +289,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
+                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -308,7 +309,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
+                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>

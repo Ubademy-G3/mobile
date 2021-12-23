@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, Image, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,6 +10,7 @@ import { app } from '../app/app';
 import CoursesFilterComponent from '../components/CourseFilterComponent';
 import CourseComponent from '../components/CourseComponent';
 import { useFocusEffect } from '@react-navigation/native';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -134,7 +135,7 @@ const HomeScreen = (props) => {
       {
       loading ? 
         <View style={{flex:1, justifyContent: 'center'}}>
-          <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+          <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
         </View>
         :
         <>

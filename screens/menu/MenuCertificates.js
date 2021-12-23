@@ -1,9 +1,10 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
 import CertificateComponent from "../../components/CertificateComponent";
+import { ActivityIndicator } from 'react-native-paper';
 import { useFocusEffect } from '@react-navigation/native';
 
 MaterialCommunityIcons.loadFont();
@@ -62,7 +63,7 @@ const MenuCertificates = (props) => {
         <View style={styles.container}>
             {loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="#696969" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
                 </View>
             :
                 <>

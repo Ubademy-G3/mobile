@@ -300,7 +300,7 @@ const CourseScreen = (props) => {
         return (
             <View
               key={item.id}
-              style={styles.opinionItemWrapper}>
+              style={[styles.opinionItemWrapper, {width: "80%"}]}>
               <Text style={styles.categoryItemTitle}>{item.opinion}</Text>            
             </View>
         );
@@ -513,14 +513,21 @@ const CourseScreen = (props) => {
                             ))}
                         </View>
                         <View style={styles.studentListWrapper}>
-                            <Text style={styles.instructorsTitle}>Opinions about this course:</Text>
-                            <FlatList  
-                                data={studentsOpinions}
-                                renderItem={renderOpinionItem}
-                                keyExtractor={(item) => item.id}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            />
+                            {studentsOpinions.length === 0 && (
+                                <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>There are no opinions about this course</Text>
+                            )}
+                            {studentsOpinions.length !== 0 && (
+                                <>
+                                <Text style={[styles.instructorsTitle, {marginBottom: 10}]}>Opinions about this course:</Text>
+                                <FlatList  
+                                    data={studentsOpinions}
+                                    renderItem={renderOpinionItem}
+                                    keyExtractor={(item) => item.id}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                                </>
+                            )}
                         </View>
                         {subscribed && modules && media && (
                             <View style={styles.studentListWrapper}>

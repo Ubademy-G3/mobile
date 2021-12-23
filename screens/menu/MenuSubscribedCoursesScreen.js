@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import CourseComponent from '../../components/CourseComponent';
@@ -18,7 +17,6 @@ const MenuSubscribedCoursesScreen = (props) => {
     const [courses, setCourses] = useState([]);
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Subscribed Courses screen] content: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses)
         } else {
@@ -27,20 +25,12 @@ const MenuSubscribedCoursesScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Subscribed Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Subscribed Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Subscribed Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props]); */
 
     useFocusEffect(
         useCallback(() => {

@@ -6,7 +6,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Icons from 'react-native-vector-icons/Ionicons';
 import image from "../../assets/images/profilePic.jpg"
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { app } from '../../app/app';
 import { useFocusEffect } from '@react-navigation/native';
 
@@ -16,7 +16,6 @@ Icons.loadFont();
 
 
 const MenuScreen = (props) => {
-    //console.log("[Menu Screen] props: ", props.routes)
     const [loading, setLoading] = useState(false);
     const [userId, setId] = useState('');
     const [userData, setData] = useState({
@@ -27,7 +26,6 @@ const MenuScreen = (props) => {
     });
 
     const handleApiResponseProfile = (response) => {
-        console.log("[Menu screen] content: ", response.content())
         if (!response.hasError()) {
             setData({
                 firstName: response.content().firstName,
@@ -41,33 +39,22 @@ const MenuScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu screen] entro a onRefresh"); 
         setLoading(true);
         let idLS = await app.getId();
         let tokenLS = await app.getToken();
         await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
-        console.log("[Menu screen] token:", tokenLS);
-        console.log("[Menu screen] id:", idLS);
         setId(idLS);
         setLoading(false);
     };
 
-    /* useEffect(() => {
-        console.log("[Menu screen] entro a useEffect");
-        onRefresh();
-    }, []); */
-
     useFocusEffect(
         useCallback(() => {
-            console.log("[Menu screen] entro a useEffect");
             onRefresh();
         }, [])
     );
 
     const signOut = async () => {
-        console.log("[Menu screen] entro a signOut"); 
-        await app.signOutUser();
-        console.log("[Menu screen] voy a login screen"); 
+        await app.signOutUser(); 
         props.navigation.replace('Login');
     }
 
@@ -209,7 +196,6 @@ const MenuScreen = (props) => {
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <MaterialIcons 
-                                //name="text-box-search-outline" 
                                 name="work-outline"
                                 color={color}
                                 size={size}
@@ -221,7 +207,6 @@ const MenuScreen = (props) => {
                         <DrawerItem 
                             icon={({color, size}) => (
                                 <MaterialCommunityIcons
-                                //name="settings-outline"
                                 name="account-edit-outline"
                                 color={color}
                                 size={size}

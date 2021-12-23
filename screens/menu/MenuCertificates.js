@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -16,9 +16,7 @@ const MenuCertificates = (props) => {
     const [certificates, setCertificates] = useState(null);
 
     const handleResponseCourseResponse = (response) => {
-        console.log("[Menu Certificated Screen] content: ", response.content())
         if (!response.hasError()) {
-            //console.log("COURSES:", response.content().courses);
             setCourses(response.content().courses);
         } else {
             console.log("[Menu Certificated Screen] error", response.content().message);
@@ -26,9 +24,7 @@ const MenuCertificates = (props) => {
     }
 
     const handleGetCertificatesResponse = (response) => {
-        console.log("[Menu Certificated Screen] content: ", response.content())
         if (!response.hasError()) {
-            console.log("CERTIFICATES:", response.content().certificates);
             setCertificates(response.content().certificates);
         } else {
             console.log("[Menu Certificated Screen] error", response.content().message);
@@ -36,11 +32,9 @@ const MenuCertificates = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Certificates screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Certificates screen] token:", tokenLS);
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'student', aprobal_state: true }, handleResponseCourseResponse);
         await app.apiClient().getAllCertificates({ token: tokenLS }, idLS, handleGetCertificatesResponse)
         setLoading(false);
@@ -177,11 +171,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

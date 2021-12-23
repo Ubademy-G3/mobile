@@ -23,7 +23,6 @@ const MenuChangeSubscription = (props) => {
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleApiResponseUpdate = (response) => {
-        console.log("[Subscription screen] content: ", response.content())
         if (!response.hasError()) {
             console.log("Update successful");
         } else {
@@ -32,7 +31,6 @@ const MenuChangeSubscription = (props) => {
     }
 
     const handleApiResponseDeposit = async (response) => {
-        console.log("[Subscription screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             let user_id = await app.getId();
@@ -40,30 +38,19 @@ const MenuChangeSubscription = (props) => {
             setSubscription(selected);
             setModalSuccessText(response.content().message)
             setModalSuccessVisible(true);
-            /* Alert.alert(
-                "Deposit Successful",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-            ); */
         } else {
-            console.log("[Subscription screen] error", response.content().message);
             if (response.content().message.includes("insufficient funds")) {
                 setModalErrorText("Insufficient funds for transaction");
                 setModalErrorVisible(true);
-                /* Alert.alert("Insufficient funds for transaction"); */
             } else {
                 setModalErrorText("Please, try again in a few minutes");
                 setModalErrorVisible(true);
-                /* Alert.alert("Please, try again in a few minutes"); */
             }
         }
     }
 
     const handleConfirmSubscription = async () => {
         setSubmitLoading(true)
-        console.log("[Subscription screen] entro al confirm")
         let tokenLS = await app.getToken();
         let user_id = await app.getId();
         if (!downgrade) {
@@ -77,7 +64,6 @@ const MenuChangeSubscription = (props) => {
             }
         }
         setModalVisible(!modalVisible);
-        console.log("[Subscription screen] termino confirm")
         setSubmitLoading(false)
     }
 
@@ -106,18 +92,12 @@ const MenuChangeSubscription = (props) => {
     };
 
     const onRefresh = async () => {
-        console.log("[Menu Update Subscription screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: idLS, token: tokenLS }, idLS, handleApiResponseUser);
         setLoading(false);
-        console.log("[Menu Update Subscription screen] salgo del onRefresh");
     };
-
-    /* useEffect(() => {
-        onRefresh();
-    }, []); */
 
     useFocusEffect(
         useCallback(() => {
@@ -411,8 +391,6 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        /* justifyContent: "center",
-        alignItems: "center" */
     },
     modalView: {
         margin: 20,

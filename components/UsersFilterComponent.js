@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, CheckBox, Text, View, Image, TextInput, FlatList, Modal, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, CheckBox, Text, View, FlatList, TouchableOpacity } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 MaterialCommunityIcons.loadFont();

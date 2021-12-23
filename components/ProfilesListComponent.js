@@ -18,15 +18,10 @@ const ProfilesListComponent = ({ item, navigation }) => {
             marginLeft: item.id == 1 ? 20 : 0,
           },
         ]}>
-          {/*<View>*/}
           <View style={styles.profilesTitleWrapper}>
             <Image source={{uri: item.profilePictureUrl}} style={styles.profilesCardImage} />
-          {/*</View>*/}
             <Text style={styles.profilesTitle}>{item.firstName} {item.lastName}</Text>  
           </View>
-          {/*<View style={styles.profilesDescriptionWrapper}>
-            <Text style={styles.profilesDescription}>{item.description}</Text>
-          </View>*/}        
         </View>
       </TouchableOpacity>
     );
@@ -73,7 +68,6 @@ const styles = StyleSheet.create({
       marginBottom: 10,
     },
     profilesDescriptionWrapper : {
-      //paddingTop: 5,
       marginBottom: 10,
       marginRight: 5,
       marginLeft: 5,

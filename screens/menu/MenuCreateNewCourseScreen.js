@@ -41,45 +41,32 @@ const MenuCreateNewCourseScreen = (props) => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.All,
           });
-        console.log("CARGO UNA IMAGEN:", pickerResult);
         const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
-        console.log("Media URi:", mediaUri);  
         uploadMediaOnFirebase(mediaUri);
     }
     
     const uploadMediaOnFirebase = async (mediaUri) => {
         const uploadUri = mediaUri;
-        console.log("uploadUri:", uploadUri);
         let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-        console.log("filename:", filename);  
 
         try{
             const response = await fetch(uploadUri);
             const blob = await response.blob();
             const task = firebase.default.storage().ref(filename);
             await task.put(blob);
-            const newURL = await task.getDownloadURL();          
-            console.log("NUEVO URL:", newURL);
+            const newURL = await task.getDownloadURL();
             setData({
                 ...courseData,
                 profile_picture: newURL,
             })
             setModalAttentionVisible(true);
-            /* Alert.alert(
-                'Image Uploaded',
-                'Your image has been uploaded'
-            ); */
         } catch(err) {
             console.log("Error en el firebase storage:", err);
         }
     }
 
     const setCategorySelected = (name, idx) => {
-        console.log("[Create Course screen] name: ", name);
-        console.log("[Create Course screen] idx: ", idx);
-        console.log("[Create Course screen] categories array: ", categories[idx]);
         let category_id = categories[idx].id;
-        console.log("[Create Course screen] category id: ", category_id);
         setData({
             ...courseData,
             category: category_id,
@@ -87,17 +74,9 @@ const MenuCreateNewCourseScreen = (props) => {
     }
 
     const handleApiResponseCreateCourse = (response) => {
-        console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             setModalSuccessText(response.content().message);
             setModalSuccessVisible(true);
-            /* Alert.alert(
-                "Create Course Succesfull",
-                response.content().message,
-                [
-                { text: "OK", onPress: () => {} }
-                ]
-            ); */
         } else {
             if (response.content().status === 422) {
                 setModalErrorText("Invalid fields");
@@ -105,42 +84,24 @@ const MenuCreateNewCourseScreen = (props) => {
                 setModalErrorText(response.content().message);
             }
             setModalErrorVisible(true);
-            /* Alert.alert(
-                "Create Course Unsuccesfull",
-                response.content().message,
-                [
-                { text: "Retry", onPress: () => {} }
-                ]
-            ); */
             console.log("[Create Course screen] error", response.content().message);
         }
     }
 
     const handleApiResponseGetCategories = (response) => {
-        console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             setCategories(response.content())
         } else {
             setModalErrorText(response.content().message);
             setModalErrorVisible(true);
-            /* Alert.alert(
-                "Create Course Unsuccesfull:",
-                response.content().message,
-                [
-                { text: "Retry", onPress: () => {} }
-                ]
-            ); */
             console.log("[Create Course screen] error", response.content().message);
         }
     }
 
     const handleSubmitCreateNewCourse = async () =>{
-        console.log("[Create Course screen] entro a submit edit profile")
         setLoading(true);
-        console.log("[Create Course screen] data:", courseData)
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Create Course screen] token:",tokenLS);
         await app.apiClient().createCourse({
             user_id: idLS,
             name: courseData.name,
@@ -170,30 +131,21 @@ const MenuCreateNewCourseScreen = (props) => {
             total_exams: 0,
         })
         setLoading(false);
-        console.log("[Create Course screen] termino submit signup")
     }
 
-    const onRefresh = async () => {
-        console.log("[Create Course screen]v entro a onRefresh"); 
+    const onRefresh = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Create Course screen] token:", tokenLS);
         await app.apiClient().getAllCategories({token: tokenLS}, handleApiResponseGetCategories);
         setLoading(false);
     };
 
-    /* useEffect(() => {
-        console.log("[Create Course screen] entro a useEffect");
-        onRefresh();
-    }, []);
- */
     useFocusEffect(
         useCallback(() => {
             onRefresh();
         }, [])
     );
     
-
     return (
         <View style={styles.centeredView}>
             {(modalSuccessVisible || modalErrorVisible || modalAttentionVisible) && (
@@ -469,7 +421,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {
@@ -506,8 +457,6 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        /* justifyContent: "center",
-        alignItems: "center" */
     },
     modalView: {
         margin: 20,

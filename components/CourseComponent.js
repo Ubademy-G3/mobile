@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Image, StyleSheet, Text,View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { app } from '../app/app';
 import StarRating from 'react-native-star-rating';
 
 MaterialCommunityIcons.loadFont();
@@ -12,7 +11,7 @@ const CourseComponent = ({ item }) => {
     return(
         <View style={styles.verticalCourseItemWrapper}>
                 <View>
-                    <View style={{ width: '70%', /* marginLeft: 10, */ flexDirection: 'row', alignItems: 'center',}}>
+                    <View style={{ width: '70%', flexDirection: 'row', alignItems: 'center',}}>
                         <View style={{alignItems: 'center', justifyContent: 'center',}}>
                             <Image
                                 source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
@@ -32,7 +31,7 @@ const CourseComponent = ({ item }) => {
                                 />
                                 <Text style={{position: 'absolute', left: 115, top: 1,}}>{`(${item.rating_amount})`}</Text>
                             </View>
-                            <Text style={{ /* textAlign: 'right', */ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
+                            <Text style={{ marginTop: 10, fontWeight: 'bold' }}>{item.subscription_type.charAt(0).toUpperCase()+item.subscription_type.slice(1)}</Text>
                         </View>
                     </View>
                     {item.description != "" && (
@@ -42,7 +41,6 @@ const CourseComponent = ({ item }) => {
                     )}
                 </View>
             </View>
-        /* </TouchableOpacity> */
     );
 }
 
@@ -54,7 +52,6 @@ const styles = StyleSheet.create({
       marginRight: 10,
     },
     verticalCourseItemWrapper: {
-      //display: 'flex',
       flexDirection: 'row',
       marginTop: 10,
       paddingBottom: 10,
@@ -74,7 +71,6 @@ const styles = StyleSheet.create({
     courseTitle: {
       fontSize: 14,
       color: 'black',
-      //flex: 1, 
       marginBottom: 10,
       flexWrap: 'wrap',
       flexDirection: 'row',

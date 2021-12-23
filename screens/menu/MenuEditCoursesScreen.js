@@ -1,6 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
-import forYouData from '../../assets/data/forYouData'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
@@ -18,7 +17,6 @@ const MenuEditCoursesScreen = (props) => {
     const [courses, setCourses] = useState([]);
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Edit Courses screen] content: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses)
         } else {
@@ -27,20 +25,12 @@ const MenuEditCoursesScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Edit Courses screen] entro a onRefresh"); 
         setLoading(true);
         const tokenLS = await app.getToken();
         const idLS = await app.getId();
-        console.log("[Menu Edit Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, {user_type: 'instructor'}, handleResponseGetCoursesByUser);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Edit Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props.navigate]); */
 
     useFocusEffect(
         useCallback(() => {
@@ -162,11 +152,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

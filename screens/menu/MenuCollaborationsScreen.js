@@ -16,7 +16,6 @@ const MenuCollaborationsScreen = (props) => {
     const [courses, setCourses] = useState([]);
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Collaborations Courses screen] content 3: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses);
         } else {
@@ -24,26 +23,17 @@ const MenuCollaborationsScreen = (props) => {
         }
     }
 
-    const onRefresh = async () => {
-        console.log("[Menu Collaborations Courses screen] entro a onRefresh"); 
+    const onRefresh = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Collaborations Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'collaborator' }, handleResponseGetCoursesByUser);
         setLoading(false);
     }
-
-    /* useEffect(() => {
-        setCourses([]);
-        console.log("[Menu Collaborations Courses screen] entro a useEffect");
-        onRefresh();
-    }, [props]); */
     
     useFocusEffect(
         useCallback(() => {
             setCourses([]);
-            console.log("[Menu Collaborations screen] entro a useEffect");
             onRefresh();
         }, [])
     );
@@ -159,11 +149,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,
@@ -222,11 +209,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

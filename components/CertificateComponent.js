@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Image, StyleSheet, Text,View } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -10,7 +10,7 @@ const CertificateComponent = ({ item }) => {
     return(
         <View style={styles.verticalCourseItemWrapper}>
                 <View>
-                    <View style={{ width: '70%', /* marginLeft: 10, */ flexDirection: 'row', alignItems: 'center',}}>
+                    <View style={{ width: '70%', flexDirection: 'row', alignItems: 'center',}}>
                         <View style={{alignItems: 'center', justifyContent: 'center',}}>
                             <Image
                                 source={item.profile_picture ? { uri: item.profile_picture } : courseImage}
@@ -23,7 +23,6 @@ const CertificateComponent = ({ item }) => {
                     </View>
                 </View>
             </View>
-        /* </TouchableOpacity> */
     );
 }
 
@@ -35,7 +34,6 @@ const styles = StyleSheet.create({
       marginRight: 10,
     },
     verticalCourseItemWrapper: {
-      //display: 'flex',
       flexDirection: 'row',
       marginTop: 10,
       paddingBottom: 10,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable, Image, TouchableOpacity, Modal, ActivityIndicator} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../../app/app';
@@ -17,17 +17,9 @@ const MenuWalletScreen = (props) => {
     const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleApiResponseCreateWallet = (response) => {
-        console.log("[Create Wallet screen] response content: ", response.content())
         if (!response.hasError()) {
             setModalSuccessText(response.content().message);
             setModalSuccessVisible(true);
-            /* Alert.alert(
-                "Creation Succesfull:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-            ); */
             onRefresh();
         } else {
             setModalErrorText(response.content().message);
@@ -38,19 +30,15 @@ const MenuWalletScreen = (props) => {
 
     const handleSubmitCreateWallet = async() => {
         setSubmitLoading(true)
-        console.log("[Create Wallet screen] entro a submit")
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Create Wallet screen] token:", tokenLS);
         await app.apiClient().createWallet({ token: tokenLS }, idLS, handleApiResponseCreateWallet);
         setLoading(false);
-        console.log("[Create Wallet screen] termino submit")
         setSubmitLoading(false)
     };
 
     const handleResponseGetWallet = (response) => {
-        console.log("[Wallet Screen] wallet content: ", response.content())
         if (!response.hasError()) {
             setWallet(response.content());
         } else {
@@ -71,19 +59,16 @@ const MenuWalletScreen = (props) => {
     };
 
     const onRefresh = async () => {
-        console.log("[Menu Wallet screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: idLS, token: tokenLS }, idLS, handleApiResponseUser);
         setLoading(false);
-        console.log("[Menu Wallet screen] salgo del onRefresh");
     };
 
     useFocusEffect(
         useCallback(() => {
             onRefresh();
-            //return () => unsubscribe();
         }, [])
     );
 
@@ -237,8 +222,6 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        /* justifyContent: "center",
-        alignItems: "center" */
     },
     modalView: {
         margin: 20,

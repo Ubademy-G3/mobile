@@ -1,5 +1,5 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import React, {useCallback, useState} from 'react';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { app } from '../../app/app';
@@ -15,7 +15,6 @@ const MenuCreatedCoursesScreen = (props) => {
     const [courses, setCourses] = useState([]);
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Created Courses screen] content: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses)
         } else {
@@ -24,11 +23,9 @@ const MenuCreatedCoursesScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Created Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Created Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, idLS, { user_type: 'instructor' }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
@@ -156,11 +153,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseCardImage: {
         width: 60,

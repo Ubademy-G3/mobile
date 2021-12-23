@@ -11,11 +11,7 @@ export class CreateQuestionEndpoint extends Endpoint {
     url() {
         return `/exams/${this._examId}/questions`
     }
-
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
-
+    
     method() {
         return 'POST'
     }

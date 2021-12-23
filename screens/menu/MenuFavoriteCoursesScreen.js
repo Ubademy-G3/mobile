@@ -1,6 +1,5 @@
 import React, {useState, useCallback} from 'react';
 import { StyleSheet, Text, View, ScrollView, TouchableOpacity } from 'react-native';
-import forYouData from '../../assets/data/forYouData';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import CourseComponent from '../../components/CourseComponent';
@@ -18,7 +17,6 @@ const MenuFavoriteCoursesScreen = (props) => {
     const [loading, setLoading] = useState(false);
 
     const handleGetFavoriteCourses = (response) => {
-        console.log("[Menu Favorite Courses Screen] content: ", response.content())
         if (!response.hasError()) {
                setCourses(response.content().courses);
         } else {
@@ -27,13 +25,10 @@ const MenuFavoriteCoursesScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Favorite Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Favorite Courses screen] token:",tokenLS);
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
-        console.log("[Menu Favorite Courses screen] id:", idLS);
         setLoading(false);
     };
 

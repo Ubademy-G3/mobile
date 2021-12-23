@@ -7,17 +7,12 @@ Feather.loadFont();
 
 const QuestionComponent = ({ item }) => {
 
-    console.log("item:", item);
-
     const [loading, setLoading] = useState(false);
-
     const [answer, setAnswer] = useState({
         answer: "",
         question_template_id: item.id
     });
-
     const [optionsMC, setOptionsMC] = useState(item.options);
-
     const [selectedMC, setSelectedMC] = useState(0);
 
     return(
@@ -90,7 +85,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {

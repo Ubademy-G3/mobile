@@ -1,4 +1,4 @@
-import React, { useState, useEffect, setStatus, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, TextInput, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
@@ -23,7 +23,6 @@ const MenuEditProfileScreen = (props) => {
         interests: [],
         rol:"",
     });
-
     const [loading, setLoading] = useState(false);
     const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
     const [modalSuccessText, setModalSuccessText] = useState("");
@@ -35,27 +34,16 @@ const MenuEditProfileScreen = (props) => {
     const [loadingButton, setLoadingButton] = useState(false);
 
     const handleApiResponseEditProfile = (response) => {
-        console.log("[Edit Profile screen] response content: ", response.content())
         if (!response.hasError()) {
             setModalSuccessVisible(true);
             setModalSuccessText(response.content().message);
-
-            /* Alert.alert(
-                "Update Succesfull:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-            ); */
         } else {
             setModalErrorVisible(true);
             setModalErrorText(response.content().message);
-            console.log("[Edit Profile screen] error", response.content().message);
         }
     }
 
     const handleApiResponseGetCategories = (response) => {
-        console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             setCategories(response.content())
         } else {
@@ -64,7 +52,6 @@ const MenuEditProfileScreen = (props) => {
     }
 
     const handleApiResponseProfile = (response) => {
-        console.log("[Edit Profile screen] content: ", response.content())
         if (!response.hasError()) {
             setData({
                 firstName: response.content().firstName,
@@ -81,12 +68,9 @@ const MenuEditProfileScreen = (props) => {
     }
 
     const handleSubmitEditProfile = async () =>{
-        console.log("[Edit Profile screen] entro a submit edit profile")
         setLoadingButton(true);
-        console.log("[Edit Profile screen] data:", userData)
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Edit Profile screen] token:", tokenLS);
         await app.apiClient().editProfile({
             id: idLS,
             firstName: userData.firstName,
@@ -97,24 +81,16 @@ const MenuEditProfileScreen = (props) => {
             interests: userData.interests,
             token: tokenLS}, idLS, handleApiResponseEditProfile);
         setLoadingButton(false);
-        console.log("[Edit Profile screen] termino submit signup")
     }
     
-    const onRefresh = async () => {
-        console.log("[Edit Profile screen] entro a onRefresh"); 
+    const onRefresh = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Edit Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: idLS, token: tokenLS}, idLS, handleApiResponseProfile);
         await app.apiClient().getAllCategories({token: tokenLS}, handleApiResponseGetCategories);
         setLoading(false);
     };
-
-    /* useEffect(() => {
-        console.log("[Edit Profile screen] entro a useEffect"); 
-        onRefresh();
-    }, []); */
 
     useFocusEffect(
         useCallback(() => {
@@ -126,25 +102,20 @@ const MenuEditProfileScreen = (props) => {
         const pickerResult = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
           });
-        console.log("CARGO UNA IMAGEN:", pickerResult);
         const mediaUri = Platform.OS === 'ios' ? pickerResult.uri.replace('file://', '') : pickerResult.uri;
-        console.log("Media URi:", mediaUri);  
         uploadMediaOnFirebase(mediaUri);
     }
     
     const uploadMediaOnFirebase = async (mediaUri) => {
         const uploadUri = mediaUri;
-        console.log("uploadUri:", uploadUri);
         let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-        console.log("filename:", filename);  
 
         try{
             const response = await fetch(uploadUri);
             const blob = await response.blob();
             const task = firebase.default.storage().ref(filename);
             await task.put(blob);
-            const newURL = await task.getDownloadURL();          
-            console.log("NUEVO URL:", newURL);
+            const newURL = await task.getDownloadURL(); 
             setData({
                 ...userData,
                 profilePictureUrl: newURL,
@@ -160,7 +131,6 @@ const MenuEditProfileScreen = (props) => {
     }
 
     useEffect(() => {
-        console.log("[Edit Profile screen] entro a useEffect"); 
         setData({
             ...userData,
             interests: selectedItems,
@@ -273,7 +243,6 @@ const MenuEditProfileScreen = (props) => {
             :
                 <>
                 <ScrollView
-                //contentContainerStyle={styles.container}
                 >
                     <KeyboardAvoidingView
                     style={styles.containerWrapper}
@@ -281,7 +250,6 @@ const MenuEditProfileScreen = (props) => {
                     >
                             <TouchableOpacity
                                 onPress={() => {choosePhotoFromLibrary()}}
-                                /*style={styles.button}*/
                                 disabled={loading}
                             >
                                 <View style={{ display:'flex', flexDirection: 'row' }}>
@@ -363,17 +331,6 @@ const MenuEditProfileScreen = (props) => {
                                     </>
                                 )}
                             </View>
-                            {/* <View style={styles.buttonContainer}>
-                                    <TouchableOpacity
-                                        onPress={() => {choosePhotoFromLibrary()}}
-                                        style={styles.button}
-                                        disabled={loading}
-                                    >
-                                        {
-                                            <Text style={styles.buttonText}>Change Profile Photo</Text>
-                                        }
-                                    </TouchableOpacity>
-                            </View> */}
                             <View style={styles.buttonContainer}>
                                 
                                 <TouchableOpacity
@@ -402,11 +359,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingTop: 25,
     },
-    /*logoImage: {
-        width: 75,
-        height: 75,
-        borderRadius: 40,
-    },*/
     titlesImage: {
         width: 100,
         height: 100,
@@ -425,7 +377,6 @@ const styles = StyleSheet.create({
     inputMultiSelect : {
         backgroundColor:'white',
         paddingHorizontal: 15,
-        //paddingVertical: 5,
         borderRadius: 10,
         marginTop: 5,
     },
@@ -433,7 +384,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {
@@ -457,8 +407,6 @@ const styles = StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        /* justifyContent: "center",
-        alignItems: "center" */
     },
     modalView: {
         margin: 20,

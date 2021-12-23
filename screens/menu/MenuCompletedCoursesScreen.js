@@ -15,7 +15,6 @@ const MenuCompletedCoursesScreen = (props) => {
     const [courses, setCourses] = useState([]);
 
     const handleResponseGetCoursesByUser = async (response) => {
-        console.log("[Menu Completed Courses screen] content: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses)
         } else {
@@ -24,11 +23,9 @@ const MenuCompletedCoursesScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Menu Completed Courses screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Menu Completed Courses screen] token:",tokenLS);
         await app.apiClient().getAllCoursesByUser({token: tokenLS}, idLS, { user_type: 'student', approval_state: true }, handleResponseGetCoursesByUser);
         setLoading(false);
     };
@@ -36,7 +33,6 @@ const MenuCompletedCoursesScreen = (props) => {
     useFocusEffect(
         useCallback(() => {
             setCourses([]);
-            console.log("[Menu Completed screen] entro a useEffect");
             onRefresh();
         }, [])
     );

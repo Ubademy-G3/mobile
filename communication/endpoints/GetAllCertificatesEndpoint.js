@@ -1,5 +1,4 @@
 import {Endpoint} from "./Endpoint.js";
-//import {GetProfileSuccessful} from "../responses/profiles/GetProfileSuccessful.js";
 
 export class GetAllCertificatesEndpoint extends Endpoint {
     constructor(userId) {
@@ -12,10 +11,6 @@ export class GetAllCertificatesEndpoint extends Endpoint {
     url() {
         return `/users/${this._user_id}/certificates`
     }
-
-    /*ownResponses() {
-        //return [GetProfileSuccessful];
-    }*/
 
     method() {
         return 'GET'

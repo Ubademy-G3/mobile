@@ -115,8 +115,10 @@ const ExamScreen = (props) => {
     }
 
     const getSolution = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllSolutionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllSolutions);
+        setLoading(false);
     }
 
     const onRefresh = async () => {

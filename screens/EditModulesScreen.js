@@ -125,7 +125,7 @@ const EditModulesScreen = (props) => {
     }*/
 
     useEffect(() => {
-        onRefresh()
+        onRefresh();
         setUpdatingModules2(false);              
     }, [updatingModules2]);
 

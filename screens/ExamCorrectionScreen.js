@@ -235,6 +235,7 @@ const ExamCorrectionScreen = (props) => {
     };
 
     const setProgress = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         console.log("amount exams approved", amountExamsApproved);
         console.log("amount exams", amountExams);
@@ -242,6 +243,7 @@ const ExamCorrectionScreen = (props) => {
         let new_progress = Math.round(((amountExamsApproved/amountExams) * 100));
         console.log("NEW PROGRESS!!!", new_progress);
         await app.apiClient().updateUserFromCourse({token: tokenLS, progress: new_progress}, solution.course_id, solution.user_id, {username: username},handleResponseUpdateUserFromCourse);
+        setLoading(false);
     }
 
     useEffect(() => {

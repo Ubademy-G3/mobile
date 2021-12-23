@@ -4,6 +4,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { ActivityIndicator } from 'react-native-paper';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -390,225 +391,234 @@ const EditExamScreen = (props) => {
             )}
             </View>
         <View style={styles.container}>
-            <ScrollView>
+            {loading && (
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                </View>
+            )}
+            {!loading && (
                 <>
-                <View style={styles.container}>
-                    <Text style={styles.examTitle}>{selectedExam.name}</Text>
-                    <View style={[styles.stateCardWrapper,
-                        {
-                            backgroundColor: selectedExam.state==="active" ? '#87ceeb': "white",
-                        }]}>
-                        <View style={styles.examDescritpionWrapper}>
-                            <TouchableOpacity
-                                onPress = {()=> {handleSubmitChangeState()}}
-                                style={styles.questionWrapper}
-                            >
-                                <View style={styles.questionView}>
-                                    <Text style={styles.examDescription}>State: {selectedExam.state}</Text>
-                                </View>
-                            </TouchableOpacity>
+                <ScrollView>
+                    <>
+                    <View style={styles.container}>
+                        <Text style={styles.examTitle}>{selectedExam.name}</Text>
+                        <View style={[styles.stateCardWrapper,
+                            {
+                                backgroundColor: selectedExam.state==="active" ? '#87ceeb': "white",
+                            }]}>
+                            <View style={styles.examDescritpionWrapper}>
+                                <TouchableOpacity
+                                    onPress = {()=> {handleSubmitChangeState()}}
+                                    style={styles.questionWrapper}
+                                >
+                                    <View style={styles.questionView}>
+                                        <Text style={styles.examDescription}>State: {selectedExam.state}</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
-                    {selectedExam.state === "active" && (
-                        <Text style={styles.examDescription}>This exam is published and the students can resolve it.</Text>
-                    )}
-                    {selectedExam.state === "inactive" && (
-                        <Text style={styles.examDescription}>This exam is inactive and the students can't resolve it.</Text>
-                    )}
-                    {selectedExam.state === "draft" && (
-                        <>
-                        <Text style={[styles.textAnswer, {color:'#87ceeb', marginTop: 5},]}>Maximum points: {selectedExam.max_score}</Text>
-                        <Text style={styles.textAnswer}>Points needed to approve:</Text>
-                        <TextInput 
-                            placeholder={`${selectedExam.approval_score}`}
-                            value={selectedExam.approval_score} 
-                            onChangeText={(text) => handleSubmitApprovalScore(text.replace(/[^0-9]/g, ''))}
-                            style={[styles.input,{marginBottom:10}]}
-                        />
-                        {questions.map((item,key) => (
+                        {selectedExam.state === "active" && (
+                            <Text style={styles.examDescription}>This exam is published and the students can resolve it.</Text>
+                        )}
+                        {selectedExam.state === "inactive" && (
+                            <Text style={styles.examDescription}>This exam is inactive and the students can't resolve it.</Text>
+                        )}
+                        {selectedExam.state === "draft" && (
                             <>
-                            {item.saved_question === true && (
-                                <View style={styles.courseCardWrapper} key={item.id}>
-                                    <TouchableOpacity
-                                        onPress = {()=> {handleSubmitEditQuestion(key)}}
-                                        style={styles.questionWrapper}
-                                    >
-                                        <View style={styles.questionView}>
-                                            <Text numberOfLines={1} style={styles.examQuestion}>{item.question}</Text>
-                                        </View>
-                                        <MaterialIcons
-                                            name="edit"
-                                            size={20}
-                                            color={'black'}
-                                            style={styles.buttonEditIconRight}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            )}
-                            {item.saved_question === false && (
+                            <Text style={[styles.textAnswer, {color:'#87ceeb', marginTop: 5},]}>Maximum points: {selectedExam.max_score}</Text>
+                            <Text style={styles.textAnswer}>Points needed to approve:</Text>
+                            <TextInput 
+                                placeholder={`${selectedExam.approval_score}`}
+                                value={selectedExam.approval_score} 
+                                onChangeText={(text) => handleSubmitApprovalScore(text.replace(/[^0-9]/g, ''))}
+                                style={[styles.input,{marginBottom:10}]}
+                            />
+                            {questions.map((item,key) => (
                                 <>
-                                    <View style={styles.inputContainer}>
-                                        <TextInput 
-                                            placeholder={"Enter Question"}
-                                            multiline = {true}
-                                            value={item.question} 
-                                            onChangeText={(text) => handleInput(text,key)}
-                                            style={styles.input}
-                                        />
-                                        <View style={styles.buttonsRightWrapper}>
-                                            <TouchableOpacity
-                                                onPress = {() => {handleSaveQuestion(key)}}
-                                                style={styles.buttonSaveIconRight}
-                                            >
-                                                <MaterialCommunityIcons
-                                                    name="content-save"
-                                                    size={20}
-                                                    color={'black'}
-                                                />
-                                            </TouchableOpacity>
-                                            <TouchableOpacity 
-                                                onPress = {()=> deleteHandler(key)}
-                                                style={styles.buttonInputIcon}
-                                            >
-                                            {/*<Text style={styles.buttonDelete}>Delete</Text>*/}
-                                                <MaterialCommunityIcons
-                                                    name="trash-can-outline"
-                                                    size={20}
-                                                    color={'black'}
-                                                />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </View>
-                                    <Text style={styles.textAnswer}>Points:</Text>
-                                    <TextInput 
-                                        placeholder={`${item.value}`}
-                                        value={item.value} 
-                                        onChangeText={(text)=>handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
-                                        style={[styles.input,{marginBottom:10}]}
-                                    />
-                                    <Text style={styles.textAnswer}>Answer</Text>
-                                    <View style={styles.buttonInputWrapper}>
+                                {item.saved_question === true && (
+                                    <View style={styles.courseCardWrapper} key={item.id}>
                                         <TouchableOpacity
-                                            onPress = {()=> {handleMultipleChoicePressed(key)}}
-                                            style={[styles.buttonInputIcon,{
-                                                backgroundColor: item.question_type === "multiple_choice" ? "green" : "white"
-                                            }]}
+                                            onPress = {()=> {handleSubmitEditQuestion(key)}}
+                                            style={styles.questionWrapper}
                                         >
-                                            {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
-                                            <MaterialCommunityIcons
-                                                name="format-list-numbered"
+                                            <View style={styles.questionView}>
+                                                <Text numberOfLines={1} style={styles.examQuestion}>{item.question}</Text>
+                                            </View>
+                                            <MaterialIcons
+                                                name="edit"
                                                 size={20}
                                                 color={'black'}
-                                            />
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            onPress = {()=> {handleDevelopPressed(key)}}
-                                            style={[styles.buttonInputIcon,{
-                                                backgroundColor: item.question_type === "written" ? "green" : "white"
-                                            }]}
-                                        >
-                                        {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
-                                            <MaterialCommunityIcons
-                                                name="text"
-                                                size={20}
-                                                color={'black'}
+                                                style={styles.buttonEditIconRight}
                                             />
                                         </TouchableOpacity>
                                     </View>
-                                    {item.question_type === "written" && (
-                                        <Text style={styles.choiceText}>The answer will be a free text response.</Text>
-                                    )}
-                                    {item.question_type === "multiple_choice" && (
-                                        <>
-                                            <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
-                                            <Text style={styles.choiceText}>Fill the multiple answers:</Text>
-                                            <View style={styles.wrapperOptionsInChoice}>
-                                                <TextInput 
-                                                placeholder={"Enter Option"}
+                                )}
+                                {item.saved_question === false && (
+                                    <>
+                                        <View style={styles.inputContainer}>
+                                            <TextInput 
+                                                placeholder={"Enter Question"}
                                                 multiline = {true}
-                                                value={questionMC} 
-                                                onChangeText={(text) => setQuestionMC(text)}
+                                                value={item.question} 
+                                                onChangeText={(text) => handleInput(text,key)}
                                                 style={styles.input}
-                                                />
+                                            />
+                                            <View style={styles.buttonsRightWrapper}>
                                                 <TouchableOpacity
-                                                    onPress = {() => {handleMultipleChoiceOption(key)}}
+                                                    onPress = {() => {handleSaveQuestion(key)}}
                                                     style={styles.buttonSaveIconRight}
                                                 >
                                                     <MaterialCommunityIcons
-                                                        name="check-bold"
+                                                        name="content-save"
+                                                        size={20}
+                                                        color={'black'}
+                                                    />
+                                                </TouchableOpacity>
+                                                <TouchableOpacity 
+                                                    onPress = {()=> deleteHandler(key)}
+                                                    style={styles.buttonInputIcon}
+                                                >
+                                                {/*<Text style={styles.buttonDelete}>Delete</Text>*/}
+                                                    <MaterialCommunityIcons
+                                                        name="trash-can-outline"
                                                         size={20}
                                                         color={'black'}
                                                     />
                                                 </TouchableOpacity>
                                             </View>
-                                            {/* <View style={styles.buttonSaveMC}>
-                                                <TouchableOpacity
-                                                    onPress={() => {handleSaveMC()}}
-                                                    style={[styles.button,
-                                                        {
-                                                            backgroundColor:`#87ceeb`, 
-                                                            width:'70%',
-                                                        }]}
-                                                >
-                                                    <Text style={styles.buttonText}>Save Multiple Choice</Text>
-                                                </TouchableOpacity>
-                                            </View> */}
-                                        </>
-                                    )}
-                                    {/* {(item.question_type === "multiple_choice" && (finishedMC)) && (
-                                        <>
-                                            <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
-                                            <SelectDropdown
-                                                data={item.options}
-                                                onSelect={(selectedItem, index) => {setCorrect(key, index)}}
-                                                defaultButtonText={"Select the correct answer"}
-                                                buttonStyle={styles.buttonDropdown}
-                                                buttonTextStyle={styles.textDropdown}
-                                                renderDropdownIcon={() => {
-                                                    return (
-                                                    <Feather name="chevron-down" color={"#444"} size={18} />
-                                                    );
-                                                }}
-                                            />
-                                        </>
-                                    )} */}
+                                        </View>
+                                        <Text style={styles.textAnswer}>Points:</Text>
+                                        <TextInput 
+                                            placeholder={`${item.value}`}
+                                            value={item.value} 
+                                            onChangeText={(text)=>handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
+                                            style={[styles.input,{marginBottom:10}]}
+                                        />
+                                        <Text style={styles.textAnswer}>Answer</Text>
+                                        <View style={styles.buttonInputWrapper}>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleMultipleChoicePressed(key)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.question_type === "multiple_choice" ? "green" : "white"
+                                                }]}
+                                            >
+                                                {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
+                                                <MaterialCommunityIcons
+                                                    name="format-list-numbered"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                onPress = {()=> {handleDevelopPressed(key)}}
+                                                style={[styles.buttonInputIcon,{
+                                                    backgroundColor: item.question_type === "written" ? "green" : "white"
+                                                }]}
+                                            >
+                                            {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
+                                                <MaterialCommunityIcons
+                                                    name="text"
+                                                    size={20}
+                                                    color={'black'}
+                                                />
+                                            </TouchableOpacity>
+                                        </View>
+                                        {item.question_type === "written" && (
+                                            <Text style={styles.choiceText}>The answer will be a free text response.</Text>
+                                        )}
+                                        {item.question_type === "multiple_choice" && (
+                                            <>
+                                                <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
+                                                <Text style={styles.choiceText}>Fill the multiple answers:</Text>
+                                                <View style={styles.wrapperOptionsInChoice}>
+                                                    <TextInput 
+                                                    placeholder={"Enter Option"}
+                                                    multiline = {true}
+                                                    value={questionMC} 
+                                                    onChangeText={(text) => setQuestionMC(text)}
+                                                    style={styles.input}
+                                                    />
+                                                    <TouchableOpacity
+                                                        onPress = {() => {handleMultipleChoiceOption(key)}}
+                                                        style={styles.buttonSaveIconRight}
+                                                    >
+                                                        <MaterialCommunityIcons
+                                                            name="check-bold"
+                                                            size={20}
+                                                            color={'black'}
+                                                        />
+                                                    </TouchableOpacity>
+                                                </View>
+                                                {/* <View style={styles.buttonSaveMC}>
+                                                    <TouchableOpacity
+                                                        onPress={() => {handleSaveMC()}}
+                                                        style={[styles.button,
+                                                            {
+                                                                backgroundColor:`#87ceeb`, 
+                                                                width:'70%',
+                                                            }]}
+                                                    >
+                                                        <Text style={styles.buttonText}>Save Multiple Choice</Text>
+                                                    </TouchableOpacity>
+                                                </View> */}
+                                            </>
+                                        )}
+                                        {/* {(item.question_type === "multiple_choice" && (finishedMC)) && (
+                                            <>
+                                                <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
+                                                <SelectDropdown
+                                                    data={item.options}
+                                                    onSelect={(selectedItem, index) => {setCorrect(key, index)}}
+                                                    defaultButtonText={"Select the correct answer"}
+                                                    buttonStyle={styles.buttonDropdown}
+                                                    buttonTextStyle={styles.textDropdown}
+                                                    renderDropdownIcon={() => {
+                                                        return (
+                                                        <Feather name="chevron-down" color={"#444"} size={18} />
+                                                        );
+                                                    }}
+                                                />
+                                            </>
+                                        )} */}
+                                    </>
+                                )}
                                 </>
-                            )}
+                            ))}
                             </>
-                        ))}
-                        </>
-                    )}
-                </View>
-                {selectedExam.state === "draft" && (
-                    <View style={[styles.container, {paddingTop: 0}]}>
-                        <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
-                            <TouchableOpacity
-                                onPress = {()=> {addQuestion()}}
-                                style={styles.questionWrapper}
-                            >
-                                <View style={styles.addQuestionView}>
-                                    <Text style={styles.buttonText}>Add Question</Text>
-                                    <Feather
-                                        name="plus"
-                                        size={20}
-                                        color={'white'}
-                                        style={styles.buttonEditIconRight}
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
+                        )}
                     </View>
-                )}
+                    {selectedExam.state === "draft" && (
+                        <View style={[styles.container, {paddingTop: 0}]}>
+                            <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
+                                <TouchableOpacity
+                                    onPress = {()=> {addQuestion()}}
+                                    style={styles.questionWrapper}
+                                >
+                                    <View style={styles.addQuestionView}>
+                                        <Text style={styles.buttonText}>Add Question</Text>
+                                        <Feather
+                                            name="plus"
+                                            size={20}
+                                            color={'white'}
+                                            style={styles.buttonEditIconRight}
+                                        />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    )}
+                    </>
+                </ScrollView>
+                <View style={styles.buttonWrapper}>
+                    <TouchableOpacity
+                        onPress={() => {handleSubmitSave()}}
+                        style={[styles.button,{backgroundColor:`#87ceeb`}]}
+                    >
+                        <Text style={styles.buttonText}>Save Exam</Text>
+                    </TouchableOpacity>
+                </View>
                 </>
-            </ScrollView>
-            <View style={styles.buttonWrapper}>
-                <TouchableOpacity
-                    onPress={() => {handleSubmitSave()}}
-                    style={[styles.button,{backgroundColor:`#87ceeb`}]}
-                >
-                    <Text style={styles.buttonText}>Save Exam</Text>
-                </TouchableOpacity>
-            </View>
+            )}
         </View>
         </View>
     );

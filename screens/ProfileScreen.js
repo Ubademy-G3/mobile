@@ -11,14 +11,9 @@ Feather.loadFont();
 
 const ProfileScreen = (props) => {
     const mounted = useRef(false);
-    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
-
-    console.log("PROFILE ID: ",param_id);
-    
+    const param_id = props.route.params ? props.route.params.id : 'defaultId';
     const [loading, setLoading] = useState(false);
-    
-    const [courses, setCourses] = useState([]);  
-    
+    const [courses, setCourses] = useState([]);
     const [userData, setData] = useState({
         firstName: "",
         lastName: "",
@@ -28,9 +23,7 @@ const ProfileScreen = (props) => {
         interests: [],
         rol: "",
     });
-
     const [categories, setCategories] = useState([]);
-
     const [favCourses, setFavCourses] = useState([]);
 
     const handleGetFavoriteCourses = (response) => {
@@ -69,7 +62,7 @@ const ProfileScreen = (props) => {
             for (let course of response.content().courses) {
                 courses_list.push(course.id);
             }
-            await app.apiClient().getAllCoursesFromList({token: tokenLS}, courses_list, handleGetCoursesFromList)
+            await app.apiClient().getAllCoursesFromList({token: tokenLS}, courses_list, handleGetCoursesFromList);
         } else {
             console.log("[Profile screen] error", response.content().message);
         }
@@ -94,13 +87,17 @@ const ProfileScreen = (props) => {
     }
 
     const onRefreshCategories = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+        setLoading(false);
     }
 
     const auxGetCourses = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllCoursesByUser({ token: tokenLS }, param_id, { user_type: userData.rol }, handleGetCoursesByUser);
+        setLoading(false);
     }
 
     useEffect(() => {
@@ -111,7 +108,6 @@ const ProfileScreen = (props) => {
         if(userData.rol !== ""){
             auxGetCourses();
         }
-        setLoading(false);
     }, [userData]);
     
     const onRefresh = async () => {
@@ -121,6 +117,7 @@ const ProfileScreen = (props) => {
         let idLS = await app.getId();
         await app.apiClient().getProfile({ id: param_id, token: tokenLS }, param_id, handleApiResponseProfile);
         await app.apiClient().getFavoriteCoursesByUser({token: tokenLS}, idLS, handleGetFavoriteCourses);
+        setLoading(false);
     };
 
     useEffect(() => {

@@ -1,11 +1,10 @@
-import React, { Component, useState, useEffect } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
-import forYouData from '../assets/data/forYouData'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, FlatList } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import image from "../assets/images/profilePic.jpg"
 import { app } from '../app/app';
-import CourseComponent from '../components/CourseComponent';
+import { ActivityIndicator } from 'react-native-paper';
 
 MaterialCommunityIcons.loadFont();
 Feather.loadFont();
@@ -56,8 +55,10 @@ const AnothersProfileScreen = (props) => {
     }
 
     const onRefreshCategories = async () => {
+        setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getAllCategories({token: tokenLS}, handleGetCategories);
+        setLoading(false);
     }
     
     useEffect(() => {
@@ -107,47 +108,56 @@ const AnothersProfileScreen = (props) => {
 
     return (
         <View style={styles.container}>
-            <ScrollView>
-                <View style={styles.titlesWrapper}>
-                    <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
-                    <View style={styles.titleWrapper}>
-                        <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
-                    </View>
+            {loading && (
+                <View style={{flex:1, justifyContent: 'center'}}>
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
-                {userData.description !== "" && (
-                <View style={styles.descriptionWrapper}>
-                    <Text style={styles.description}>{userData.description}</Text>
-                </View>
-                )}
-                {userData.rol === "student" && (
-                    <>
-                    <View style={styles.locationWrapper}>
-                        <Text style={styles.locationTitle}>Location:</Text>
-                        <Text style={styles.location}>{userData.location}</Text>
-                    </View>
-                    <View style={styles.categoriesWrapper}>
-                        <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
-                        <View style={styles.categoriesListWrapper}>
-                            <FlatList  
-                                data={categories}
-                                renderItem={renderCategoryItem}
-                                keyExtractor={(item) => item.id}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            />
+            )}
+            {!loading && (
+                <>
+                <ScrollView>
+                    <View style={styles.titlesWrapper}>
+                        <Image source={userData.profilePicture ? { uri: userData.profilePicture } : image} style={styles.titlesImage} />
+                        <View style={styles.titleWrapper}>
+                            <Text style={styles.titlesTitle}>{userData.firstName} {userData.lastName}</Text>
                         </View>
                     </View>
-                    </>
-                )}
-            </ScrollView>
-            {myId != param_id &&(
-                <View style={styles.buttonWrapper}>
-                    <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
-                        <View style={styles.favoriteWrapper}>
-                            <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                    {userData.description !== "" && (
+                    <View style={styles.descriptionWrapper}>
+                        <Text style={styles.description}>{userData.description}</Text>
+                    </View>
+                    )}
+                    {userData.rol === "student" && (
+                        <>
+                        <View style={styles.locationWrapper}>
+                            <Text style={styles.locationTitle}>Location:</Text>
+                            <Text style={styles.location}>{userData.location}</Text>
                         </View>
-                    </TouchableOpacity> 
-                </View>
+                        <View style={styles.categoriesWrapper}>
+                            <Text style={styles.categoriesText}>{userData.firstName}'s interests:</Text>
+                            <View style={styles.categoriesListWrapper}>
+                                <FlatList  
+                                    data={categories}
+                                    renderItem={renderCategoryItem}
+                                    keyExtractor={(item) => item.id}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                            </View>
+                        </View>
+                        </>
+                    )}
+                </ScrollView>
+                {myId != param_id &&(
+                    <View style={styles.buttonWrapper}>
+                        <TouchableOpacity onPress={() => props.navigation.navigate('Direct Message', { id: userData.id, firstName: userData.firstName, lastName: userData.lastName })}> 
+                            <View style={styles.favoriteWrapper}>
+                                <MaterialCommunityIcons name="chat-plus-outline" size={18} color="black" />
+                            </View>
+                        </TouchableOpacity> 
+                    </View>
+                )}
+                </>
             )}
         </View>
     )

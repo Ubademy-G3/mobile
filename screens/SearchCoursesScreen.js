@@ -39,56 +39,63 @@ const SearchCoursesScreen = (props) => {
     }, []);
 
     return (
-        <View style={styles.container}>
-            <ScrollView>                
-                <View style={styles.coursesCardWrapper}>
-                    <Text style={styles.coursesTitle}>Courses</Text>
-                    {courses.map(item => (
-                        <TouchableOpacity
-                        key={item.id}
-                        onPress={() =>
-                            props.navigation.navigate('Course Screen', {
-                            item: item,
-                            })
-                        }>
-                        <View
-                            style={[
-                            styles.courseCardWrapper,
-                            {
-                                marginTop: item.id == 1 ? 10 : 20,
-                            },
-                            ]}>
-                            <View>
-                            <View style={styles.courseCardTop}>
-                                <View>
-                                <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
-                                </View>
-                                <View style={styles.courseTitleWrapper}>
-                                <Text style={styles.courseTitlesTitle}>
-                                    {item.name}
-                                </Text>
-                                <View style={styles.courseTitlesRating}>
-                                    <MaterialCommunityIcons
-                                    name="star"
-                                    size={10}
-                                    color={'black'}
-                                    />
-                                    <Text style={styles.rating}>{item.rating}</Text>
-                                </View>
-                                </View>
-                            </View>
-                            <View style={styles.courseDescriptionWrapper}>
-                                <Text style={styles.courseTitleDescription}>
-                                {item.description}
-                                </Text>
-                            </View>                             
-                            </View>
-                        </View>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            </ScrollView>
-        </View>
+      <View style={styles.container}>
+        {loading && (
+          <View style={{flex:1, justifyContent: 'center'}}>
+            <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+          </View>
+        )}
+        {!loading && (
+          <ScrollView>                
+            <View style={styles.coursesCardWrapper}>
+              <Text style={styles.coursesTitle}>Courses</Text>
+              {courses.map(item => (
+                      <TouchableOpacity
+                      key={item.id}
+                      onPress={() =>
+                          props.navigation.navigate('Course Screen', {
+                          item: item,
+                          })
+                      }>
+                      <View
+                          style={[
+                          styles.courseCardWrapper,
+                          {
+                              marginTop: item.id == 1 ? 10 : 20,
+                          },
+                          ]}>
+                          <View>
+                          <View style={styles.courseCardTop}>
+                              <View>
+                              <Image source={{uri: item.profile_picture}} style={styles.courseCardImage} />
+                              </View>
+                              <View style={styles.courseTitleWrapper}>
+                              <Text style={styles.courseTitlesTitle}>
+                                  {item.name}
+                              </Text>
+                              <View style={styles.courseTitlesRating}>
+                                  <MaterialCommunityIcons
+                                  name="star"
+                                  size={10}
+                                  color={'black'}
+                                  />
+                                  <Text style={styles.rating}>{item.rating}</Text>
+                              </View>
+                              </View>
+                          </View>
+                          <View style={styles.courseDescriptionWrapper}>
+                              <Text style={styles.courseTitleDescription}>
+                              {item.description}
+                              </Text>
+                          </View>                             
+                          </View>
+                      </View>
+                      </TouchableOpacity>
+                  ))}
+              </View>
+          </ScrollView>
+        )}
+      </View>
     )
 }
 

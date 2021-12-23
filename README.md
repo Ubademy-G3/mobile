@@ -48,8 +48,17 @@ This is a project made for Taller de Programacion II, in Universidad de Buenos A
 # Tech Stack
 
 * React Native
+* Node.js
 * Expo
 * Firebase
+
+###  Expo installation and execution
+
+* sudo npm install -g expo cli
+* sudo expo install
+* expo start
+
+Now, ou can run the mobile application on an android emulator, or use Expo Go with the QR code
 
 ## Expo publish
 

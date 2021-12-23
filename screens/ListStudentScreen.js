@@ -92,7 +92,9 @@ const ListStudentScreen = (props) => {
   return (
     <ScrollView style={styles.cardWrapper}>
       {loading && (
-        <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+        <View style={{flex:1, justifyContent: 'center'}}>
+          <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+        </View>
       )}
       {!loading && view_as === 'student' && studentsData.length > 0 && (
         <>

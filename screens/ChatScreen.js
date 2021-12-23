@@ -74,7 +74,7 @@ const ChatScreen = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
             :
                 <>

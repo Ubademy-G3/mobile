@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet, ScrollView, TextInput, Modal, Pressable } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import SelectDropdown from 'react-native-select-dropdown';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -17,6 +16,12 @@ const EditExamScreen = (props) => {
     const [questionMC, setQuestionMC] = useState("");
     const [finishedMC, setFinishedMC] = useState(false);
     const [initialState, setInitialState] = useState("");
+    const [modalSuccessVisible, setModalSuccessVisible] = useState(false);
+    const [modalSuccessTitle, setModalSuccessTitle] = useState("");
+    const [modalSuccessText, setModalSuccessText] = useState("");
+    const [modalErrorVisible, setModalErrorVisible] = useState(false);
+    const [modalErrorTitle, setModalErrorTitle] = useState("");
+    const [modalErrorText, setModalErrorText] = useState("");
     const [selectedExam, setSelectedExam] = useState({
         id: 0,
         has_media: false,
@@ -32,7 +37,13 @@ const EditExamScreen = (props) => {
     const handleApiResponseUpdateExam = (response) => {
         console.log("[Edit Exam screen] update exam: ", response.content())
         if (!response.hasError()) {
+            setModalSuccessTitle("Saving Success:");
+            setModalSuccessText("Exam saved correctly");
+            setModalSuccessVisible(true);
         } else {
+            setModalErrorTitle("Saving Error:");
+            setModalErrorText(response.content().message);
+            setModalErrorVisible(true);
             console.log("[Edit Exam screen] error", response.content().message);
         }        
     }
@@ -294,7 +305,7 @@ const EditExamScreen = (props) => {
                 }, 
             selectedExam.id, handleApiResponseUpdateExam);
         }
-        props.navigation.goBack();
+        //props.navigation.goBack();
     }
 
     useEffect(() => {
@@ -309,6 +320,75 @@ const EditExamScreen = (props) => {
     }
 
     return (
+        <View style={{flex: 1}}>
+            <View style={{justifyContent: "center", alignItems: "center",}}>
+            {(modalErrorVisible || modalSuccessVisible) && (
+                <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalErrorVisible}
+                    onRequestClose={() => {
+                    setModalErrorVisible(!modalErrorVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center",}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="close-circle-outline"
+                                    size={30}
+                                    color={"#ff6347"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>{modalErrorTitle}</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalErrorText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                props.navigation.goBack();
+                                setModalErrorVisible(!modalErrorVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalSuccessVisible}
+                    onRequestClose={() => {
+                    setModalSuccessVisible(!modalSuccessVisible);
+                    }}
+                >
+                    <View style={[styles.centeredView, {justifyContent: "center", alignItems: "center"}]}>
+                        <View style={styles.modalView}>
+                            <View style={{ display:'flex', flexDirection: 'row' }}>
+                                <MaterialCommunityIcons
+                                    name="check-circle-outline"
+                                    size={30}
+                                    color={"#9acd32"}
+                                    style={{ position: 'absolute', top: -6, left: -35}}
+                                />
+                                <Text style={styles.modalText}>{modalSuccessTitle}</Text>
+                            </View>
+                            <Text style={styles.modalText}>{modalSuccessText}</Text>
+                            <Pressable
+                            style={[styles.buttonModal, styles.buttonClose]}
+                            onPress={() => {
+                                props.navigation.goBack(); 
+                                setModalSuccessVisible(!modalSuccessVisible)}}
+                            >
+                                <Text style={styles.textStyle}>Ok</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
+                </View>
+            )}
+            </View>
         <View style={styles.container}>
             <ScrollView>
                 <>
@@ -530,7 +610,8 @@ const EditExamScreen = (props) => {
                 </TouchableOpacity>
             </View>
         </View>
-      );
+        </View>
+    );
 };
 
 const styles = new StyleSheet.create({
@@ -796,6 +877,50 @@ const styles = new StyleSheet.create({
         color: "#444",
         fontSize: 14,
         textAlign: 'left',
+    },
+    centeredView: {
+        flex: 1,
+        //marginTop: 22
+    },
+    modalView: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 20,
+        padding: 20,
+        alignItems: "center",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+        elevation: 5
+    },
+    buttonModal: {
+        borderRadius: 20,
+        paddingHorizontal: 40,
+        paddingVertical: 15,
+        elevation: 2
+    },
+    buttonClose: {
+        backgroundColor: "#ff6347",
+    },
+    textStyle: {
+        color: "white",
+        fontWeight: "bold",
+        textAlign: "center"
+    },
+    modalText: {
+        marginBottom: 15,
+        textAlign: "center"
+    },
+    inputText: {
+        backgroundColor:'white',
+        paddingHorizontal: 15,
+        paddingVertical: 35,
+        borderRadius: 10,
+        marginTop: 5,
     },
 });
 

@@ -68,7 +68,9 @@ const MyExamTemplatesScreen = (props) => {
         <View style={styles.container}>
             <ScrollView>
                 {loading && (
-                    <ActivityIndicator color="lightblue" style={{ margin: "50%" }}/>
+                    <View style={{flex:1, justifyContent: 'center'}}>
+                        <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
+                    </View>
                 )}
                 {!loading && (
                     <>

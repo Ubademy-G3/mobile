@@ -168,7 +168,7 @@ const MenuWalletScreen = (props) => {
             <TouchableOpacity style={styles.createButton} onPress={() => { handleSubmitCreateWallet(); }} >
                 
                 {submitLoading ? (
-                    <ActivityIndicator color="#696969" animating={loading} />
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={submitLoading} />
                 ) : (
                     <Text style={styles.buttonText}>
                         Create a wallet

@@ -45,7 +45,7 @@ const MenuCreatedCoursesScreen = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="lightblue" animating={loading} size="large" /> 
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
             :
                 <>

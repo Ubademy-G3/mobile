@@ -443,7 +443,7 @@ const SignupScreen = (props) => {
                                 disabled={loading}
                             >
                                 {
-                                    loading ? <ActivityIndicator animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
+                                    loading ? <ActivityIndicator color="#696969" animating={loading} /> : <Text style={styles.buttonText}>Save</Text>
                                 }
                             </TouchableOpacity>
                         )}

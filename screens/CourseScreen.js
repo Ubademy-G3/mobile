@@ -35,6 +35,7 @@ const CourseScreen = (props) => {
     const [rol, setRol] = useState(null);
     const [progress, setProgress] = useState(0);
     const [showOpinion, setShowOpinion] = useState(true);
+    const [studentsOpinions, setStudentsOpinions] = useState([]);
     const [subscriptionType, setSubscriptionType] = useState("");
     const video = React.useRef(null);
     const [status, setStatus] = React.useState({});
@@ -218,6 +219,8 @@ const CourseScreen = (props) => {
             } else {
                 setShowOpinion(true);
             }
+            //setStudentsOpinions(studentsOpinions => [...studentsOpinions, response.content().reviews.opinion]);
+            setStudentsOpinions(response.content().reviews.slice(0,6));
         } else {
             console.log("[Course screen] error", response.content().message);
         }
@@ -352,7 +355,17 @@ const CourseScreen = (props) => {
 
     const onStarRatingPress = (rating) => {
         setStarCount(rating);
-      }
+    }
+
+    const renderOpinionItem = ({ item }) => {
+        return (
+            <View
+              key={item.id}
+              style={styles.opinionItemWrapper}>
+              <Text style={styles.categoryItemTitle}>{item.opinion}</Text>            
+            </View>
+        );
+    };
 
     return (
         <View style={styles.centeredView}>
@@ -551,6 +564,25 @@ const CourseScreen = (props) => {
                                 )}
                             </View>
                         )}
+                        <View style={styles.studentListWrapper}>
+                            <Text style={styles.instructorsTitle}>Instructor</Text>
+                            {instructors.map(item => (
+                                <ProfilesListComponent 
+                                item={item}
+                                navigation={props.navigation}
+                                key={item.id}/>
+                            ))}
+                        </View>
+                        <View style={styles.studentListWrapper}>
+                            <Text style={styles.instructorsTitle}>Opinions about this course:</Text>
+                            <FlatList  
+                                data={studentsOpinions}
+                                renderItem={renderOpinionItem}
+                                keyExtractor={(item) => item.id}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                        </View>
                         {subscribed && modules && media && (
                             <View style={styles.studentListWrapper}>
                                 <Text style={styles.instructorsTitle}>Units</Text>
@@ -581,15 +613,6 @@ const CourseScreen = (props) => {
                                 ))}
                             </View>
                         )}
-                        <View style={styles.studentListWrapper}>
-                            <Text style={styles.instructorsTitle}>Instructor</Text>
-                            {instructors.map(item => (
-                                <ProfilesListComponent 
-                                item={item}
-                                navigation={props.navigation}
-                                key={item.id}/>
-                            ))}
-                        </View>
                     </>
                 )}
             </ScrollView>
@@ -886,6 +909,27 @@ const styles = new StyleSheet.create({
         paddingVertical: 35,
         borderRadius: 10,
         marginTop: 5,
+    },
+    opinionItemWrapper: {
+        backgroundColor: '#F5CA48',
+        marginRight: 10,
+        borderRadius: 20,
+        shadowColor: 'black',
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        shadowOffset: {
+          width: 0,
+          height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        elevation: 2,
+    },
+    categoryItemTitle: {
+        textAlign: 'center',
+        fontSize: 14,
+        marginTop: 5,
+        marginBottom: 5
     },
 });
 

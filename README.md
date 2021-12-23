@@ -1,4 +1,6 @@
-# Ubademy-Mobile
+# Ubademy Mobile Application
+
+This is a project made for Taller de Programacion II, in Universidad de Buenos Aires.
 
 # Directory structure
 
@@ -48,3 +50,11 @@
 * React Native
 * Expo
 * Firebase
+
+## Screenshots
+
+<img src="https://user-images.githubusercontent.com/29211474/147265058-7bc9c638-df74-4393-bbbc-e03afcfbd0f1.jpg" width="350" height="600">
+<img src="https://user-images.githubusercontent.com/29211474/147265141-b5608278-8574-427e-8f56-b34ebd7140fa.jpg" width="350" height="600">
+<img src="https://user-images.githubusercontent.com/29211474/147265166-071a357f-e1dc-441a-af34-ce16a5789a32.jpg" width="350" height="600">
+<img src="https://user-images.githubusercontent.com/29211474/147265192-330d0eee-2296-44d3-9f31-ae75b6c4ccb4.jpg" width="350" height="600">
+

@@ -110,7 +110,6 @@ const HomeScreen = (props) => {
             <Text style={styles.courseTitle}>{item.name}</Text>
             <Text numberOfLines={2}>{item.description}</Text>
             <View style={{ display:'flex', flexDirection: 'row' }}>
-              <Text style={{ color: 'gold' }}>{item.rating_avg}</Text>
               <StarRating
                 disabled={true}
                 maxStars={5}

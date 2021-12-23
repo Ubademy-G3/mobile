@@ -114,19 +114,17 @@ const ListStudentScreen = (props) => {
             </View>
           ) : (
             <>
-            {view_as !== "collaborator" && (
               <View>
                 <TouchableOpacity
-                    onPress={() => { setFiltersVisible(!filtersVisible) }}
-                    style={{ display:'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10, marginTop: 10 }}
+                  onPress={() => { setFiltersVisible(!filtersVisible) }}
+                  style={{ display:'flex', flexDirection: 'row', justifyContent: 'flex-end', marginRight: 10, marginTop: 10 }}
                 >
-                    <Feather name="filter" color={"#444"} size={18} />
-                    <Text>Filters</Text>
+                  <Feather name="filter" color={"#444"} size={18} />
+                  <Text>Filters</Text>
                 </TouchableOpacity>
               </View>
-            )}
               {filtersVisible && (
-                  <UsersFilterComponent updateUsers={filterUsers} />
+                <UsersFilterComponent updateUsers={filterUsers} />
               )}
               {studentsData.map(item => (
                 <ProfilesListComponent 

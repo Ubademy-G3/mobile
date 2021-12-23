@@ -69,7 +69,10 @@ const MenuCertificates = (props) => {
                 <ScrollView>
                     <View style={styles.coursesCardWrapper}>
                     {!loading && (!courses || !certificates || certificates.length === 0) && (
-                        <Text style={styles.courseText}>Complete courses to get certifications.</Text>
+                        <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <Image source={require("../../assets/images/magnifyingGlass.png")} style={{ width: 100, height: 100, marginTop: "50%" }} />
+                            <Text style={styles.examsText}>You have not completed any course yet</Text>
+                        </View>
                     )}
                     {!loading && courses && certificates && certificates.map((item) => (
                         <TouchableOpacity

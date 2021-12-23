@@ -62,7 +62,7 @@ Now, you can run the mobile application on an android emulator, or use Expo Go w
 
 ## Expo publish
 
-You can try it using Expo GO and inserting this link: <https://expo.dev/@chiarab/Ubademy-mobile?release-channel=production-entrega-final>
+You can try it using Expo GO and inserting this link: <https://expo.dev/@chiarab/Ubademy-mobile?release-channel=production-entrega-version-final>
 
 ## Screenshots
 

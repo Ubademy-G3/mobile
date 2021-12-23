@@ -193,7 +193,7 @@ const MenuChangeSubscription = (props) => {
             {
             loading ? 
                 <View style={{flex:1, justifyContent: 'center'}}>
-                    <ActivityIndicator color="lightblue" animating={loading} size="large" />
+                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
                 </View>
             :
                 <>
@@ -242,7 +242,7 @@ const MenuChangeSubscription = (props) => {
                                                 style={styles.confirmButton}
                                             >
                                                 {submitLoading ? (
-                                                    <ActivityIndicator color="#696969" animating={loading} />
+                                                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={submitLoading} size="large" />
                                                 ) : ( 
                                                     <Text>Confirm</Text>
                                                 )}
@@ -276,7 +276,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get FREE Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -296,7 +296,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get GOLD Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>
@@ -316,7 +316,7 @@ const MenuChangeSubscription = (props) => {
                                     disabled={loading}
                                 >
                                     {
-                                        loading ? <ActivityIndicator color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
+                                        loading ? <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" /> : <Text style={styles.buttonText}>Get PLATINUM Subscription</Text>
                                     }
                                 </TouchableOpacity>
                             </View>

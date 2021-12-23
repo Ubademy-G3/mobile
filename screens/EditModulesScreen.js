@@ -32,6 +32,7 @@ const EditModulesScreen = (props) => {
     const [updatingModules, setUpdatingModules] = useState(false);
     const [updatingModules2, setUpdatingModules2] = useState(false);
     const [course, setCourse] = useState(param_course);
+    const [spinner, setSpinner] = useState(false);
     
     const handleApiResponseCreateModule = (response) => {
         console.log("[Edit Modules screen] create module: ", response.content())
@@ -294,6 +295,7 @@ const EditModulesScreen = (props) => {
         setModalAttentionTitle("Please wait:");
         setModalAttentionText("Your video is uploading");
         setModalAttentionVisible(true);
+        setSpinner(true);
         /* Alert.alert(
             'Please wait',
             'Your video is uploading'
@@ -311,6 +313,7 @@ const EditModulesScreen = (props) => {
             const newmodule = [...modules];
             newmodule[key].media_url = [];
             setModules(newmodule);
+            setSpinner(false);
             setUpdatingModules2(true);
             setModalAttentionTitle("Video Uploaded:");
             setModalAttentionText("Your video has been uploaded");
@@ -612,27 +615,34 @@ const EditModulesScreen = (props) => {
                                                         </TouchableOpacity>
                                                     </View>
                                                 </View>
-                                                {getMediaFromModule(item.id).map((media_item, media_key) => (
-                                                    <View style={styles.containerVideo}>
-                                                        {console.log("MEDIA ITEM")}
-                                                        {console.log(media_item)}
-                                                        <Video
-                                                            ref={video}
-                                                            style={styles.video}
-                                                            source={{uri: media_item.url}}
-                                                            resizeMode="contain"
-                                                            useNativeControls={true}
-                                                            shouldPlay={false}
-                                                            onPlaybackStatusUpdate={status => setStatus(() => status)}
-                                                        />
-                                                    <View style={styles.buttons}>
-                                                        <Button
-                                                            title={"Delete"}
-                                                            onPress={() => {deleteMedia(media_item.id, key)}}
-                                                        />
+                                                {spinner && (
+                                                    <ActivityIndicator style={{ margin: '50%' }} color="lightblue" />
+                                                )}
+                                                {!spinner && (
+                                                    <>
+                                                    {getMediaFromModule(item.id).map((media_item, media_key) => (
+                                                        <View style={styles.containerVideo}>
+                                                            {console.log("MEDIA ITEM")}
+                                                            {console.log(media_item)}
+                                                            <Video
+                                                                ref={video}
+                                                                style={styles.video}
+                                                                source={{uri: media_item.url}}
+                                                                resizeMode="contain"
+                                                                useNativeControls={true}
+                                                                shouldPlay={false}
+                                                                onPlaybackStatusUpdate={status => setStatus(() => status)}
+                                                            />
+                                                        <View style={styles.buttons}>
+                                                            <Button
+                                                                title={"Delete"}
+                                                                onPress={() => {deleteMedia(media_item.id, key)}}
+                                                            />
+                                                            </View>
                                                         </View>
-                                                    </View>
-                                                ))}
+                                                    ))}
+                                                    </>
+                                                )}
                                             </>
                                         )}
                                     </View>

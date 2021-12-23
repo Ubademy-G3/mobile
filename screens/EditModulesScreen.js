@@ -30,6 +30,7 @@ const EditModulesScreen = (props) => {
     const [media, setMedia] = useState(null);
     //const [modulesIds, setModulesIds] = useState([]);
     const [updatingModules, setUpdatingModules] = useState(false);
+    const [updatingModules2, setUpdatingModules2] = useState(false);
     const [course, setCourse] = useState(param_course);
     
     const handleApiResponseCreateModule = (response) => {
@@ -122,10 +123,10 @@ const EditModulesScreen = (props) => {
         }
     }*/
 
-    /*useEffect(() => {
-        funcionauxiliar(); 
-        setUpdatingModules(false);              
-    }, [updatingModules]);*/
+    useEffect(() => {
+        onRefresh()
+        setUpdatingModules2(false);              
+    }, [updatingModules2]);
 
     const handleUpdateCourse = (response) => {
         console.log("[Edit Modules screen] update course: ", response.content())
@@ -260,7 +261,7 @@ const EditModulesScreen = (props) => {
         const newmodule = [...modules];
         newmodule[module_key].media_url = [];
         setModules(newmodule);
-        setUpdatingModules(true);
+        setUpdatingModules2(true);
         setModalSuccessText("Your video was deleted succesfully");
         setModalSuccessVisible(true);
         /* Alert.alert(
@@ -304,7 +305,7 @@ const EditModulesScreen = (props) => {
             const newmodule = [...modules];
             newmodule[key].media_url = [];
             setModules(newmodule);
-            setUpdatingModules(true);
+            setUpdatingModules2(true);
             setModalAttentionTitle("Video Uploaded:");
             setModalAttentionText("Your video has been uploaded");
             setModalAttentionVisible(true);
@@ -331,7 +332,10 @@ const EditModulesScreen = (props) => {
         const uploadUri = mediaUri;
         console.log("uploadUri:", uploadUri);
         let filename = uploadUri.substring(uploadUri.lastIndexOf('/') + 1);
-        console.log("filename:", filename);  
+        console.log("filename:", filename); 
+        setModalAttentionTitle("Please wait:");
+        setModalAttentionText("Your image is uploading");
+        setModalAttentionVisible(true); 
 
         try {
             const response = await fetch(uploadUri);
@@ -347,6 +351,7 @@ const EditModulesScreen = (props) => {
             setModalAttentionTitle("Image Uploaded:");
             setModalAttentionText("Your image has been uploaded");
             setModalAttentionVisible(true);
+            setUpdatingModules2(true)
             /* Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded'
@@ -414,9 +419,9 @@ const EditModulesScreen = (props) => {
                                     color={"#87ceeb"}
                                     style={{ position: 'absolute', top: -6, left: -35}}
                                 />
-                                <Text style={styles.modalText}>Image Uploaded:</Text>
+                                <Text style={styles.modalText}>{modalAttentionTitle}</Text>
                             </View>
-                            <Text style={styles.modalText}>Your image has been uploaded</Text>
+                            <Text style={styles.modalText}>{modalAttentionText}</Text>
                             <Pressable
                             style={[styles.buttonModal, styles.buttonAttention]}
                             onPress={() => setModalAttentionVisible(!modalAttentionVisible)}
@@ -566,7 +571,7 @@ const EditModulesScreen = (props) => {
                                                         <TextInput
                                                             placeholder={"Enter Description"}
                                                             multiline = {true}
-                                                            value={item.module} 
+                                                            value={item.content} 
                                                             onChangeText={(text) => handleInputDescription(text,key)}
                                                             style={styles.input}
                                                         />

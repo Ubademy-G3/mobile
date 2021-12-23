@@ -53,7 +53,7 @@ This is a project made for Taller de Programacion II, in Universidad de Buenos A
 
 ## Expo publish
 
-<https://expo.dev/@chiarab/Ubademy-mobile?release-channel=production-entrega>
+You can try it using Expo GO and inserting this link: <https://expo.dev/@chiarab/Ubademy-mobile?release-channel=production-entrega>
 
 ## Screenshots
 

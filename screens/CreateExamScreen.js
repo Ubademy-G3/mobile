@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { Text, View, TouchableOpacity, StyleSheet, ScrollView, TextInput, KeyboardAvoidingView, Modal, Pressable } from 'react-native';
-import SelectDropdown from 'react-native-select-dropdown';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { app } from '../app/app';
 import Feather from 'react-native-vector-icons/Feather';
-import { createIconSetFromFontello } from 'react-native-vector-icons';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
@@ -18,27 +16,7 @@ const CreateExamScreen = (props) => {
     const [nameSaved, setNameSaved] = useState(false);
     const [questionSaved, setQuestionSaved] = useState(true);
     const [questionMC, setQuestionMC] = useState("");
-    /* const [finishedMC, setFinishedMC] = useState(false); */
-
-    /*const initialValues = [{ id: "points", value: 1 }];
-    
-    const [points, setPoints] = useState(initialValues);
-    
-    const valueNumbers = [{ id: "points", min: 1, max: 100 }];*/
-
-    const [inputs, setInputs] = useState([/*{
-        id: "", 
-        question: "",
-        question_saved: false,
-        is_written: false,
-        is_media: false,
-        is_multiple_choice: false,
-        question_type: "",
-        options: [],
-        correct: 0,
-        value: 1, 
-    }*/]);
-
+    const [inputs, setInputs] = useState([]);
     const [exam, setExam] = useState({
         id: "",
         name: "",
@@ -52,20 +30,15 @@ const CreateExamScreen = (props) => {
         approval_score: 0,
     });
 
-    //const [showButtons, setShowButtons] = useState(true);
-
     const handleResponseUpdateExam = (response) => {
-        console.log("[Create Exam screen] update: ", response.content())
         if (!response.hasError()) {
             setExam(response.content());
-            console.log("[Create Exam screen] update exam: ", exam);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
     const handleApiResponseCreateExam = (response) => {
-        console.log("[Create Exam screen] exam: ", response.content())
         if (!response.hasError()) {
             setExam({
                 id: response.content().id,
@@ -80,32 +53,28 @@ const CreateExamScreen = (props) => {
                 approval_score: 0,
             });
             setNameSaved(true);
-            console.log("[Create Exam screen] create exam: ", exam);
-            console.log("[Create Exam screen] INPUTS: ", inputs);
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
     const handleApiResponseUpdateQuestion = (response) => {
-        console.log("[Create Exam screen] update: ", response.content())
         if (!response.hasError()) {
-            console.log("[Create Exam screen] update question: ", exam);
+            console.log("[Create Exam screen] ok");
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
     }
 
     const handleApiResponseDeleteQuestion = (response) => {
-        console.log("[Create Exam screen] delete question: ", response.content())
         if (!response.hasError()) {
+            console.log("[Create Exam screen] ok");
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }        
     }
 
     const handleApiResponseCreateQuestion = (response) => {
-        console.log("[Create Exam screen] content: ", response.content())
         if (!response.hasError()) {
             setInputs(inputs => [...inputs, {
                 id: response.content().id,
@@ -118,7 +87,6 @@ const CreateExamScreen = (props) => {
                 question_type: response.content().question_type,
                 value: response.content().value,
             }]);
-            console.log("[Create Exam screen] response sucessfull");
         } else {
             console.log("[Create Exam screen] error", response.content().message);
         }
@@ -137,20 +105,6 @@ const CreateExamScreen = (props) => {
                 correct: 0,
                 value: 1,
             }, exam.id, handleApiResponseCreateQuestion);
-        /* const _inputs = [...inputs];
-        _inputs.push({
-            key: '',
-            question: "",
-            question_saved: false,
-            is_written: false,
-            is_media: false,
-            is_multiple_choice: false,
-            question_type: "",
-            options: [],
-            correct: 0,
-            value: 1,
-        });
-        setInputs(_inputs); */
         setQuestionSaved(false);
     }
     
@@ -165,7 +119,6 @@ const CreateExamScreen = (props) => {
     const inputHandler = (text, key) => {
         const _inputs = [...inputs];
         _inputs[key].question = text;
-        //_inputs[key].key = key;
         setInputs(_inputs);
         setQuestionSaved(false);
     }
@@ -173,21 +126,17 @@ const CreateExamScreen = (props) => {
     const handleSubmitEditQuestion = (key) => {
         const _inputs = [...inputs];
         _inputs[key].question_saved = false;
-        /* setFinishedMC(false); */
         setInputs(_inputs);
     }
 
     const handleMultipleChoicePressed = (key) => {
         const _inputs = [...inputs];
-        //_inputs[key].is_multiple_choice = true;
         _inputs[key].question_type = "multiple_choice";
-        /* setFinishedMC(false); */
         setInputs(_inputs);
     }
 
     const handleDevelopPressed = (key) => {
         const _inputs = [...inputs];
-        /* setFinishedMC(false); */
         setQuestionMC("");
         _inputs[key].options = [];
         _inputs[key].question_type = "written";
@@ -208,17 +157,6 @@ const CreateExamScreen = (props) => {
     }
 
     const handleSaveQuestion = async (key) => {
-        //llamar al back y guardar la pregunta
-        /* await app.apiClient().createQuestion(
-            {
-                token: tokenLS, 
-                exam_id: exam.id,
-                question: inputs[key].question,
-                question_type: inputs[key].question_type,
-                options: inputs[key].options,
-                correct: inputs[key].correct,
-                value: inputs[key].value,
-            }, exam.id, handleApiResponseCreateQuestion); */
         const _inputs = [...inputs]; 
         _inputs[key].question_saved = true;
         let tokenLS = await app.getToken();
@@ -241,20 +179,12 @@ const CreateExamScreen = (props) => {
     const handleMultipleChoiceOption = (key) => {
         const _inputs = [...inputs];
         _inputs[key].options.push(questionMC);
-        console.log("options:", _inputs)
         setInputs(_inputs);
         setQuestionMC("");
     }
-
-    /* const handleSaveMC = () => {
-        setFinishedMC(true);
-    }  */
-
     const handleSubmitValue = (value, key) => {
-        //setPoints(value);
         const _inputs = [...inputs];
         _inputs[key].value = value;
-        console.log("change value: ",value);
         setInputs(_inputs);
     }
     
@@ -262,20 +192,8 @@ const CreateExamScreen = (props) => {
         setExam({...exam, approval_score: value});
     }
 
-    /* const setCorrect = (key, idx) => {
-        const _inputs = [...inputs];
-        _inputs[key].correct = idx;
-        setInputs(_inputs);
-    } */
-
     const saveExam = async () => {
         let tokenLS = await app.getToken();
-        /* var total_score = 0
-        for (let question of inputs) {
-            console.log("total scrore", total_score);
-            total_score = total_score + +question.value;
-        }
-        console.log("total scrore final", total_score); */
         await app.apiClient().updateExam(
             {
                 token: tokenLS,
@@ -286,18 +204,7 @@ const CreateExamScreen = (props) => {
 
             }, exam.id, handleResponseUpdateExam)
         setModalVisible(true);
-        console.log("SET MODAL TRUE");
-        /*Alert.alert(
-            "Exam saved.",
-            [
-              { text: "OK", onPress: () => {} }
-            ]
-        );*/
     }
-
-    /* useEffect(() => {
-        setInputs([]);
-    }, []); */
 
     return (
         <View style={styles.centeredView}>
@@ -373,10 +280,6 @@ const CreateExamScreen = (props) => {
                             { !input.question_saved && (
                                 <>
                                     <View style={styles.inputContainer}>
-                                        {/* <KeyboardAvoidingView
-                                            style={styles.container}
-                                            behavior={Platform.OS === "ios" ? "padding" : "height"}
-                                        > */}
                                             <TextInput 
                                                 placeholder={"Enter Question"}
                                                 multiline = {true}
@@ -384,7 +287,6 @@ const CreateExamScreen = (props) => {
                                                 onChangeText={(text)=>inputHandler(text,key)}
                                                 style={styles.input}
                                             />
-                                        {/* </KeyboardAvoidingView> */}
                                         <View style={styles.buttonsRightWrapper}>
                                             <TouchableOpacity
                                                 onPress = {()=> {handleSaveQuestion(key)}}
@@ -400,7 +302,6 @@ const CreateExamScreen = (props) => {
                                             onPress = {()=> deleteHandler(key)}
                                             style={styles.buttonInputIcon}
                                         >
-                                            {/*<Text style={styles.buttonDelete}>Delete</Text>*/}
                                             <MaterialCommunityIcons
                                                 name="trash-can-outline"
                                                 size={20}
@@ -409,27 +310,13 @@ const CreateExamScreen = (props) => {
                                         </TouchableOpacity>
                                         </View>
                                     </View>
-                                    {/* <View>
-                                        <Text>Points assigned to this question</Text>
-                                        <NumberPlease
-                                            digits={valueNumbers}
-                                            values={points}
-                                            onChange={(values) => handleSubmitValue(key, values)}
-                                            pickerStyle={styles.numberPicker}
-                                        />
-                                    </View> */}
                                     <Text style={styles.textAnswer}>Points:</Text>
-                                    {/* <KeyboardAvoidingView
-                                        style={styles.container}
-                                        behavior={Platform.OS === "ios" ? "padding" : "height"}
-                                    > */}
                                         <TextInput 
                                             placeholder={"Points assigned to this question"}
                                             value={input.value} 
                                             onChangeText={(text) => handleSubmitValue(text.replace(/[^0-9]/g, ''),key)}
                                             style={[styles.input,{marginBottom:10}]}
                                         />
-                                    {/* </KeyboardAvoidingView> */}
                                     <Text style={styles.textAnswer}>Answer</Text>
                                     <View style={styles.buttonInputWrapper}>
                                         <TouchableOpacity
@@ -438,7 +325,6 @@ const CreateExamScreen = (props) => {
                                                 backgroundColor: input.question_type === "multiple_choice" ? "green" : "white"
                                             }]}
                                         >
-                                            {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
                                             <MaterialCommunityIcons
                                                 name="format-list-numbered"
                                                 size={20}
@@ -451,7 +337,6 @@ const CreateExamScreen = (props) => {
                                                 backgroundColor: input.question_type === "written" ? "green" : "white"
                                             }]}
                                         >
-                                        {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
                                             <MaterialCommunityIcons
                                                 name="text"
                                                 size={20}
@@ -467,10 +352,6 @@ const CreateExamScreen = (props) => {
                                             <Text style={styles.choiceText}>The answer will be a multiple choice response.</Text>
                                             <Text style={styles.choiceText}>Fill the multiple answers:</Text>
                                             <View style={styles.wrapperOptionsInChoice}>
-                                                {/* <KeyboardAvoidingView
-                                                    style={styles.container}
-                                                    behavior={Platform.OS === "ios" ? "padding" : "height"}
-                                                > */}
                                                     <TextInput 
                                                     placeholder={"Enter Option"}
                                                     multiline = {true}
@@ -478,7 +359,6 @@ const CreateExamScreen = (props) => {
                                                     onChangeText={(text)=>setQuestionMC(text)}
                                                     style={styles.input}
                                                     />
-                                                {/* </KeyboardAvoidingView> */}
                                                 <TouchableOpacity
                                                     onPress = {()=> {handleMultipleChoiceOption(key)}}
                                                     style={styles.buttonSaveIconRight}
@@ -489,44 +369,9 @@ const CreateExamScreen = (props) => {
                                                         color={'black'}
                                                     />
                                                 </TouchableOpacity>
-                                                {/*</View>*/}
                                             </View>
-                                            {/* <View style={styles.buttonSaveMC}>
-                                                <TouchableOpacity
-                                                    onPress={() => {handleSaveMC()}}
-                                                    style={[styles.button,
-                                                        {
-                                                            backgroundColor:`#87ceeb`, 
-                                                            width:'70%',
-                                                        }]}
-                                                >
-                                                    {/*<MaterialCommunityIcons
-                                                        name="check-bold"
-                                                        size={20}
-                                                        color={'black'}
-                                                    />
-                                                    <Text style={styles.buttonText}>Save Multiple Choice</Text>
-                                                </TouchableOpacity>
-                                            </View> */}
                                         </>
                                     )}
-                                    {/* {(input.question_type === "multiple_choice" && (finishedMC)) && (
-                                        <>
-                                            <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
-                                            <SelectDropdown
-                                                data={input.options}
-                                                onSelect={(selectedItem, index) => {setCorrect(key, index)}}
-                                                defaultButtonText={"Select the correct answer"}
-                                                buttonStyle={styles.buttonDropdown}
-                                                buttonTextStyle={styles.textDropdown}
-                                                renderDropdownIcon={() => {
-                                                    return (
-                                                    <Feather name="chevron-down" color={"#444"} size={18} />
-                                                    );
-                                                }}
-                                            />
-                                        </>
-                                    )} */}
                                 </>
                             )}
                             { input.question_saved && (
@@ -556,7 +401,6 @@ const CreateExamScreen = (props) => {
                         <View style={[styles.courseCardWrapper, {backgroundColor: '#87ceeb', justifyContent: 'center'}]}>
                             <TouchableOpacity
                                 onPress = {()=> {addHandler()}}
-                                //disabled={!questionSaved}
                                 style={styles.questionWrapper}
                             >
                                 <View style={styles.addQuestionView}>
@@ -578,18 +422,6 @@ const CreateExamScreen = (props) => {
             </ScrollView>
             { nameSaved && (
                 <View style={styles.buttonWrapper}>
-                    {/* <TouchableOpacity
-                        onPress={() => {addHandler()}}
-                        disabled={!questionSaved}
-                        style={[styles.button, 
-                            {
-                                backgroundColor: questionSaved ? `#87ceeb` : `#d3d3d3`,
-                                //marginLeft: item.id === '1' ? 5 : 0,
-                            }
-                        ]}
-                    >
-                        <Text style={styles.buttonText}>Add Question</Text>
-                    </TouchableOpacity> */}
                     <TouchableOpacity
                         onPress={() => {saveExam()}}
                         style={[styles.button,{backgroundColor:`#87ceeb`}]}
@@ -626,7 +458,6 @@ const styles = StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: `#87ceeb`,
         width: '45%',
         padding: 15,
         borderRadius: 10,
@@ -643,8 +474,7 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     inputsContainer: {
-        padding: 15,  
-        //marginBottom: 20,
+        padding: 15,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -684,7 +514,6 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         flexDirection: 'row',
-        //marginHorizontal: 10,
     },
     buttonInputIcon: {
         alignItems: 'center',
@@ -721,8 +550,6 @@ const styles = StyleSheet.create({
     },
     buttonsRightWrapper: {
         flexDirection: 'column',
-        //alignItems: 'center',
-        //justifyContent: 'center',
     },
     textAnswer: {
         fontWeight: '700',
@@ -747,7 +574,6 @@ const styles = StyleSheet.create({
     nameWrapper: {
         alignItems: 'center',
         justifyContent: 'center',
-        //flexDirection: 'column',
         paddingVertical: 15,
     },
     buttonDropdown: {
@@ -807,7 +633,6 @@ const styles = StyleSheet.create({
         width: 200,
         borderRadius: 25,
         paddingVertical: 8,
-        //paddingLeft: 20,
         marginBottom: 5,
         marginTop: 10,
         shadowColor: 'black',
@@ -820,7 +645,6 @@ const styles = StyleSheet.create({
         elevation: 2,  
     },
     examDescritpionWrapper: {
-        //marginTop:5,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -828,7 +652,6 @@ const styles = StyleSheet.create({
         color:'black',
         fontWeight: '400',
         fontSize: 16,
-        //marginTop:5,
     },
     modalView: {
         margin: 20,

@@ -30,7 +30,6 @@ const SolvedExamsScreen = (props) => {
     }
 
     const handleResponseGetSolvedExams = async (response) => {
-        //console.log("[Solved Exams screen] get solved exams: ")
         if (!response.hasError()) {
             setSolutions(response.content().exam_solutions);
             let tokenLS = await app.getToken();
@@ -53,10 +52,8 @@ const SolvedExamsScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Solved Exams screen] entro a onRefresh");
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Solved Exams screen] token:", tokenLS);
         await app.apiClient().getAllExamsByCourseId({ token: tokenLS }, param_course_id, {}, handleGetExamTemplates);
         await app.apiClient().getSolvedExamsByCourse({ token: tokenLS }, param_course_id, {}, handleResponseGetSolvedExams);
         setLoading(false);
@@ -152,8 +149,6 @@ const SolvedExamsScreen = (props) => {
                                         style={styles.fadedButton}
                                         key={item.id}
                                     >
-                                        {console.log("ITEM:")}
-                                        {console.log(item)}
                                         <View
                                             style={styles.courseCardWrapper}
                                         >
@@ -164,8 +159,6 @@ const SolvedExamsScreen = (props) => {
                                                 <Text>{`Solved by ${getStudentName(item.user_id)}`}</Text>
                                                 {item.graded && (
                                                     <>
-                                                        {/*<Text>{`Corrected by ${item.user_name} ${item.user_last_name}`}</Text>
-                                                        */}
                                                         <Text>{`Score: ${item.score}`}</Text>
                                                     </>
                                                 )}
@@ -204,7 +197,6 @@ const styles = new StyleSheet.create({
         padding: 10,
         borderRadius: 10,
         alignItems: 'center',
-        //marginBottom: 5,
     },
     courseCardWrapper: {
         backgroundColor: 'white',
@@ -212,7 +204,6 @@ const styles = new StyleSheet.create({
         borderRadius: 25,
         paddingVertical: 8,
         paddingLeft: 20,
-        //marginTop: 5,
         flexDirection: 'column',
         shadowColor: 'black',
         shadowOffset: {
@@ -224,18 +215,13 @@ const styles = new StyleSheet.create({
         elevation: 2,
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         marginTop: 8,
         alignItems: 'flex-start',
-        //marginRight: 80,
     },
     courseDescriptionWrapper: {
         paddingLeft: 10,
-        //paddingRight: 40,
         flexDirection: 'column',
         alignItems: 'flex-end',
-        //marginRight: 80,
     },
     courseTitleDescription: {
         paddingBottom: 3,

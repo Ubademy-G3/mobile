@@ -27,7 +27,6 @@ const EditCourseScreen = (props) => {
     const [email, setEmail] = useState("");
 
     const handleResponseGetCourseRating = (response) => {
-        console.log("[Edit Course screen] get rating: ", response.content())
         if (!response.hasError()) {
             setRating(response.content());
         } else {
@@ -36,7 +35,6 @@ const EditCourseScreen = (props) => {
     }
 
     const  handleResponseGetProfile = (response) => {
-        console.log("[Edit Course screen] get profile: ", response.content())
         if (!response.hasError()) {
             setRol(response.content().rol);
         } else {
@@ -45,7 +43,6 @@ const EditCourseScreen = (props) => {
     }
 
     const handleGetProfileFromList = (response) => {
-        console.log("[Edit Course Screen] content: ", response.content())
         if (!response.hasError()) {
             setCollaboratorsData(response.content());
         } else {
@@ -54,7 +51,6 @@ const EditCourseScreen = (props) => {
     }
 
     const handleGetAllUsersInCourse = async (response) => {
-        console.log("[Edit Course Screen] get all users content: ", response.content())
         if (!response.hasError()) {
             const colaboratorsIds = [];
             for(let user of response.content().users){
@@ -68,52 +64,25 @@ const EditCourseScreen = (props) => {
     }
     
     const handleResponseSubscribeToCourse = (response) => {
-        console.log("[Edit Course screen] subscribe to course: ", response.content())
         if (!response.hasError()) {
             setModalSuccessVisible(true);
-            /* Alert.alert(
-                "Successful:",
-                "Collaborator's updated in course",
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-            ); */
         } else {
             if (response.content().message == "Course already acquired by this user") {
                 setModalErrorText("User is subscribe to this course. Unable to make this user a collaborator");
                 setModalErrorVisible(true);
-                /* Alert.alert(
-                    "Error: User is subscribe to this course",
-                    "Unable to make this user a collaborator",
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                ); */
             }
             console.log("[Edit Course screen] error", response.content().message);
         }        
     }
 
     const handleResponseGetUsersByEmailSubscribe = async (response) => {
-        console.log("[Edit Course screen] get user by emaill: ", response.content())
         if (!response.hasError()) {
-            console.log("content lenght: ", response.content().length);
             if(response.content().length === 1) {
-                console.log("ENTRO AL IF: ");
                 let tokenLS = await app.getToken();
-                console.log("USER ID: ", response.content()[0].id);
                 await app.apiClient().subscribeCourse({token: tokenLS, user_id: response.content()[0].id, user_type: "collaborator"}, item.id, handleResponseSubscribeToCourse)
             } else {
-                console.log("ENTRO AL ELSE: ");
                 setModalErrorText("Unable to find a user with given email");
                 setModalErrorVisible(true);
-                /* Alert.alert(
-                    "Error:",
-                    "Unable to find a user with given email",
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -121,25 +90,13 @@ const EditCourseScreen = (props) => {
     }
 
     const handleResponseGetUsersByEmailUnsubscribe = async (response) => {
-        console.log("[Edit Course screen] get user by emaill: ", response.content())
         if (!response.hasError()) {
-            console.log("content lenght: ", response.content().length);
             if(response.content().length === 1) {
-                console.log("ENTRO AL IF: ");
                 let tokenLS = await app.getToken();
-                console.log("USER ID: ", response.content()[0].id);
                 await app.apiClient().unsubscribeCourse({token: tokenLS}, item.id, response.content()[0].id, handleResponseSubscribeToCourse)
             } else {
-                console.log("ENTRO AL ELSE: ");
                 setModalErrorText("Unable to find a user with given email");
                 setModalErrorVisible(true);
-                /* Alert.alert(
-                    "Error:",
-                    "Unable to find a user with given email",
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                ) */
             }
         } else {
             console.log("[Edit Course screen] error", response.content().message);
@@ -175,7 +132,6 @@ const EditCourseScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Edit Course screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -193,8 +149,6 @@ const EditCourseScreen = (props) => {
     }
   
     useEffect(() => {
-        //setCollaboratorsData([]);
-        console.log("[Edit Course screen] entro a useEffect");
         onRefresh();
     }, []);
 
@@ -310,7 +264,6 @@ const EditCourseScreen = (props) => {
                                         size={25}
                                         color={'black'}
                                     />
-                                    {/* <Text style={styles.buttonText}>Add a collaborator</Text> */}
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => {handleSubmitRemoveCollaborator()}}
@@ -321,7 +274,6 @@ const EditCourseScreen = (props) => {
                                         size={25}
                                         color={'black'}
                                     />
-                                    {/* <Text style={styles.buttonText}>Remove a collaborator</Text> */}
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => {props.navigation.navigate('Edit Modules', {
@@ -334,7 +286,6 @@ const EditCourseScreen = (props) => {
                                         size={25}
                                         color={'black'}
                                     />
-                                    {/* <Text style={styles.buttonText}>Edit Modules</Text> */}
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     onPress={() => {props.navigation.navigate('Course Metrics', {
@@ -360,7 +311,6 @@ const EditCourseScreen = (props) => {
                                 <TextInput 
                                 placeholder="Search collaborator by email"
                                 onChangeText={text => {setEmail(text)}}
-                                //value={}
                                 style={styles.searchText}
                                 />
                             </View>              
@@ -383,7 +333,6 @@ const EditCourseScreen = (props) => {
                                 <TextInput 
                                 placeholder="Search collaborator by email"
                                 onChangeText={text => {setEmail(text)}}
-                                //value={}
                                 style={styles.searchText}
                                 />
                             </View>              
@@ -543,9 +492,7 @@ const styles = new StyleSheet.create({
     fadedButton: {
         marginTop: 10,
         width: '100%',
-        //padding: 15,
         borderRadius: 10,
-        //alignItems: 'center',
     },
     collaboratorTitle:{
         fontSize: 16,
@@ -561,8 +508,6 @@ const styles = new StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        //flexDirection: 'column',
-        //marginTop: 22
     },
     modalView: {
         margin: 20,

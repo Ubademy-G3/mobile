@@ -14,7 +14,6 @@ const CourseMetricsScreen = (props) => {
     const [metrics, setMetrics] = useState({});
 
     const handleApiResponseGetMetrics = (response) => {
-        console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             setMetrics(response.content().metrics.metrics);
         } else {
@@ -23,7 +22,6 @@ const CourseMetricsScreen = (props) => {
     }
     
     const onRefresh = async () => {
-        console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         await app.apiClient().getCourseMetrics({token: tokenLS}, param_id, handleApiResponseGetMetrics);
@@ -31,9 +29,6 @@ const CourseMetricsScreen = (props) => {
     };
 
     useEffect(() => {
-        console.log("[Anothers Profile screen] entro a useEffect"); 
-        console.log("[Anothers Profile screen] param id:", param_id);
-        console.log("[Anothers Profile screen] params: ", props.route.params)
         onRefresh();
     }, [props]);
 
@@ -134,7 +129,6 @@ const styles = StyleSheet.create({
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
-        // paddingVertical: 10,
         paddingBottom: 10,
         marginTop: 5,
     },
@@ -150,7 +144,6 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         fontSize: 24,
         marginRight: 5,
-        //color: '#87ceeb',
     },
 })
 

@@ -105,10 +105,6 @@ const TabNavigator = () => {
             ),
           }}
         />
-        {/*<Tab.Screen
-          name='Menu'
-          component={DrawerNavigator}
-        />*/}
         <Tab.Screen
           name="Messages"
           component={ChatScreen}

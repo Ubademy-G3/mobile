@@ -10,9 +10,6 @@ const chatsRef = db.collection('users');
 
 const MessagesScreen = (props) => {
     const param_other_user_id = props.route.params ? props.route.params.id : 'defaultID';
-    /* const param_other_user_first_name = props.route.params ? props.route.params.firstName : 'defaultID';
-    const param_other_user_last_name = props.route.params ? props.route.params.lastName : 'defaultID'; */
-    console.log(props.route.params)
     const [messages, setMessages] = useState([]);
     const [id, setId] = useState(null);
     const [name, setName] = useState({
@@ -24,7 +21,7 @@ const MessagesScreen = (props) => {
         if (!response.hasError()) {
             setName({firstName: response.content().firstName, lastName: response.content().lastName})
         } else {
-            console.log("[ListStudent Screen] error", response.content().message);
+            console.log("[Messages Screen] error", response.content().message);
         }
     }
 
@@ -33,8 +30,6 @@ const MessagesScreen = (props) => {
         setId(myId);
         let tokenLS = await app.getToken();
         await app.apiClient().getProfile({ id: myId, token: tokenLS }, myId, handleApiResponseProfile);
-        console.log("MY ID:", myId);
-        //console.log("OTHERS ID:", param_other_user_id, param_other_user_first_name);
         const messageRef = chatsRef.doc(myId)
             .collection('messages')
             .orderBy('createdAt', "desc")
@@ -84,7 +79,6 @@ const MessagesScreen = (props) => {
          .add({ ...mymsg, createdAt: firebase.default.firestore.FieldValue.serverTimestamp() });
 
         let expoPushToken = await chatsRef.doc(param_other_user_id).get();
-        console.log("expoPushToken:", expoPushToken.data().expoPushToken);
         sendPushNotification(expoPushToken.data().expoPushToken, msg.text);
     }
 

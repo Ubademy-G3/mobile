@@ -23,7 +23,6 @@ const ListCollaboratorsScreen = (props) => {
   const [examsGraded, setExamsGraded] = useState([])
 
   const handleGetProfileFromList = (response) => {
-    console.log("[List Collaborators Screen] content: ", response.content())
     if (!response.hasError()) {
       setCollaboratorsData(response.content());
     } else {
@@ -32,7 +31,6 @@ const ListCollaboratorsScreen = (props) => {
   }
 
   const handleResponseGetExams = (response) => {
-    console.log("[List Collaborators Screen] content: ", response.content())
     if (!response.hasError()) {
       setExamsGraded(response.content().exam_solutions);
     } else {
@@ -41,7 +39,6 @@ const ListCollaboratorsScreen = (props) => {
   }
 
   const handleGetAllUsersInCourse = async (response) => {
-      console.log("[List Collaborators Screen] get all users content: ", response.content())
       if (!response.hasError()) {
           const colaboratorsIds = [];
           for(let user of response.content().users){
@@ -55,17 +52,14 @@ const ListCollaboratorsScreen = (props) => {
   }
 
   const onRefresh = async () => {
-    console.log("[Student screen] entro a onRefresh"); 
     setLoading(true);
     let tokenLS = await app.getToken();
-    console.log("[Student screen] token:", tokenLS); 
     await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'collaborator' }, handleGetAllUsersInCourse);
     await app.apiClient().getSolvedExamsByCourse({token: tokenLS}, param_id, { graded: true }, handleResponseGetExams);
     setLoading(false);
   };
 
   useEffect(() => {
-      console.log("[Student screen] entro a useEffect");
       setCollaboratorsData([]);
       onRefresh();
   }, []);
@@ -230,7 +224,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   profilesDescriptionWrapper : {
-    //paddingTop: 5,
     marginBottom: 10,
     marginRight: 5,
     marginLeft: 5,

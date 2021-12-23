@@ -1,13 +1,9 @@
-import React, {useState, useRef} from 'react';
-
-// import all the components we are going to use
+import React, {useRef} from 'react';
 import {
   SafeAreaView,
   Text,
   View,
   StyleSheet,
-  TextInput,
-  TouchableOpacity,
   Share,
 } from 'react-native';
 
@@ -22,9 +18,8 @@ const CertificateScreen = (props) => {
     myQRCode.toDataURL((dataURL) => {
       let shareImageBase64 = {
         title: `${courseName} Certificate`,
-        //message: `My ${courseName} Certificate`,
         message: `data:image/png;base64,${dataURL}`,
-        subject: 'Share Link', //  for email
+        subject: 'Share Link',
       };
       Share.share(shareImageBase64).catch((error) => console.log(error));
     });
@@ -42,14 +37,6 @@ const CertificateScreen = (props) => {
           size={250}
           color="black"
         />
-        {/*<TouchableOpacity
-          style={styles.buttonStyle}
-          onPress={shareQRCode}>
-          <Text style={styles.buttonTextStyle}>
-            Share QR Code
-          </Text>
-        </TouchableOpacity>
-        */}
       </View>
     </SafeAreaView>
   );

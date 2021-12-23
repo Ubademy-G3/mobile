@@ -5,7 +5,6 @@ const MyExamsScreen = (props) => {
     const courseId = props.route.params.course_id;
     const rol = props.route.params.view_as;
     const exams = props.route.params.exams;
-    console.log(exams)
 
     return (
         <>
@@ -106,7 +105,6 @@ const styles = new StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },

@@ -1,5 +1,5 @@
-import React, { Component, useEffect, useState, useCallback, useRef } from 'react';
-import { AppState, Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, HelperText, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { Image, KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, ActivityIndicator, Modal, Pressable } from 'react-native';
 import { app } from '../app/app';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Google from 'expo-google-app-auth';
@@ -24,11 +24,6 @@ const LoginScreen = (props) => {
         email: ""
     })
 
-    /* const [errorData, setError] = useState({
-        messageError: '',
-        showError: false,
-    }); */
-
     const [loading, setLoading] = useState(false);
     const [modalErrorVisible, setModalErrorVisible] = useState(false);
     const [modalErrorText, setModalErrorText] = useState("");
@@ -41,9 +36,6 @@ const LoginScreen = (props) => {
     const mounted = useRef(false);
 
     const handleApiResponseLogin = async (response) => {
-        console.log("[Login screen] entro a handle api response login")
-        console.log("[Login screen] has errors: ", response.hasError())
-        console.log("[Login screen] error message: ", response.content().message)
         if (response.hasError()) {
             if (response.content().message === "User not found" &&
             data.loginType === "google"){
@@ -64,44 +56,19 @@ const LoginScreen = (props) => {
                 } else {
                     setModalErrorText("Unexpected error. Please try again in a few seconds.");
                 }
-                console.log("[Login screen] error message: ", response.content().message);
                 setModalErrorVisible(true);
-                /* Alert.alert(
-                    "Error:",
-                    response.content().message,
-                    [
-                    { text: "OK", onPress: () => {} }
-                    ]
-                ); */
             }
         } else {
-            console.log("[Login screen] response: ", response.content());
-            console.log("[Login screen] id: ", response.content().id);
-            console.log("[Login screen] token: ", response.content().token);
             if (response.content().subscriptionState === "about_to_expire") {
                 setModalAttentionText("Your subscription is about to expire, remember to renew it.");
                 setModalAttentionVisible(true);
                 setToken(response.content().token);
                 setId(response.content().id);
-                /* Alert.alert(
-                    "Reminder:",
-                    "Your subscription is going to expire in 5 days, remember to renew it.",
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                ); */
             } else if (response.content().subscriptionState === "expired") {
                 setModalAttentionText("Your subscription expired, your subscription is now free.");
                 setModalAttentionVisible(true);
                 setToken(response.content().token);
                 setId(response.content().id);
-                /* Alert.alert(
-                    "Attention:",
-                    "Your subscription expired, your subscription is now free.",
-                    [
-                      { text: "OK", onPress: () => {} }
-                    ]
-                ); */
             } else {
                 await app.loginUser(response.content().token, response.content().id);
                 props.navigation.replace('TabNavigator', {
@@ -124,7 +91,6 @@ const LoginScreen = (props) => {
         });
       
         if (response.type === 'success') {
-            console.log("GOOGLE RESPONSE: ", response);
           return response;
         } else {
           return { cancelled: true };
@@ -135,40 +101,17 @@ const LoginScreen = (props) => {
     }
 
     const handleApiResponseForgotPassword = (response) => {
-        console.log("[Login screen] entro a handle api response forgot password");
         if (response.hasError()) {
-            /* setError({
-                messageError: response.content().message,
-                showError: true,
-            }); */
-            console.log("[Login screen] error message: ", response.content().message);
             setModalErrorText(response.content().message);
             setModalErrorVisible(true);
-            /* Alert.alert(
-                "Error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              ); */
         } else {
-            console.log("[Login screen] response: ", response.content())
             setModalAttentionText("An email has been sent to your account.");
             setModalAttentionVisible(true);
-            /* Alert.alert(
-                "Attention:",
-                "An email has been sent to your account.",
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              ); */
         }
     }
 
     const handleSubmitSignUp = () => {
-        console.log("[Login screen] entro a submit sign up")
         props.navigation.navigate('Signup', {email: data.email, password: data.password, google: false})
-        console.log("[Login screen] termino submit sign up")
     }
 
     const handleSubmitForgotPassword = () => {
@@ -180,9 +123,7 @@ const LoginScreen = (props) => {
     }
 
     const handleSubmitRestorePassword = async () => {
-        console.log("[Login screen] entro a submit forgot password")
         await app.apiClient().resetPassword({email: data.email}, handleApiResponseForgotPassword);
-        console.log("[Login screen] termino forgot password")
     }
 
     const handleOkModalAttention = async () => {
@@ -202,8 +143,6 @@ const LoginScreen = (props) => {
     const callback = useCallback(async () => {
         if (data.loginType === "google" && mounted.current) {
             const response = await handleGoogleLogin();
-            console.log("response google:", response);
-            console.log("response google id:", response.user.id);
             setGoogleData({...googleData, 
                 email: response.user.email, 
                 password: response.user.id,
@@ -216,12 +155,10 @@ const LoginScreen = (props) => {
 
     const callbackLogin = useCallback(async () => {
         if (login === true && mounted.current) {
-            console.log("[Login screen] entro a submit login");
             setLoading(true);
             await app.apiClient().login(data, handleApiResponseLogin);
             if (mounted.current){
                 setLoading(false);
-                console.log("[Login screen] termino submit login");
                 setLogin(false);
             }
         }
@@ -422,13 +359,11 @@ const LoginScreen = (props) => {
 
 const styles = StyleSheet.create({
     container: {
-        //flex: 1,
         marginBottom: 100,
         justifyContent: 'center',
         alignItems: 'center',
     },
     containerText: {
-        //flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingTop: 30
@@ -475,7 +410,6 @@ const styles = StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },
@@ -494,7 +428,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //textDecorationLine: 'underline',
     },
     centeredView: {
         flex: 1,

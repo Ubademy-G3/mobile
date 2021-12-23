@@ -41,7 +41,6 @@ const CourseScreen = (props) => {
     const [status, setStatus] = React.useState({});
 
     const handleGetMedia = async (response) => {
-        console.log("[Course screen] get media: ", response.content())
         if (!response.hasError()) {
             setMedia(response.content().course_media);
         } else {
@@ -50,7 +49,6 @@ const CourseScreen = (props) => {
     }
 
     const handleGetAllModules = async (response) => {
-        console.log("[Course screen] set module: ", response.content())
         if (!response.hasError()) {           
             setModules(response.content().modules);
             setUpdatingModules(true);          
@@ -111,7 +109,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetUserFromCourse = (response) => {
-        console.log("USER FROM COURSE:", response.content())
         if (!response.hasError()) {
             setRol(response.content().user_type);
             if (response.content().approval_state) {
@@ -142,7 +139,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetProfile = (response) => {
-        console.log("[Course screen] content: ", response.content());
         if (!response.hasError()) {
             setFavoriteCoursesList(response.content().favoriteCourses);
             setSubscriptionType(response.content().subscription);
@@ -193,7 +189,6 @@ const CourseScreen = (props) => {
     }
 
     const handleResponseGetCourseRating = (response) => {
-        console.log("[Course screen] get rating: ", response.content())
         if (!response.hasError()) {
             setRating(response.content());
         } else {
@@ -202,17 +197,14 @@ const CourseScreen = (props) => {
     }
     
     const handleSubmitSubscribe = async () => {
-        console.log("[Course screen] entro submit button"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().subscribeCourse({token: tokenLS, user_id: idLS, user_type: "student"}, item.id, handleResponseSubscribeToCourse);
         setLoading(false);
     }
 
     const handleSubmitUnsubscribe = async () => {
-        console.log("[Course screen] unsubcribe");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -221,7 +213,6 @@ const CourseScreen = (props) => {
     }
 
     const handleSubmitUnfavorite = async() => {
-        console.log("[Course screen] unfavorite");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -232,13 +223,11 @@ const CourseScreen = (props) => {
     }
 
     const handleSubmitFavorited = async () => {
-        console.log("[Course screen] unfavorite");
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         const newList = [...favoriteCoursesList];
         newList.push(item.id);
-        console.log("[Course screen] new list:", newList);
         await app.apiClient().editProfile({token: tokenLS, favoriteCourses: newList }, idLS, handleResponseFavorited);
         setFavoriteCoursesList(newList);
         setLoading(false);
@@ -253,12 +242,10 @@ const CourseScreen = (props) => {
         setLoading(false);
     }
 
-    const onRefresh = async () => {
-        console.log("[Course screen] entro a onRefresh"); 
+    const onRefresh = async () => { 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Course screen] token:", tokenLS); 
         await app.apiClient().getCourseRating({token: tokenLS}, item.id, handleResponseGetCourseRating);
         await app.apiClient().getAllUsersInCourse({token: tokenLS}, item.id, {}, handleResponseGetAllUsersInCourses);
         await app.apiClient().getProfile({token: tokenLS}, idLS, handleResponseGetProfile);
@@ -271,7 +258,6 @@ const CourseScreen = (props) => {
     };
 
     useEffect(() => {
-        console.log("[Course screen] entro a useEffect");
         setInstructors([]);
         onRefresh();
     }, []);
@@ -761,7 +747,6 @@ const styles = new StyleSheet.create({
         borderRadius: 10,
     },
     studentListWrapper: {
-        //marginTop: 10,
         paddingHorizontal: 15,
     },
     button: {
@@ -781,7 +766,6 @@ const styles = new StyleSheet.create({
     },
     buttonOutlined: {
         backgroundColor:'white',
-        //marginTop: 5,
         borderColor: '#87ceeb',
         borderWidth:2,
     },
@@ -816,7 +800,6 @@ const styles = new StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        //marginTop: 22
     },
     modalView: {
         margin: 20,

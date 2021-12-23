@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Text, View, Button, Image, TouchableOpacity, StyleSheet, FlatList, ScrollView, TextInput } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { Text, View, Image, TouchableOpacity, StyleSheet, ScrollView, TextInput } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { app } from '../app/app';
-import QuestionComponent from '../components/QuestionComponent';
 import SelectDropdown from 'react-native-select-dropdown'
-import { GetAllSolutionsByExamIdEndpoint } from '../communication/endpoints/GetAllSolutionsByExamIdEndpoint';
 import { ActivityIndicator } from 'react-native-paper';
 
 const ExamScreen = (props) => {
@@ -21,7 +18,6 @@ const ExamScreen = (props) => {
     const [solution, setSolution] = useState({});
     
     const handleResponseCreateNewSolution = async (response) => {
-        console.log("[Edit Exam screen] create new solution: ", response.content())
         if (!response.hasError()) {
             setSolutionId(response.content().id);
         } else {
@@ -33,7 +29,6 @@ const ExamScreen = (props) => {
     }
 
     const handleResponseCreateNewAnswer =  (response) => {
-        console.log("[Edit Exam screen] create new answer: ", response.content())
         if (!response.hasError()) {
             console.log("[Edit Exam screen] create new answer sucessfull");
         } else {
@@ -42,7 +37,6 @@ const ExamScreen = (props) => {
     }
 
     const handleResponseGetCourse = async (response) => {
-        console.log("[Edit Exam screen] create new answer: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             let idLS = await app.getId();
@@ -53,24 +47,7 @@ const ExamScreen = (props) => {
     }
 
     const handleResponseGetAllQuestions = async (response) => {
-        console.log("[Edit Exam screen] get questions: ", response.content())
         if (!response.hasError()) {
-            /*for (let question of response.content().question_templates) {
-                setQuestions(questions => [...questions, {
-                saved_question: true,
-                correct: question.correct,
-                exam_id: question.exam_id,
-                id: question.id,
-                options: question.options,
-                question: question.question,
-                question_type: question.question_type,
-                value: question.value}]);
-                console.log("course_id:", param_course_id);
-                setAnswer(answer => [...answer, {
-                    answer: "",
-                    question_template_id: question.id,
-                }]);
-            }*/
             setQuestions(response.content().question_templates);
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
@@ -78,7 +55,6 @@ const ExamScreen = (props) => {
     }
 
     const handleResponseGetAllSolutions = async (response) => {
-        console.log("[Exam screen] get solutions: ", response.content())
         if (!response.hasError()) {
             for (let solution of response.content().exam_solutions) {
                 setSolution({
@@ -98,8 +74,6 @@ const ExamScreen = (props) => {
     const handleSubmitSave = async () => {
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("ANSWERS")
-        console.log(answer)
         for (let asw of answer) {
             await app.apiClient().createNewExamAnswer({token: tokenLS, answer: asw.answer, question_template_id: asw.question_template_id }, param_exam_id, solutionId, handleResponseCreateNewAnswer);
         }
@@ -111,7 +85,6 @@ const ExamScreen = (props) => {
         const _answer = answer;
         _answer[key] = { answer: asw, question_template_id: question_id };
         setAnswer(_answer);
-        console.log("Set answer", _answer);
     }
 
     const getSolution = async () => {
@@ -122,10 +95,8 @@ const ExamScreen = (props) => {
     }
 
     const onRefresh = async () => {
-        console.log("[Exam screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Exam screen] token:", tokenLS);
         await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetCourse);
         await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllQuestions);
         setLoading(false);
@@ -133,9 +104,7 @@ const ExamScreen = (props) => {
 
     useEffect(() => {
         setQuestions([]);
-        console.log("[Exam screen] entro a useEffect");
         onRefresh();
-        console.log("[Exam screen] questions", questions);
     }, []);
 
     useEffect(() => {
@@ -148,8 +117,6 @@ const ExamScreen = (props) => {
         <View style={styles.container}>
             <ScrollView>
                 <>
-                    {console.log("BLOCKED")}
-                    {console.log(blocked)}
                     {loading && (
                         <View style={{flex:1, justifyContent: 'center'}}>
                             <ActivityIndicator style={{ margin: '50%' }} color="lightblue" animating={loading} size="large" />
@@ -207,7 +174,6 @@ const ExamScreen = (props) => {
                                                 )}
                                                 {item.question_type === "multiple_choice" && (
                                                     <>
-                                                        {/* Chequear que funcione esto -> parece funcionar */}
                                                         <SelectDropdown
                                                             data={item.options}
                                                             onSelect={(selectedItem, index) => handleSubmitSetAnswer(idx, `${index}`, item.id)}
@@ -248,9 +214,6 @@ const ExamScreen = (props) => {
 const styles = new StyleSheet.create({
     container: {
         flex: 1,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
     },
     containerQuestions: {
         flex: 1,
@@ -269,7 +232,6 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //textDecorationLine: 'underline',
     },
     examsText: {
         marginTop: 15,
@@ -299,7 +261,6 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     buttonContainer: {
@@ -339,7 +300,6 @@ const styles = new StyleSheet.create({
     },
     saveWrapper: {
         marginBottom: 15,
-        //marginLeft: 35,
         marginHorizontal: 10,
         justifyContent: 'center',
         alignItems: 'center',

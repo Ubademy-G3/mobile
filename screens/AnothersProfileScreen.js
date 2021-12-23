@@ -10,7 +10,7 @@ MaterialCommunityIcons.loadFont();
 Feather.loadFont();
 
 const AnothersProfileScreen = (props) => {
-    const param_id = props.route.params ? props.route.params.id : 'defaultId';//'45f517a2-a988-462d-9397-d9cb3f5ce0e0';
+    const param_id = props.route.params ? props.route.params.id : 'defaultId';
     
     const [loading, setLoading] = useState(false);
     const [categories, setCategories] = useState([]);
@@ -27,7 +27,6 @@ const AnothersProfileScreen = (props) => {
     const [myId, setMyId] = useState(0);
 
     const handleGetCategories = (response) => {
-        console.log("[Anothers Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
             setCategories(userCategories);
@@ -37,7 +36,6 @@ const AnothersProfileScreen = (props) => {
     }
 
     const handleApiResponseProfile = async (response) => {
-        console.log("[Anothers Profile screen] content: ", response.content())
         if (!response.hasError()) {
             setData({
                 id: response.content().id,
@@ -63,26 +61,20 @@ const AnothersProfileScreen = (props) => {
     
     useEffect(() => {
         if (userData.interests.length > 0) {
-            console.log("[Anothers Profile screen] entro a updating categories"); 
             onRefreshCategories();            
         }
     }, [userData]);
     
     const onRefresh = async () => {
-        console.log("[Anothers Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
         setMyId(idLS);
-        console.log("[Anothers Profile screen] token:",tokenLS);
         await app.apiClient().getProfile({id: param_id, token: tokenLS}, param_id, handleApiResponseProfile);
         setLoading(false);
     };
 
     useEffect(() => {
-        console.log("[Anothers Profile screen] entro a useEffect"); 
-        console.log("[Anothers Profile screen] param id:", param_id);
-        console.log("[Anothers Profile screen] params: ", props.route.params)
         onRefresh();
     }, [param_id]);
 
@@ -171,10 +163,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingVertical: 25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     titlesImage: {
         width: 100,
@@ -195,7 +183,6 @@ const styles = StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
     },
     description: {
@@ -208,9 +195,6 @@ const styles = StyleSheet.create({
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
-        // paddingVertical: 10,
-        //paddingBottom: 10,
-        //marginTop: 5,
     },
     location: {
         fontSize: 16,
@@ -222,7 +206,6 @@ const styles = StyleSheet.create({
     },
     interestsWrapper:{
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
         marginTop: 5,
     },
@@ -232,7 +215,6 @@ const styles = StyleSheet.create({
         marginRight: 5,
     },
     categoriesWrapper: {
-        //marginTop: 10,
         paddingTop: 20,
         paddingLeft: 20,
         paddingVertical: 5,
@@ -240,7 +222,6 @@ const styles = StyleSheet.create({
     },
     categoriesText: {
         fontSize: 20,
-        //paddingHorizontal: 20,
     },
     categoriesListWrapper: {
         paddingTop: 15,
@@ -286,7 +267,6 @@ const styles = StyleSheet.create({
         width: '50%',
         paddingVertical: 10,
         paddingHorizontal: 10,
-        //flexDirection: 'row',
     },
     buttonWrapper: {
         alignItems: 'center',

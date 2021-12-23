@@ -41,10 +41,8 @@ const HomeScreen = (props) => {
   }
 
   const onRefresh = async () => {
-    console.log("[Home screen] entro a onRefresh");
     setLoading(true);
     let tokenLS = await app.getToken();
-    console.log("[Home screen] token:", tokenLS);
     app.apiClient().getAllCourses({ token: tokenLS }, handleGetAllCourses);
     setLoading(false);
   };
@@ -142,12 +140,10 @@ const HomeScreen = (props) => {
         <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         showsVerticalScrollIndicator={false}>
-          {/* Filter */}
           {modalVisible && (
             <CoursesFilterComponent setVisible={setModalVisible} visible={modalVisible} updateCourses={filterCourses} />
           )}
           
-          {/* Logo */}
           <SafeAreaView>
               <View style={styles.headerWrapper}>
                   <Image
@@ -169,7 +165,6 @@ const HomeScreen = (props) => {
               </View>
           </SafeAreaView>
 
-          {/* Search */}
           <View style={styles.searchWrapper}>
               <Feather name="search" size={16}/>
               <View style={styles.search}>
@@ -202,7 +197,6 @@ const HomeScreen = (props) => {
                   <Pagination
                     dotsLength={getBestRatedCourses().length}
                     activeDotIndex={indexCarousel}
-                    //carouselRef={isCarousel}
                     dotStyle={{
                       width: 10,
                       height: 10,
@@ -233,11 +227,6 @@ const HomeScreen = (props) => {
                       />
                     </TouchableOpacity>
                 ))}
-                {/* <FlatList 
-                  data={courses}
-                  renderItem={renderVerticalCourseItem}
-                  keyExtractor={(item) => item.id}
-                /> */}
               </View>
               </>
             )}
@@ -339,9 +328,6 @@ const styles = StyleSheet.create({
     elevation: 2,
     width: '73%'
   },
-
-
-
   categoriesWrapper: {
     marginTop: 20,
   },

@@ -14,7 +14,6 @@ const ChatScreen = (props) => {
     const[loading, setLoading] = useState(false);
 
     const handleGetProfileFromList = (response) => {
-        console.log("[Chat screen] Get Profiles From List", response.content());
         if (!response.hasError()) {
             setUsers(response.content());
         } else {
@@ -37,7 +36,6 @@ const ChatScreen = (props) => {
                 }
             });
             getProfiles(usersIds);
-            console.log("USER IDS list: ", usersIds);
         });
         setLoading(false);
     }
@@ -50,7 +48,6 @@ const ChatScreen = (props) => {
     useFocusEffect(
         useCallback(() => {
             getUsers();
-            console.log("USERS LENGHT", users, users.length);
         }, [])
     );
 

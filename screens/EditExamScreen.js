@@ -36,7 +36,6 @@ const EditExamScreen = (props) => {
     });
 
     const handleApiResponseUpdateExam = (response) => {
-        console.log("[Edit Exam screen] update exam: ", response.content())
         if (!response.hasError()) {
             setModalSuccessTitle("Saving Success:");
             setModalSuccessText("Exam saved correctly");
@@ -45,12 +44,10 @@ const EditExamScreen = (props) => {
             setModalErrorTitle("Saving Error:");
             setModalErrorText(response.content().message);
             setModalErrorVisible(true);
-            console.log("[Edit Exam screen] error", response.content().message);
         }        
     }
 
     const handleResponseGetExam = (response) => {
-        console.log("[Edit Exam screen] get exam: ", response.content())
         if (!response.hasError()) {
             setSelectedExam({
                 id: response.content().id,
@@ -71,7 +68,6 @@ const EditExamScreen = (props) => {
     }
 
     const handleResponseGetAllQuestions = (response) => {
-        console.log("[Edit Exam screen] get questions: ", response.content())
         if (!response.hasError()) {
             for(let question of response.content().question_templates) {
                 setQuestions(instructors => [...instructors, {
@@ -90,23 +86,22 @@ const EditExamScreen = (props) => {
     }
 
     const handleApiResponseUpdateQuestion = (response) => {
-        console.log("[Edit Exam screen] update question: ", response.content())
         if (!response.hasError()) {
+            console.log("[Edit Exam screen] ok");
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }        
     }
 
     const handleApiResponseDeleteQuestion = (response) => {
-        console.log("[Edit Exam screen] delete question: ", response.content())
         if (!response.hasError()) {
+            console.log("[Edit Exam screen] ok");
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }        
     }
 
     const handleApiResponseCreateQuestion = (response) => {
-        console.log("[Edit Exam screen] content: ", response.content())
         if (!response.hasError()) {
             setQuestions(questions => [...questions, {
                 id: response.content().id,
@@ -119,17 +114,14 @@ const EditExamScreen = (props) => {
                 question_type: response.content().question_type,
                 value: response.content().value
             }]);
-            console.log("[Edit Exam screen] response sucessfull");
         } else {
             console.log("[Edit Exam screen] error", response.content().message);
         }
     }
 
     const selectExam = async () => {
-        console.log("[Edit Exam screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
-        console.log("[Edit Exam screen] token:", tokenLS); 
         await app.apiClient().getExamsById({token: tokenLS}, param_exam_id, handleResponseGetExam);
         await app.apiClient().getAllQuestionsByExamId({token: tokenLS}, param_exam_id, handleResponseGetAllQuestions);
         setLoading(false);
@@ -196,10 +188,6 @@ const EditExamScreen = (props) => {
         _questions[key].question_type = "multiple_choice";
         setQuestions(_questions);
     }
-
-    /* const handleSaveMC = () => {
-        setFinishedMC(true);
-    }  */
 
     const handleMultipleChoiceOption = (key) => {
         const _questions = [...questions];
@@ -280,11 +268,6 @@ const EditExamScreen = (props) => {
 
     const handleSubmitSave = async() => {
         let tokenLS = await app.getToken();
-        /* var total_score = 0
-        for (let question of questions) {
-            console.log("total scrore", total_score);
-            total_score = total_score + +question.value;
-        } */
         if (selectedExam.state === "draft"){
             await app.apiClient().updateExam(
                 {
@@ -306,19 +289,11 @@ const EditExamScreen = (props) => {
                 }, 
             selectedExam.id, handleApiResponseUpdateExam);
         }
-        //props.navigation.goBack();
     }
 
     useEffect(() => {
         selectExam();
     }, []);
-
-    const setCorrect = (key, idx) => {
-        const _inputs = [...questions];
-        _inputs[key].correct = idx;
-        console.log(_inputs);
-        setQuestions(_inputs);
-    }
 
     return (
         <View style={{flex: 1}}>
@@ -478,7 +453,6 @@ const EditExamScreen = (props) => {
                                                     onPress = {()=> deleteHandler(key)}
                                                     style={styles.buttonInputIcon}
                                                 >
-                                                {/*<Text style={styles.buttonDelete}>Delete</Text>*/}
                                                     <MaterialCommunityIcons
                                                         name="trash-can-outline"
                                                         size={20}
@@ -502,7 +476,6 @@ const EditExamScreen = (props) => {
                                                     backgroundColor: item.question_type === "multiple_choice" ? "green" : "white"
                                                 }]}
                                             >
-                                                {/*<Text style={styles.buttonInputText}>Multiple Choice</Text>*/}
                                                 <MaterialCommunityIcons
                                                     name="format-list-numbered"
                                                     size={20}
@@ -515,7 +488,6 @@ const EditExamScreen = (props) => {
                                                     backgroundColor: item.question_type === "written" ? "green" : "white"
                                                 }]}
                                             >
-                                            {/*<Text style={styles.buttonInputText}>Develop</Text>*/}
                                                 <MaterialCommunityIcons
                                                     name="text"
                                                     size={20}
@@ -549,37 +521,8 @@ const EditExamScreen = (props) => {
                                                         />
                                                     </TouchableOpacity>
                                                 </View>
-                                                {/* <View style={styles.buttonSaveMC}>
-                                                    <TouchableOpacity
-                                                        onPress={() => {handleSaveMC()}}
-                                                        style={[styles.button,
-                                                            {
-                                                                backgroundColor:`#87ceeb`, 
-                                                                width:'70%',
-                                                            }]}
-                                                    >
-                                                        <Text style={styles.buttonText}>Save Multiple Choice</Text>
-                                                    </TouchableOpacity>
-                                                </View> */}
                                             </>
                                         )}
-                                        {/* {(item.question_type === "multiple_choice" && (finishedMC)) && (
-                                            <>
-                                                <Text style={styles.choiceText}>Options filled, choose the right answer:</Text>
-                                                <SelectDropdown
-                                                    data={item.options}
-                                                    onSelect={(selectedItem, index) => {setCorrect(key, index)}}
-                                                    defaultButtonText={"Select the correct answer"}
-                                                    buttonStyle={styles.buttonDropdown}
-                                                    buttonTextStyle={styles.textDropdown}
-                                                    renderDropdownIcon={() => {
-                                                        return (
-                                                        <Feather name="chevron-down" color={"#444"} size={18} />
-                                                        );
-                                                    }}
-                                                />
-                                            </>
-                                        )} */}
                                     </>
                                 )}
                                 </>
@@ -629,9 +572,6 @@ const styles = new StyleSheet.create({
         flex: 1,
         paddingTop: 10,
         paddingLeft: 10,
-        //width:'90%',
-        //paddingTop: 25,
-        //paddingLeft: 15,
     },
     questionView: {
         flexDirection: 'row',
@@ -650,7 +590,6 @@ const styles = new StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //textDecorationLine: 'underline',
     },
     examTitle: {
         color:'#87ceeb',
@@ -665,14 +604,12 @@ const styles = new StyleSheet.create({
         marginLeft: 5,
     },
     examDescritpionWrapper: {
-        //marginTop:5,
         justifyContent: 'center',
     },
     examDescription: {
         color:'black',
         fontWeight: '400',
         fontSize: 16,
-        //marginTop:5,
     },
     examQuestion: {
         color:'black',
@@ -715,18 +652,13 @@ const styles = new StyleSheet.create({
         elevation: 2,  
     },
     courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         marginTop: 8,
         alignItems: 'center',
-        //marginRight: 80,
     },
     courseDescriptionWrapper: {
         paddingLeft: 10,
-        //paddingRight: 40,
         flexDirection: 'column',
         alignItems: 'flex-end',
-        //marginRight: 80,
     },
     courseTitleDescription: {
         paddingBottom: 3,
@@ -750,7 +682,6 @@ const styles = new StyleSheet.create({
     button: {
         alignItems: 'center',
         justifyContent: 'center',
-        //backgroundColor: `#87ceeb`,
         width: '45%',
         padding: 15,
         borderRadius: 30,
@@ -767,8 +698,6 @@ const styles = new StyleSheet.create({
         marginTop: 15,
     },
     inputsContainer: {
-        //flex: 1, 
-        //marginBottom: 20,
     },
     inputContainer: {
         flexDirection: 'row',
@@ -808,7 +737,6 @@ const styles = new StyleSheet.create({
         alignItems: 'flex-start',
         justifyContent: 'flex-start',
         flexDirection: 'row',
-        //marginHorizontal: 10,
     },
     buttonInputIcon: {
         alignItems: 'center',
@@ -845,8 +773,6 @@ const styles = new StyleSheet.create({
     },
     buttonsRightWrapper: {
         flexDirection: 'column',
-        //alignItems: 'center',
-        //justifyContent: 'center',
     },
     textAnswer: {
         fontWeight: '700',
@@ -871,7 +797,6 @@ const styles = new StyleSheet.create({
     nameWrapper: {
         alignItems: 'center',
         justifyContent: 'center',
-        //flexDirection: 'column',
         paddingVertical: 15,
     },
     buttonDropdown: {
@@ -890,7 +815,6 @@ const styles = new StyleSheet.create({
     },
     centeredView: {
         flex: 1,
-        //marginTop: 22
     },
     modalView: {
         margin: 20,

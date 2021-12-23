@@ -21,7 +21,6 @@ const ListStudentScreen = (props) => {
   const [filtersVisible, setFiltersVisible] = useState(false);
 
   const handleGetProfileFromList = (response) => {
-    console.log("[List Student Screen] content: ", response.content())
     if (!response.hasError()) {
       setStudentsData(response.content());
     } else {
@@ -30,7 +29,6 @@ const ListStudentScreen = (props) => {
   }
 
   const handleGetAllUsersInCourse = async (response) => {
-      console.log("[List Student Screen] get all users content: ", response.content())
       if (!response.hasError()) {
           const colaboratorsIds = [];
           for(let user of response.content().users){
@@ -44,16 +42,13 @@ const ListStudentScreen = (props) => {
   }
 
   const onRefresh = async () => {
-    console.log("[Student screen] entro a onRefresh"); 
     setLoading(true);
-    let tokenLS = await app.getToken();
-    console.log("[Student screen] token:", tokenLS); 
+    let tokenLS = await app.getToken(); 
     await app.apiClient().getAllUsersInCourse({ token: tokenLS }, param_id, { user_type: 'student' }, handleGetAllUsersInCourse);
     setLoading(false);
   };
 
   useEffect(() => {
-      console.log("[Student screen] entro a useEffect");
       setStudentsData([]);
       onRefresh();
   }, []);
@@ -139,14 +134,6 @@ const ListStudentScreen = (props) => {
           )}
         </>
       )}
-      {/* {studentsData.length === 0 && (
-          <Text style={styles.listText}>This course doesn't have students.</Text>
-      )}
-      {studentsData.map(item => (
-        <ProfilesListComponent 
-        item={item}
-        navigation={props.navigation}/>
-      ))} */}
     </ScrollView>
   );
 }
@@ -199,7 +186,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   profilesDescriptionWrapper : {
-    //paddingTop: 5,
     marginBottom: 10,
     marginRight: 5,
     marginLeft: 5,

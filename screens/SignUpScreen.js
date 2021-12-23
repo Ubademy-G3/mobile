@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Platform, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Platform, ActivityIndicator, Modal, Pressable } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
@@ -16,7 +16,6 @@ MaterialCommunityIcons.loadFont();
 
 const rols = ["student", "instructor"];
 const db = firebase.default.firestore();
-// const subscriptions = ["free", "platinum", "gold"];
 
 const SignupScreen = (props) => {
     const param_email = props.route.params ? props.route.params.email: '';
@@ -38,8 +37,6 @@ const SignupScreen = (props) => {
         subscription: 'free',
         profilePictureUrl: "https://firebasestorage.googleapis.com/v0/b/ubademy-mobile.appspot.com/o/c23449d1-43e3-4cc5-9681-25d563ee5ab9.jpg?alt=media&token=8ec949cd-5ad1-4bbf-a1a5-c3d7c612e440",
         favoriteCourses: [],
-        /* registerType: "not-google",
-        loginType: "not-google", */
 
     });
 
@@ -76,7 +73,6 @@ const SignupScreen = (props) => {
             return;
           }
           token = (await Notifications.getExpoPushTokenAsync()).data;
-          console.log(token);
         } else {
           alert('Must use physical device for Push Notifications');
         }
@@ -92,7 +88,6 @@ const SignupScreen = (props) => {
       }
 
     const handleApiResponseGetCategories = (response) => {
-        console.log("[Create Course screen] response content: ", response.content())
         if (!response.hasError()) {
             setCategories(response.content())
         } else {
@@ -101,23 +96,12 @@ const SignupScreen = (props) => {
     }
 
     const handleApiResponseLogin = async (response) => {
-        console.log("[Signup screen] entro a handle api response:", response.content());
         if (response.hasError()) {
-            console.log("[Signup screen] error");
             setModalErrorText({ title: "Login error:", body: response.content().message});
             setModalErrorVisible(true);
-            /* Alert.alert(
-                "Login error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              ); */
         } else {
             await app.loginUser(response.content().token, response.content().id);
-            console.log("[Signup screen] token: ", response.content().token);
             setData({...SignUpData, id: response.content().id});
-            // agrego user a firestore para el manejo de mensajes
             db.collection('users').doc(response.content().id).set({
                 id: response.content().id,
                 expoPushToken: expoPushToken
@@ -137,10 +121,7 @@ const SignupScreen = (props) => {
     }
 
     const handleApiResponseEditProfile = async (response) => {
-        console.log("[Signup screen] response content: ", response.content())
         if (!response.hasError()) {
-            //let idLS = await app.getId();
-            console.log("[Signup screen] ID!!!: ", SignUpData.id)
             props.navigation.replace('TabNavigator', {
                 screen: 'Drawer',
                 params: { screen: 'Profile',
@@ -153,26 +134,15 @@ const SignupScreen = (props) => {
     }
    
     const handleApiResponseSignUp = (response) => {
-        console.log("[Signup screen] entro a handle api response sign up")
         if (response.hasError()) {
             setError({
                 ...errorData,
                 messageError: response.content().message,
                 showError: true,
             });
-            console.log("[Signup screen] error")
-            console.log("[Signup screen] show error: ", errorData.showError);
             setModalErrorText({ title: "Signup error:", body: response.content().message});
             setModalErrorVisible(true);
-            /* Alert.alert(
-                "Signup error:",
-                response.content().message,
-                [
-                  { text: "OK", onPress: () => {} }
-                ]
-              ); */
         } else {
-            console.log("[Signup screen] done signup")
             setError({
                 ...errorData,
                 showError: false,
@@ -181,24 +151,18 @@ const SignupScreen = (props) => {
     }
 
     const handleSubmitEditProfile = async () =>{
-        console.log("[Signup screen] entro a submit edit profile")
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
-        console.log("[Signup screen] token:", tokenLS);
-        console.log("[Signup screen] id:", idLS);
         await app.apiClient().editProfile({
             id: idLS,
             interests: SignUpData.interests,
             token: tokenLS}, idLS, handleApiResponseEditProfile);
         setLoading(false);
-        console.log("[Signup screen] termino submit signup")
     }
 
     const handleSubmitSignUp = async () => {
-        console.log("[Signup screen] entro a submit signup")
         setLoading(true);
-        console.log("[Signup screen] data:", SignUpData)
         if (param_signupGoogle) {
             await app.apiClient().signup({
                 firstName: SignUpData.firstName,
@@ -232,9 +196,7 @@ const SignupScreen = (props) => {
         
             }, handleApiResponseSignUp);
         }
-        console.log("[Signup screen] show error: ", errorData.showError);
         setLoading(false);
-        console.log("[Signup screen] termino submit signup")
     }
 
     const onSelectedItemsChange = (selectedItems) => {
@@ -243,33 +205,21 @@ const SignupScreen = (props) => {
 
     const doLogin = async () => {
         if (!errorData.showError) {
-            console.log("[Signup screen] entro a submit login");
             if (param_signupGoogle) {
                 await app.apiClient().login({email: SignUpData.email, password: SignUpData.password, loginType: "google"}, handleApiResponseLogin);
             } else {
                 await app.apiClient().login({email: SignUpData.email, password: SignUpData.password, loginType: "not-google"}, handleApiResponseLogin);
             }
-            console.log("[Signup screen] termino submit login");
         }
     }
 
     useEffect(() => {
-        console.log("[Signup screen] params: ", props.route.params);
-        console.log("[Signup screen] Entro a use effect");
         if(SignUpData.rol != '') {
             doLogin();
         }
     }, [errorData]);
 
-    /* useEffect(() => {
-        if (param_signupGoogle) {
-            console.log("SETEO TYPES EN GOOGLE");
-            setData({...SignUpData, registerType: "google", loginType: "google"});
-        }
-    }, []); */
-
     useEffect(() => {
-        console.log("[Signup screen] entro a useEffect", SignUpData); 
         setData({
             ...SignUpData,
             interests: selectedItems,
@@ -459,7 +409,6 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        //paddingTop: 5,
     },
     scrollView:{
         height: 400
@@ -523,7 +472,6 @@ const styles = StyleSheet.create({
     inputMultiSelect : {
         backgroundColor:'white',
         paddingHorizontal: 15,
-        //paddingVertical: 5,
         borderRadius: 10,
         marginTop: 5,
     },
@@ -531,7 +479,6 @@ const styles = StyleSheet.create({
         color:'#87ceeb',
         fontWeight: '700',
         fontSize: 16,
-        //paddingVertical: 5,
         paddingTop:10,
     },
     centeredView: {

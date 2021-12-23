@@ -27,16 +27,14 @@ const ProfileScreen = (props) => {
     const [favCourses, setFavCourses] = useState([]);
 
     const handleGetFavoriteCourses = (response) => {
-        console.log("[Menu Favorite Courses Screen] content: ", response.content())
         if (!response.hasError()) {
             setFavCourses(response.content().courses);
         } else {
-            console.log("[Menu Favorite Courses Screen] error", response.content().message);
+            console.log("[Profile screen] error", response.content().message);
         }
     }
     
     const handleGetCategories = (response) => {
-        console.log("[Profile Screen] categories content: ", response.content())
         if (!response.hasError()) {
             const userCategories = response.content().filter((category) => userData.interests.indexOf(category.id.toString()) !== -1);
             setCategories(userCategories);
@@ -46,7 +44,6 @@ const ProfileScreen = (props) => {
     }
 
     const handleGetCoursesFromList = (response) => {
-        console.log("[Profile Screen] get courses from list: ", response.content())
         if (!response.hasError()) {
             setCourses(response.content().courses);
         } else {
@@ -55,7 +52,6 @@ const ProfileScreen = (props) => {
     }
 
     const handleGetCoursesByUser = async (response) => {
-        console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {
             let tokenLS = await app.getToken();
             const courses_list = [];
@@ -69,7 +65,6 @@ const ProfileScreen = (props) => {
     }
 
     const handleApiResponseProfile = async (response) => {
-        //console.log("[Profile screen] content: ", response.content())
         if (!response.hasError()) {            
             setData({
                 firstName: response.content().firstName,
@@ -101,8 +96,7 @@ const ProfileScreen = (props) => {
     }
 
     useEffect(() => {
-        if (userData.interests.length > 0) {
-            console.log("[Anothers Profile screen] entro a updating categories"); 
+        if (userData.interests.length > 0) { 
             onRefreshCategories();            
         }
         if(userData.rol !== ""){
@@ -111,7 +105,6 @@ const ProfileScreen = (props) => {
     }, [userData]);
     
     const onRefresh = async () => {
-        console.log("[Profile screen] entro a onRefresh"); 
         setLoading(true);
         let tokenLS = await app.getToken();
         let idLS = await app.getId();
@@ -252,10 +245,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         paddingVertical:25,
         paddingHorizontal: 15,
-        //paddingTop: 5,
-        //paddingLeft: 10,
-        //justifyContent: 'center',
-        //alignItems: 'center',
     },
     titlesImage: {
         width: 100,
@@ -270,7 +259,6 @@ const styles = StyleSheet.create({
     titleWrapper: {
         paddingTop:35,
         paddingHorizontal: 10,
-        //flex: 1, 
         flexWrap: 'wrap',
         flexDirection: 'row',
     },
@@ -290,7 +278,6 @@ const styles = StyleSheet.create({
     },
     descriptionWrapper: {
         paddingHorizontal: 15,
-        // paddingVertical: 10,
         paddingBottom: 10,
     },
     description: {
@@ -370,11 +357,8 @@ const styles = StyleSheet.create({
         marginLeft: 5,
       },
       courseCardTop: {
-        //marginLeft: 20,
-        //paddingRight: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        //marginRight: 80,
       },
       courseCardImage: {
         width: 60,
@@ -400,15 +384,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     categoriesWrapper: {
-        //marginTop: 10,
         paddingTop: 10,
-        //paddingLeft: 20,
         paddingVertical: 5,
         paddingHorizontal: 15,
     },
     categoriesText: {
         fontSize: 20,
-        //paddingHorizontal: 20,
     },
     categoriesListWrapper: {
         paddingTop: 15,
@@ -446,9 +427,7 @@ const styles = StyleSheet.create({
     locationWrapper:{
         paddingHorizontal: 15,
         flexDirection: "row",
-        // paddingVertical: 10,
         paddingBottom: 10,
-        //marginTop: 5,
     },
     location: {
         fontSize: 16,

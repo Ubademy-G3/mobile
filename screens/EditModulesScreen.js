@@ -347,11 +347,10 @@ const EditModulesScreen = (props) => {
             setCourse({
                 ...course,
                 profile_picture: newURL,
-            })
+            })            
             setModalAttentionTitle("Image Uploaded:");
             setModalAttentionText("Your image has been uploaded");
             setModalAttentionVisible(true);
-            setUpdatingModules2(true)
             /* Alert.alert(
                 'Image Uploaded',
                 'Your image has been uploaded'
@@ -445,7 +444,7 @@ const EditModulesScreen = (props) => {
                                 disabled={loading}
                             >
                                 <View style={{ display:'flex', flexDirection: 'row' }}>
-                                    <Image source={{uri: param_course.profile_picture}} style={styles.titlesImage} />
+                                    <Image source={{uri: course.profile_picture}} style={styles.titlesImage} />
                                     <MaterialCommunityIcons
                                         name="camera-outline"
                                         size={25}

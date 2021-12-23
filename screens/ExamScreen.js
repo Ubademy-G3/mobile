@@ -162,10 +162,16 @@ const ExamScreen = (props) => {
                                         <>
                                             <Text style={styles.examsText}>Total score: {solution.score}/{solution.max_score}</Text>
                                             {solution.approval_state && (
-                                                <Text style={styles.examsText}>Approved</Text>
+                                                <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <Image source={require("../assets/images/verified.png")} style={{ width: 100, height: 100, marginTop: 10 }} />
+                                                    <Text style={styles.examsText}>Approved</Text>
+                                                </View>
                                             )}
                                             {!solution.approval_state && (
-                                                <Text style={styles.examsText}>Failed</Text>
+                                                <View style={{ display:'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                    <Image source={require("../assets/images/failed.jpeg")} style={{ width: 100, height: 100, marginTop: 10 }} />
+                                                    <Text style={styles.examsText}>Failed</Text>
+                                                </View>
                                             )}
                                         </>
                                     )}
@@ -263,10 +269,11 @@ const styles = new StyleSheet.create({
     },
     examsText: {
         marginTop: 15,
-        fontWeight: '300',
-        fontSize: 16,
+        fontWeight: 'bold',
+        fontSize: 20,
         paddingBottom: 5,
         marginLeft: 5,
+        textAlign: 'center'
     },
     questionText: {
         marginTop: 15,

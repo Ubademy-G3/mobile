@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Pressable, Modal, ActivityIndicator, Alert } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { app } from '../../app/app';
@@ -19,6 +19,7 @@ const MenuChangeSubscription = (props) => {
     const [selected, setSelected] = useState(null);
     const [downgrade, setDowngrade] = useState(false);
     const [modalSuccessText, setModalSuccessText] = useState("")
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleApiResponseUpdate = (response) => {
         console.log("[Subscription screen] content: ", response.content())
@@ -60,6 +61,7 @@ const MenuChangeSubscription = (props) => {
     }
 
     const handleConfirmSubscription = async () => {
+        setSubmitLoading(true)
         console.log("[Subscription screen] entro al confirm")
         let tokenLS = await app.getToken();
         let user_id = await app.getId();
@@ -75,6 +77,7 @@ const MenuChangeSubscription = (props) => {
         }
         setModalVisible(!modalVisible);
         console.log("[Subscription screen] termino confirm")
+        setSubmitLoading(false)
     }
 
     const handleUpdateSubscription = (subscriptionSelected) => {
@@ -227,18 +230,22 @@ const MenuChangeSubscription = (props) => {
                                         </>
                                     ) : (
                                         <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-around', width: '100%', marginTop: 50 }}>
-                                            <Pressable
+                                            <TouchableOpacity
                                                 onPress={() => setModalVisible(!modalVisible)}
                                                 style={styles.cancelButton}
                                             >
                                                 <Text>Cancel</Text>
-                                            </Pressable>
-                                            <Pressable
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
                                                 onPress={() => handleConfirmSubscription()}
                                                 style={styles.confirmButton}
                                             >
-                                                <Text>Confirm</Text>
-                                            </Pressable>
+                                                {submitLoading ? (
+                                                    <ActivityIndicator color="#696969" animating={loading} />
+                                                ) : ( 
+                                                    <Text>Confirm</Text>
+                                                )}
+                                            </TouchableOpacity>
                                         </View>
                                     )}
                                 </View>

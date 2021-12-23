@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, Image, Pressable, Modal } from 'react-native';
+import { StyleSheet, Text, View, Pressable, Image, TouchableOpacity, Modal, ActivityIndicator} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { app } from '../../app/app';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -14,6 +14,7 @@ const MenuWalletScreen = (props) => {
     const [modalErrorVisible, setModalErrorVisible] = useState(false);
     const [modalErrorText, setModalErrorText] = useState("");
     const [wallet, setWallet] = useState(null);
+    const [submitLoading, setSubmitLoading] = useState(false);
 
     const handleApiResponseCreateWallet = (response) => {
         console.log("[Create Wallet screen] response content: ", response.content())
@@ -36,6 +37,7 @@ const MenuWalletScreen = (props) => {
     };
 
     const handleSubmitCreateWallet = async() => {
+        setSubmitLoading(true)
         console.log("[Create Wallet screen] entro a submit")
         setLoading(true);
         let tokenLS = await app.getToken();
@@ -44,6 +46,7 @@ const MenuWalletScreen = (props) => {
         await app.apiClient().createWallet({ token: tokenLS }, idLS, handleApiResponseCreateWallet);
         setLoading(false);
         console.log("[Create Wallet screen] termino submit")
+        setSubmitLoading(false)
     };
 
     const handleResponseGetWallet = (response) => {
@@ -162,11 +165,16 @@ const MenuWalletScreen = (props) => {
             <Text style={styles.title}>Wallet for course subscriptions</Text>
             <Text style={styles.subtitle}>Get a wallet to access exclusive courses</Text>
             <Image source={require("../../assets/images/wallet.png")} style={styles.image} />
-            <Pressable style={styles.createButton} onPress={() => { handleSubmitCreateWallet(); }} >
-                <Text style={styles.buttonText}>
-                    Create a wallet
-                </Text>
-            </Pressable>
+            <TouchableOpacity style={styles.createButton} onPress={() => { handleSubmitCreateWallet(); }} >
+                
+                {submitLoading ? (
+                    <ActivityIndicator color="#696969" animating={loading} />
+                ) : (
+                    <Text style={styles.buttonText}>
+                        Create a wallet
+                    </Text>
+                )}
+            </TouchableOpacity>
            </>
         )}
       </View>

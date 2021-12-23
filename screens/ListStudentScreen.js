@@ -100,6 +100,7 @@ const ListStudentScreen = (props) => {
             <ProfilesListComponent 
               item={item}
               navigation={props.navigation}
+              key={item.id}
             />
           ))}
         </>
@@ -131,6 +132,7 @@ const ListStudentScreen = (props) => {
                 <ProfilesListComponent 
                   item={item}
                   navigation={props.navigation}
+                  key={item.id}
                 />
               ))}
             </>

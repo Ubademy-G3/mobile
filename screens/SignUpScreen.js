@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View, Image, Platform, Alert, ActivityIndicator, Modal, Pressable } from 'react-native';
 import {app} from '../app/app';
 import SelectDropdown from 'react-native-select-dropdown'
 import Feather from 'react-native-vector-icons/Feather'
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import MultiSelect from 'react-native-multiple-select';
 import { ScrollView } from 'react-native-gesture-handler';
+import { firebase } from '../firebase';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 
 Feather.loadFont();
 MaterialCommunityIcons.loadFont();
 
 const rols = ["student", "instructor"];
+const db = firebase.default.firestore();
 // const subscriptions = ["free", "platinum", "gold"];
 
 const SignupScreen = (props) => {
@@ -52,6 +56,40 @@ const SignupScreen = (props) => {
     const [selectInterets, setSelectInterets] = useState(false);
     const [categories, setCategories] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
+    const [expoPushToken, setExpoPushToken] = useState("");
+
+    useEffect(() => {
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    }, []);
+
+    const registerForPushNotificationsAsync = async () => {
+        let token;
+        if (Constants.isDevice) {
+          const { status: existingStatus } = await Notifications.getPermissionsAsync();
+          let finalStatus = existingStatus;
+          if (existingStatus !== 'granted') {
+            const { status } = await Notifications.requestPermissionsAsync();
+            finalStatus = status;
+          }
+          if (finalStatus !== 'granted') {
+            alert('Failed to get push token for push notification!');
+            return;
+          }
+          token = (await Notifications.getExpoPushTokenAsync()).data;
+          console.log(token);
+        } else {
+          alert('Must use physical device for Push Notifications');
+        }
+        if (Platform.OS === 'android') {
+          Notifications.setNotificationChannelAsync('default', {
+            name: 'default',
+            importance: Notifications.AndroidImportance.MAX,
+            vibrationPattern: [0, 250, 250, 250],
+            lightColor: '#FF231F7C',
+          });
+        }
+        return token;
+      }
 
     const handleApiResponseGetCategories = (response) => {
         console.log("[Create Course screen] response content: ", response.content())
@@ -79,6 +117,11 @@ const SignupScreen = (props) => {
             await app.loginUser(response.content().token, response.content().id);
             console.log("[Signup screen] token: ", response.content().token);
             setData({...SignUpData, id: response.content().id});
+            // agrego user a firestore para el manejo de mensajes
+            db.collection('users').doc(response.content().id).set({
+                id: response.content().id,
+                expoPushToken: expoPushToken
+            });
             if (SignUpData.rol === "student") {
                 setSelectInterets(true);
                 await app.apiClient().getAllCategories({token: response.content().token}, handleApiResponseGetCategories);

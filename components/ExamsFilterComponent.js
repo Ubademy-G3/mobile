@@ -86,6 +86,11 @@ const ExamsFilterComponent = (props) => {
     }
 
     const addState = (item) => {
+        for (let i = 0; i < state.length; i++) {
+            if (state[i].isChecked === true && state[i].id !== item.id) {
+                return;
+            }
+        }
         let temp = state.map((s) => {
             if (item.id === s.id) {
               return { ...s, isChecked: !s.isChecked };

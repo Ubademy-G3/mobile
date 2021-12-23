@@ -122,6 +122,7 @@ const ListCollaboratorsScreen = (props) => {
             <ProfilesListComponent
               item={item}
               navigation={props.navigation}
+              key={item.id}
             />
           ))}
         </>
@@ -155,6 +156,7 @@ const ListCollaboratorsScreen = (props) => {
                     <ProfilesListComponent
                       item={item_list}
                       navigation={props.navigation}
+                      key={item.id}
                     />
                   ))}
                 </View>

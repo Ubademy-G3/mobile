@@ -163,7 +163,7 @@ const CourseScreen = (props) => {
             const m = response.content().reviews.filter((m) => {
                 return m.user_id === idLS;
             });
-            if (m.lenght !== 0){
+            if (m.lenght === 0){
                 setShowOpinion(false);
             } else {
                 setShowOpinion(true);
@@ -499,7 +499,7 @@ const CourseScreen = (props) => {
                                     </>
                                 )}
                                 {!showOpinion && (
-                                    <Text style={styles.opinionTitle}>Than you for your feedback!</Text>
+                                    <Text style={styles.opinionTitle}>Thank you for your feedback!</Text>
                                 )}
                             </View>
                         )}

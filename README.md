@@ -58,7 +58,7 @@ This is a project made for Taller de Programacion II, in Universidad de Buenos A
 * sudo expo install
 * expo start
 
-Now, ou can run the mobile application on an android emulator, or use Expo Go with the QR code
+Now, you can run the mobile application on an android emulator, or use Expo Go with the QR code
 
 ## Expo publish
 

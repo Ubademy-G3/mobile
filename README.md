@@ -51,6 +51,10 @@ This is a project made for Taller de Programacion II, in Universidad de Buenos A
 * Expo
 * Firebase
 
+## Expo publish
+
+<https://expo.dev/@chiarab/Ubademy-mobile?release-channel=production-entrega>
+
 ## Screenshots
 
 <img src="https://user-images.githubusercontent.com/29211474/147265058-7bc9c638-df74-4393-bbbc-e03afcfbd0f1.jpg" width="350" height="600">
